@@ -1,0 +1,35 @@
+[project]
+name = "nemoclaw-smb"
+version = "0.1.0"
+description = "Autonomous CFO/COO agent for small businesses — Hermes Agent Accelerated Business Hackathon"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "httpx>=0.27",
+    "stripe>=9.0",
+    "python-dotenv>=1.0",
+    "redis>=5.0",
+    "pyyaml>=6.0",
+    # Governance/audit: Erik's own product, published to PyPI (BSL-1.1).
+    "authority-runtime>=0.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["F", "I", "UP", "B", "E", "W"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
