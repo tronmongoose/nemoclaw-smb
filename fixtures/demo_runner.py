@@ -36,6 +36,7 @@ from fixtures.seed_data import (  # noqa: E402
 from gbrain.knowledge_graph import build_graph_from_invoices  # noqa: E402
 from payments.payment_402_handler import handle_402  # noqa: E402
 from payments.stripe_client import collect_fee  # noqa: E402
+from agent.reasoning import analyze_vendors  # noqa: E402
 from procurement.vendor_analyzer import build_analysis_prompt, rank_alternatives  # noqa: E402
 from procurement.vendor_switcher import switch_vendor  # noqa: E402
 
@@ -124,12 +125,15 @@ def scene_3() -> None:
             f"  (${alt['annual_savings']:.2f}/yr)"
         )
 
-    print("\nNemotron 3 Ultra reasons over alternatives -- prompt preview (400 chars):")
-    prompt = build_analysis_prompt(
-        current, ranked,
-        context={"client": "Pinwheel Studio", "seats_unused_60d": 3, "headcount": 12},
-    )
-    print(prompt[:400])
+    _reasoning_ctx = {"client": "Pinwheel Studio", "seats_unused_60d": 3, "headcount": 12}
+    if os.environ.get("NEMOCLAW_LIVE_REASONING") == "1":
+        print("\nNemotron 3 Ultra live reasoning (may take 30-60s)...")
+        analysis = analyze_vendors(current, ranked, context=_reasoning_ctx)
+        print(analysis)
+    else:
+        print("\nNemotron 3 Ultra reasons over alternatives -- prompt preview (400 chars):")
+        prompt = build_analysis_prompt(current, ranked, context=_reasoning_ctx)
+        print(prompt[:400])
 
 
 def scene_4(graph) -> dict:
