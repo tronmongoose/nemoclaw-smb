@@ -118,10 +118,12 @@ def parse_invoice(raw: dict) -> Invoice:
     """Normalize one raw invoice dict to an Invoice dataclass.
 
     Expected keys: description (str), amount (str | float), date (str).
-    Optional key: category (str) — overrides categorize_vendor when supplied.
+    Optional keys: vendor (str) — preferred display name; category (str) — overrides categorize_vendor.
+    When vendor is supplied it is used as-is; description is only normalized when vendor is absent.
     """
     raw_description = str(raw.get("description", "")).strip()
-    vendor = normalize_vendor(raw_description)
+    explicit_vendor = str(raw.get("vendor", "")).strip()
+    vendor = explicit_vendor if explicit_vendor else normalize_vendor(raw_description)
 
     amount_raw = raw.get("amount", 0)
     if isinstance(amount_raw, str):

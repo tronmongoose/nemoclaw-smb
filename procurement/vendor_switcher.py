@@ -101,9 +101,14 @@ def switch_vendor(
         f"audit entry {audit_entry['entry_hash'][:12]} appended at seq {audit_entry['seq']}",
     ))
 
-    # Compute savings relative to current vendor's monthly_equivalent if present
-    #COMPLETION_DRIVE: old_vendor monthly cost not available here; callers annotate new_vendor
-    old_mo = float(new_vendor.get("old_monthly_equivalent", new_vendor.get("monthly_equivalent", 0)))
+    # Compute savings: caller-supplied old_monthly_equivalent takes precedence;
+    # otherwise derive from graph history mean (the preferred path post root-fix).
+    caller_old = new_vendor.get("old_monthly_equivalent")
+    if caller_old is not None:
+        old_mo = float(caller_old)
+    else:
+        history = graph.vendor_history(old_vendor)
+        old_mo = round(sum(history) / len(history), 2) if history else 0.0
     new_mo = _monthly_equivalent(new_vendor)
     monthly_savings = round(old_mo - new_mo, 2) if old_mo != new_mo else 0.0
 

@@ -4,9 +4,8 @@ switch_vendor(Adobe -> Affinity) returns 6 steps, outcome "switched",
 monthly_savings > 0, and a valid audit chain.
 
 All audit and approval state is isolated per test via tmp_path + monkeypatch.
-The affinity_alternative fixture is annotated with old_monthly_equivalent
-(~277/mo Adobe mean) so the savings computation is nonzero; this is the caller's
-responsibility per the vendor_switcher docstring.
+The switcher derives the old vendor's monthly cost from graph.vendor_history — no
+caller annotation required. Tests use plain affinity_alternative() to verify this.
 """
 
 import pytest
@@ -43,10 +42,8 @@ def graph():
 
 @pytest.fixture()
 def annotated_affinity():
-    """Affinity alternative annotated with Adobe's monthly cost for savings math."""
-    alt = affinity_alternative()
-    alt["old_monthly_equivalent"] = _ADOBE_MONTHLY_MEAN
-    return alt
+    """Affinity alternative without old_monthly_equivalent — switcher derives from graph."""
+    return affinity_alternative()
 
 
 @pytest.fixture(autouse=True)
@@ -74,7 +71,7 @@ def test_switch_monthly_savings_positive(graph, annotated_affinity, audit_path, 
 
 
 def test_switch_monthly_savings_reasonable(graph, annotated_affinity, audit_path, approvals_dir):
-    # Adobe ~277/mo, Affinity 7.42/mo -> savings ~269/mo
+    # Adobe graph mean ~277.38/mo, Affinity 7.42/mo -> savings ~269/mo
     result = switch_vendor("Adobe Creative Cloud", annotated_affinity, graph, audit_path=audit_path)
     assert result["monthly_savings"] > 200
 

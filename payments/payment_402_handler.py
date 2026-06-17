@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 from agent import audit_log, require_approval
 from control_plane.policy_check import check_policy
 from gbrain.anomaly_detector import score_invoice
-from gbrain.invoice_ingestion import normalize_vendor
 from payments import intuit_reconciler as intuit
 from payments import stripe_client as stripe
 
@@ -36,25 +35,6 @@ _DEFAULT_THRESHOLD = 500.0
 # Public contract
 # ---------------------------------------------------------------------------
 
-def _resolve_graph_vendor(display_name: str, graph: "KnowledgeGraph") -> str:
-    """Return the graph's internal vendor key that best matches display_name.
-
-    build_graph_from_invoices stores vendors by normalized description
-    (e.g. 'aws monthly usage'), while 402 events carry display names ('AWS').
-    If an exact match fails, fall back to any graph key that contains all
-    non-trivial tokens from display_name.
-    #COMPLETION_DRIVE: invoice_ingestion.parse_invoice uses description not vendor field;
-    this bridge is needed until build_graph_from_invoices is updated to honour the vendor key
-    """
-    if graph.is_known_vendor(display_name):
-        return display_name
-    tokens = [t for t in display_name.lower().split() if len(t) > 2]
-    for key in graph._vendors:
-        if all(tok in key for tok in tokens):
-            return graph._vendors[key]["label"]
-    return display_name
-
-
 def handle_402(
     event: dict,
     graph: "KnowledgeGraph",
@@ -67,7 +47,7 @@ def handle_402(
     event keys: vendor, amount, date, invoice_id, trigger.
     Returns the structured outcome dict (see module docstring shape).
     """
-    vendor: str = _resolve_graph_vendor(event["vendor"], graph)
+    vendor: str = event["vendor"]
     amount: float = float(event["amount"])
     date: str = event["date"]
     invoice_id: str = event["invoice_id"]

@@ -135,7 +135,7 @@ def scene_3() -> None:
 def scene_4(graph) -> dict:
     """Execute vendor switch from Adobe to Affinity. Returns switch result."""
     _header("SCENE 4 -- Execution")
-    new_vendor = {**affinity_alternative(), "old_monthly_equivalent": 340}
+    new_vendor = affinity_alternative()
     result = switch_vendor(
         "Adobe Creative Cloud", new_vendor, graph, audit_path=_AUDIT_PATH_STR
     )
@@ -143,8 +143,7 @@ def scene_4(graph) -> dict:
     print("\nCascade steps:")
     for step in result["steps"]:
         print(f"  {step['step']:<24}  {step['status']:<10}  {step['detail']}")
-    mo_saved = new_vendor["old_monthly_equivalent"] - new_vendor["monthly_equivalent"]
-    print(f"\nMonthly savings realized: ${mo_saved:.2f}")
+    print(f"\nMonthly savings realized: ${result['monthly_savings']:.2f}")
     return result
 
 
