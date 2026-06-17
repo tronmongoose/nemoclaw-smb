@@ -16,10 +16,11 @@ from agent.skills.base import (  # noqa: F401
 )
 
 # Import order determines registration order; keep alphabetical for determinism.
-import agent.skills.anomaly_detect_skill  # noqa: F401
-import agent.skills.approval_gate_skill   # noqa: F401
-import agent.skills.audit_skill           # noqa: F401
-import agent.skills.handle_402_skill      # noqa: F401
-import agent.skills.invoice_ingest_skill  # noqa: F401
-import agent.skills.onboarding_skill      # noqa: F401
-import agent.skills.vendor_analyze_skill  # noqa: F401
+import agent.skills.access_governance_skill  # noqa: F401
+import agent.skills.anomaly_detect_skill     # noqa: F401
+import agent.skills.approval_gate_skill      # noqa: F401
+import agent.skills.audit_skill              # noqa: F401
+import agent.skills.handle_402_skill         # noqa: F401
+import agent.skills.invoice_ingest_skill     # noqa: F401
+import agent.skills.onboarding_skill         # noqa: F401
+import agent.skills.vendor_analyze_skill     # noqa: F401

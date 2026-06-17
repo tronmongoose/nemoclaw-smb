@@ -38,9 +38,11 @@ from gbrain.knowledge_graph import build_graph_from_invoices  # noqa: E402
 from payments.payment_402_handler import handle_402  # noqa: E402
 from payments.stripe_client import collect_fee  # noqa: E402
 from agent.reasoning import analyze_vendors  # noqa: E402
+from agent.skills.base import run_skill  # noqa: E402
 from procurement.vendor_analyzer import build_analysis_prompt, rank_alternatives  # noqa: E402
 from procurement.vendor_switcher import switch_vendor  # noqa: E402
-import agent.skills.handle_402_skill  # noqa: F401,E402 — registers handle_402_skill
+import agent.skills.handle_402_skill       # noqa: F401,E402 — registers handle_402_skill
+import agent.skills.access_governance_skill  # noqa: F401,E402 — registers access_governance_skill
 
 _AUDIT_PATH_STR = str(_AUDIT_PATH)
 _SEP = "-" * 60
@@ -91,10 +93,29 @@ def scene_2(graph) -> dict:
     reason = anomaly.get("reason", "n/a")
     print(f"\nAnomaly reason: {reason}")
 
+    # Derive seat line from access_governance_skill (fixture-backed, offline-safe).
+    _DEMO_REF_DATE = "2026-06-01"
+    try:
+        gov = run_skill("access_governance_skill", {"reference_date": _DEMO_REF_DATE})
+        _adobe_unused = [
+            s for s in gov["unused_seats"] if "adobe" in s["resource"].lower()
+        ]
+        _adobe_total = gov["seat_summary"].get("Adobe Creative Cloud", {}).get("total", 12)
+        _unused_count = len(_adobe_unused)
+        _seat_line = (
+            f"ConductorOne/Baton: {_unused_count} of {_adobe_total} Adobe Creative Cloud"
+            f" seats unused 60+ days -> deprovision candidates"
+        )
+    except Exception:  # noqa: BLE001
+        _unused_count = 3
+        _seat_line = "3 of your seats haven't been used in 60 days."
+
+    print(f"\n{_seat_line}")
+
     ceo_msg = (
         "Adobe Creative Cloud renewal is $340, up from $277 last month. "
         "Outside your normal range. "
-        "3 of your seats haven't been used in 60 days."
+        f"{_unused_count} of your seats haven't been used in 60 days."
     )
     print(f"\nCEO message: {ceo_msg}")
     print(f"\nOutcome: {result['outcome']}")

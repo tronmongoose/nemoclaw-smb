@@ -16,6 +16,7 @@ from fixtures.seed_data import affinity_alternative, seed_invoices
 # ---------------------------------------------------------------------------
 
 _EXPECTED_SKILLS = {
+    "access_governance_skill",
     "onboarding_skill",
     "invoice_ingest_skill",
     "anomaly_detect_skill",
@@ -27,12 +28,12 @@ _EXPECTED_SKILLS = {
 
 
 def test_registry_count():
-    """Registry contains exactly 7 skills."""
-    assert len(skills_module.all_skills()) == 7
+    """Registry contains exactly 8 skills."""
+    assert len(skills_module.all_skills()) == 8
 
 
 def test_registry_names_match():
-    """all_skills_names() returns the exact expected set of 7 skill names."""
+    """all_skills_names() returns the exact expected set of 8 skill names."""
     assert set(skills_module.all_skills_names()) == _EXPECTED_SKILLS
 
 
