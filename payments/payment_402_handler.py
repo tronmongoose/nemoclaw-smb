@@ -113,24 +113,13 @@ def _try_pay(
     threshold: float,
     audit_path: str | None,
 ) -> dict:
-    """Gate spend via threshold; escalate if approval is required but not yet granted.
-
-    enforce_spend reads SPEND_APPROVAL_THRESHOLD from env and ignores the caller's
-    threshold kwarg, so we pre-check with requires_approval(threshold) first.
-    Only invoke enforce_spend (which handles already-approved lookup) when the
-    caller's threshold says approval IS needed — otherwise proceed directly to payment.
-    #COMPLETION_DRIVE: enforce_spend lacks a threshold param; pre-check bridges the gap
-    """
-    if not require_approval.requires_approval("purchase", amount, threshold):
-        return _do_payment(vendor, amount, date, invoice_id, anomaly, steps, graph, audit_path)
-
-    # Amount exceeds threshold: check for an existing approval or raise
+    """Gate spend via threshold; escalate if approval is required but not yet granted."""
     try:
         require_approval.enforce_spend(
             "purchase", vendor, amount, actor="agent",
             context={"invoice_id": invoice_id, "date": date, "threshold": threshold},
+            threshold=threshold,
         )
-        # enforce_spend returned (already approved) — proceed to pay
         return _do_payment(vendor, amount, date, invoice_id, anomaly, steps, graph, audit_path)
     except require_approval.ApprovalRequired as exc:
         steps.append({"step": "decision", "status": "approval_required",

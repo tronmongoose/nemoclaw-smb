@@ -191,16 +191,18 @@ def enforce_spend(
     amount: float,
     actor: str = "agent",
     context: dict[str, Any] | None = None,
+    threshold: float | None = None,
 ) -> dict:
     """
     Gate spend by threshold. Raises ApprovalRequired when needed and not yet granted.
 
     Returns the approval record (or a synthetic auto-approved record for under-threshold).
+    threshold overrides env SPEND_APPROVAL_THRESHOLD when supplied.
     """
     _validate_inputs(action, amount)
     ctx = context or {}
 
-    if not requires_approval(action, amount):
+    if not requires_approval(action, amount, threshold):
         return {
             "id": None,
             "action": action,

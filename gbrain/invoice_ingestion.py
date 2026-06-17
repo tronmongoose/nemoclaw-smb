@@ -12,11 +12,14 @@ Exports:
 
 from __future__ import annotations
 
+import logging
 import re
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
+
+_log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # SMB vendor → category map
@@ -232,7 +235,7 @@ def _parse_date_iso(date_str: str) -> str:
             return datetime.strptime(date_str, fmt).strftime("%Y-%m-%d")
         except ValueError:
             continue
-    #COMPLETION_DRIVE: unparseable dates become today to avoid hard failures at the boundary
+    _log.warning("invoice_ingestion: unparseable date %r — falling back to today", date_str)
     return datetime.now().strftime("%Y-%m-%d")
 
 
