@@ -8,10 +8,14 @@ Z-score approach mirrors granite_categorize.py detect_anomalies block
 per-vendor invoice history rather than per-category rolling amounts.
 """
 
-import math
 import statistics
 from collections import defaultdict
 from dataclasses import dataclass
+
+# A statistically-outlying invoice is only a business anomaly if it also moves
+# the spend a material amount; this floor suppresses z-score false positives on
+# tight, small early samples (e.g. a +0.7% wobble that is 2+ std on 3 points).
+MIN_PCT_CHANGE = 8.0
 
 
 @dataclass
@@ -55,7 +59,7 @@ def score_invoice(
 
     z_score = (amount - mean) / std_dev if std_dev > 0 else 0.0
     pct_change = ((amount - mean) / mean * 100) if mean != 0 else 0.0
-    is_anomaly = abs(z_score) > z_threshold
+    is_anomaly = abs(z_score) > z_threshold and abs(pct_change) >= MIN_PCT_CHANGE
 
     if is_anomaly:
         direction = "up" if pct_change >= 0 else "down"

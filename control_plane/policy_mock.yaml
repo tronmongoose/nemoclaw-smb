@@ -1,0 +1,17 @@
+default_limit: 1000
+
+blocked_vendors: []
+
+vendors:
+  Adobe:
+    monthly_limit: 400
+  AWS:
+    monthly_limit: 1500
+  Figma:
+    monthly_limit: 200
+  Gusto:
+    monthly_limit: 5000
+  Slack:
+    monthly_limit: 300
+  Google Workspace:
+    monthly_limit: 400

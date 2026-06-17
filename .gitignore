@@ -26,6 +26,9 @@ ui/build/
 audit/*.jsonl
 gbrain/data/
 docker/state/
+.demo_state/
+logs/
+.nemoclaw/
 
 # OS / editor
 .DS_Store
