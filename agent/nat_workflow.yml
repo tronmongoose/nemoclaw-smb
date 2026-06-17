@@ -1,0 +1,61 @@
+# NeMo Agent Toolkit workflow config — run with: nat run --config_file agent/nat_workflow.yml
+
+llms:
+  nemotron_nim:
+    _type: nim
+    model_name: nvidia/nemotron-3-ultra-550b-a55b
+
+functions:
+  onboarding_skill:
+    _type: python
+    description: >
+      Ingest a studio profile and invoice history into a vendor knowledge graph.
+      Returns node/edge counts and discovered vendor list.
+
+  invoice_ingest_skill:
+    _type: python
+    description: >
+      Parse raw invoices, detect recurring subscriptions, and produce
+      GBrain-ready node/edge graph records.
+
+  anomaly_detect_skill:
+    _type: python
+    description: >
+      Scan invoices for per-vendor spend anomalies using z-score analysis.
+      Optionally attaches Nemotron reasoning for each flagged invoice.
+
+  vendor_analyze_skill:
+    _type: python
+    description: >
+      Rank vendor alternatives by monthly savings and analyze the best switch
+      using Nemotron 3 Ultra procurement reasoning.
+
+  handle_402_skill:
+    _type: python
+    description: >
+      Run the full NemoClaw HTTP-402 pipeline: gbrain lookup, policy check,
+      anomaly score, then auto-pay or escalate for human approval.
+
+  approval_gate_skill:
+    _type: python
+    description: >
+      List pending spend approvals or record a human approve/deny decision
+      on a specific approval request.
+
+  audit_skill:
+    _type: python
+    description: >
+      Verify audit chain hash integrity or retrieve the most recent entries
+      from the tamper-evident hash-chained audit log.
+
+workflow:
+  _type: react_agent
+  llm_name: nemotron_nim
+  tool_names:
+    - onboarding_skill
+    - invoice_ingest_skill
+    - anomaly_detect_skill
+    - vendor_analyze_skill
+    - handle_402_skill
+    - approval_gate_skill
+    - audit_skill
