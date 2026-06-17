@@ -26,6 +26,7 @@ if _AUDIT_PATH.exists():
     _AUDIT_PATH.unlink()
 
 from agent.audit_log import verify_chain  # noqa: E402
+from agent import nemoclaw_harness  # noqa: E402
 from fixtures.seed_data import (  # noqa: E402
     adobe_anomaly_402,
     affinity_alternative,
@@ -39,6 +40,7 @@ from payments.stripe_client import collect_fee  # noqa: E402
 from agent.reasoning import analyze_vendors  # noqa: E402
 from procurement.vendor_analyzer import build_analysis_prompt, rank_alternatives  # noqa: E402
 from procurement.vendor_switcher import switch_vendor  # noqa: E402
+import agent.skills.handle_402_skill  # noqa: F401,E402 — registers handle_402_skill
 
 _AUDIT_PATH_STR = str(_AUDIT_PATH)
 _SEP = "-" * 60
@@ -152,21 +154,47 @@ def scene_4(graph) -> dict:
 
 
 def scene_5(graph) -> dict:
-    """Auto-pay AWS renewal and show audit entry. Returns outcome."""
+    """Auto-pay AWS renewal through NemoClaw harness. Returns outcome from inner 402 pipeline."""
     _header("SCENE 5 -- 402 in the Wild (Auto-Pay)")
     event = aws_renewal_402()
-    print(f"Incoming 402 event: {event['vendor']} ${event['amount']} on {event['date']}")
+    aws_amount = float(event["amount"])
+    print(f"Incoming 402 event: {event['vendor']} ${aws_amount} on {event['date']}")
 
-    result = handle_402(event, graph, audit_path=_AUDIT_PATH_STR)
+    # threshold=500.0 matches payment_402_handler._DEFAULT_THRESHOLD so the
+    # outer NemoClaw guard and the inner 402 handler use the same policy floor.
+    harness_result = nemoclaw_harness.execute(
+        "handle_402_skill",
+        {"event": event, "invoices": seed_invoices()},
+        amount=aws_amount,
+        vendor="AWS",
+        threshold=500.0,
+        audit_path=_AUDIT_PATH_STR,
+    )
 
-    payment = result.get("payment") or {}
-    ledger = result.get("ledger_entry") or {}
-    print(f"\nOutcome: {result['outcome']}")
+    # Print NemoClaw pipeline steps
+    step_names = " -> ".join(s["step"] + " " + s["status"] for s in harness_result["steps"])
+    print(f"\n[NemoClaw] {step_names}")
+
+    # The 402 pipeline result is nested inside harness_result["result"]
+    inner = harness_result.get("result") or {}
+    payment = inner.get("payment") or {}
+    ledger = inner.get("ledger_entry") or {}
+    print(f"\nOutcome: {inner.get('outcome', harness_result['outcome'])}")
     print(f"Stripe payment id: {payment.get('id', 'n/a')}")
     print(f"QuickBooks ledger entry: {ledger.get('entry_id', 'n/a')}")
     print("No CEO involvement.")
-    print(f"Audit entry hash: {result['audit_entry_hash']}")
-    return result
+    # Prefer the inner 402 audit hash (the actual payment event); harness hash is the wrapper.
+    audit_hash = inner.get("audit_entry_hash") or harness_result.get("audit_entry_hash")
+    print(f"Audit entry hash: {audit_hash}")
+
+    # Return a dict compatible with scene_6 (needs .amount and .audit_entry_hash at top level)
+    return {
+        "amount": aws_amount,
+        "outcome": inner.get("outcome", harness_result["outcome"]),
+        "audit_entry_hash": audit_hash,
+        "payment": payment,
+        "ledger_entry": ledger,
+    }
 
 
 def scene_6(aws_result: dict, switch_result: dict) -> None:
