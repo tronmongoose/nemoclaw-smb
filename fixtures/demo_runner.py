@@ -28,6 +28,7 @@ if _AUDIT_PATH.exists():
 from agent.audit_log import verify_chain  # noqa: E402
 from agent import nemoclaw_harness  # noqa: E402
 from agent.hermes_orchestrator import orchestrate  # noqa: E402
+from fixtures.capture_run import load_capture  # noqa: E402
 from fixtures.seed_data import (  # noqa: E402
     adobe_anomaly_402,
     affinity_alternative,
@@ -57,24 +58,30 @@ def _header(title: str) -> None:
 
 
 def scene_hermes() -> None:
-    """Run Hermes orchestrator loop on a canned CEO intent; print step trace."""
+    """Replay a captured Hermes run or fall back to the live-mock orchestrate path."""
     _header("SCENE 0 -- Hermes Orchestrates the Loop")
-    intent = "Check this month's invoices for overspend and handle the AWS renewal"
-    print(f"Intent: {intent}")
-    try:
-        result = orchestrate(
-            intent=intent,
-            audit_path=_AUDIT_PATH_STR,
-            max_steps=6,
-        )
-        for s in result["steps"]:
-            h = s.get("audit_entry_hash") or ""
-            print(f"[Hermes] step {s['step']}: {s['skill']} -> {s['outcome']} (audit {h[:8]})")
-        if result["escalated"]:
-            print(f"[Hermes] escalated — approval_request_id: {result['approval_request_id']}")
-        print(f"[Hermes] final: {result['final']}")
-    except Exception as exc:  # noqa: BLE001
-        print(f"[Hermes] scene error (non-fatal): {exc}")
+
+    captured = load_capture()
+    if captured is not None:
+        print(f"[replay] intent: {captured['intent']}")
+        result = captured
+        tag = "[replay]"
+    else:
+        intent = "Check this month's invoices for overspend and handle the AWS renewal"
+        print(f"[live-mock] Intent: {intent}")
+        try:
+            result = orchestrate(intent=intent, audit_path=_AUDIT_PATH_STR, max_steps=6)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[Hermes] scene error (non-fatal): {exc}")
+            return
+        tag = "[live-mock]"
+
+    for s in result["steps"]:
+        h = s.get("audit_entry_hash") or ""
+        print(f"{tag} [Hermes] step {s['step']}: {s['skill']} -> {s['outcome']} (audit {h[:8]})")
+    if result["escalated"]:
+        print(f"{tag} [Hermes] escalated — approval_request_id: {result['approval_request_id']}")
+    print(f"{tag} [Hermes] final: {result['final']}")
 
 
 def scene_1(graph) -> None:

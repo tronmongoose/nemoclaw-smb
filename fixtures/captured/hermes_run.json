@@ -1,0 +1,71 @@
+{
+  "intent": "Review this month's invoices for overspend and decide whether to approve the AWS renewal.",
+  "steps": [
+    {
+      "step": 0,
+      "action": "run_skill",
+      "skill": "anomaly_detect_skill",
+      "reason": "Check invoices for spend anomalies as first diagnostic step.",
+      "outcome": "executed",
+      "audit_entry_hash": "e781594f48482099facf540349ad76e8ae1071608c752f8a7411d3b06853f61c",
+      "approval_request_id": null,
+      "result_summary": {
+        "anomaly_count": 1
+      }
+    },
+    {
+      "step": 1,
+      "action": "run_skill",
+      "skill": "invoice_ingest_skill",
+      "reason": "Ingest invoices into graph records for recurring-subscription view.",
+      "outcome": "executed",
+      "audit_entry_hash": "ef202ec880daaae37bb1d6cd3948642de20217fb969400007a7ca7dab6391779",
+      "approval_request_id": null,
+      "result_summary": {
+        "recurring": [
+          {
+            "vendor": "Gusto",
+            "amount": 1200.0,
+            "frequency": "monthly",
+            "monthly_cost": 1200.0,
+            "last_seen": "2026-05-15",
+            "occurrences": 5
+          },
+          {
+            "vendor": "AWS",
+            "amount": 312.0,
+            "frequency": "monthly",
+            "monthly_cost": 312.0,
+            "last_seen": "2026-05-15",
+            "occurrences": 5
+          },
+          {
+            "vendor": "Adobe Creative Cloud",
+            "amount": 276.98,
+            "frequency": "monthly",
+            "monthly_cost": 276.98,
+            "last_seen": "2026-05-15",
+            "occurrences": 5
+          },
+          {
+            "vendor": "Figma",
+            "amount": 144.0,
+            "frequency": "monthly",
+            "monthly_cost": 144.0,
+            "last_seen": "2026-05-15",
+            "occurrences": 5
+          }
+        ],
+        "graph_node_count": 4
+      }
+    }
+  ],
+  "final": "Anomaly scan complete. Adobe Creative Cloud shows a +23% spike ($340 vs ~$277 avg). Invoice graph loaded 4 recurring vendors. Recommend human review of Adobe renewal before auto-pay. AWS renewal is within normal range.",
+  "escalated": false,
+  "approval_request_id": null,
+  "audit_hashes": [
+    "e781594f48482099facf540349ad76e8ae1071608c752f8a7411d3b06853f61c",
+    "ef202ec880daaae37bb1d6cd3948642de20217fb969400007a7ca7dab6391779"
+  ],
+  "captured_at": "2026-06-18T04:57:22.922155+00:00"
+}

@@ -144,3 +144,20 @@ def affinity_alternative() -> dict:
         "note": "one-time flat vs Adobe monthly",
         "monthly_equivalent": round(89.0 / 12, 2),  # 7.42
     }
+
+
+def seed_alternatives() -> list[dict]:
+    """Return ranked Adobe Creative Cloud alternatives for the savings endpoints.
+
+    Sourced from the scene_3 alternatives in demo_runner (read-only reference).
+    """
+    return [
+        affinity_alternative(),
+        {
+            "vendor": "Adobe Photography Plan",
+            "amount": 120.0,
+            "frequency": "monthly",
+            "monthly_equivalent": 120.0,
+            "note": "reduced Adobe plan; photography + Lightroom only",
+        },
+    ]
