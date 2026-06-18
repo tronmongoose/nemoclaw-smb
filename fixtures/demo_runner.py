@@ -27,6 +27,7 @@ if _AUDIT_PATH.exists():
 
 from agent.audit_log import verify_chain  # noqa: E402
 from agent import nemoclaw_harness  # noqa: E402
+from agent.hermes_orchestrator import orchestrate  # noqa: E402
 from fixtures.seed_data import (  # noqa: E402
     adobe_anomaly_402,
     affinity_alternative,
@@ -53,6 +54,27 @@ def _header(title: str) -> None:
     print(f"\n{_SEP}")
     print(title)
     print(_SEP)
+
+
+def scene_hermes() -> None:
+    """Run Hermes orchestrator loop on a canned CEO intent; print step trace."""
+    _header("SCENE 0 -- Hermes Orchestrates the Loop")
+    intent = "Check this month's invoices for overspend and handle the AWS renewal"
+    print(f"Intent: {intent}")
+    try:
+        result = orchestrate(
+            intent=intent,
+            audit_path=_AUDIT_PATH_STR,
+            max_steps=6,
+        )
+        for s in result["steps"]:
+            h = s.get("audit_entry_hash") or ""
+            print(f"[Hermes] step {s['step']}: {s['skill']} -> {s['outcome']} (audit {h[:8]})")
+        if result["escalated"]:
+            print(f"[Hermes] escalated — approval_request_id: {result['approval_request_id']}")
+        print(f"[Hermes] final: {result['final']}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[Hermes] scene error (non-fatal): {exc}")
 
 
 def scene_1(graph) -> None:
@@ -262,6 +284,7 @@ def main() -> None:
     invoices = seed_invoices()
     graph = build_graph_from_invoices(invoices)
 
+    scene_hermes()
     scene_1(graph)
     adobe_result = scene_2(graph)
     scene_3()
