@@ -34,3 +34,13 @@ logs/
 .DS_Store
 .idea/
 .vscode/
+
+# Tenant runtime data — real/sensitive tenants live under $NEMOCLAW_TENANTS_ROOT
+# outside this public repo. Only the synthetic _sample_str sample is tracked.
+# The sample's small transactions.csv IS tracked so `make tenant-run TENANT=_sample_str` works.
+tenants/*/brain/
+tenants/*/audit/
+tenants/*/.env
+# Exclude real data dirs while keeping the synthetic sample's data/ tracked.
+# Real tenants' data/ will also be excluded by $NEMOCLAW_TENANTS_ROOT placement.
+tenants/[!_]*/data/

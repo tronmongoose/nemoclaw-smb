@@ -26,3 +26,9 @@ demo: ## Run the end-to-end demo dry-run on seed data
 
 reality: ## Print the live integration status matrix
 	python3 verification/reality_report.py
+
+tenant-list: ## List all configured tenants
+	python3 -c "from agent.tenancy import list_tenants; slugs = list_tenants(); print('\n'.join(slugs) if slugs else '(no tenants found)')"
+
+tenant-run: ## Load TENANT and print resolved config + routing decision (TENANT=<slug>)
+	PYTHONPATH=. python3 scripts/tenant_run.py $(TENANT)

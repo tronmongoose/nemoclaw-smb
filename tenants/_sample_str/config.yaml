@@ -1,0 +1,17 @@
+# Synthetic sample tenant: short-term-rental property management.
+# Finance-sensitive (restricted) — MUST use local Ollama routing.
+# Real tenant configs live under $NEMOCLAW_TENANTS_ROOT outside this repo.
+
+slug: _sample_str
+llm_routing: local
+sensitivity: restricted
+mode: advisory
+
+# data_root is relative to this config file's directory when not absolute.
+data_root: data
+
+thresholds:
+  anomaly_z_score: 2.0       # flag transactions > 2 std-dev from category mean
+  auto_approve_usd: 250.0    # amounts below this need no human gate
+  monthly_opex_limit: 4000.0 # total monthly operating expense ceiling
+  alert_delta_pct: 20.0      # alert when a vendor's charge changes > 20% month-over-month

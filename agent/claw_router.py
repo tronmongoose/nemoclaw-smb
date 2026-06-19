@@ -8,11 +8,18 @@ Exports:
     classify_complexity(task) -> dict[score, tier, reasons]
     decide_route(task) -> RouteDecision
     log_route_decision(decision, path=None) -> None
+    route_llm(tenant) -> callable   — tenant-aware LLM callable
+    assert_no_frontier(tenant)      — raises if local/restricted tenant tries frontier
 
 Tiers:
     routine  — invoice tagging, vendor categorization, spend bucketing, recurrence
     heavy    — contract analysis, negotiation drafts, anomaly root-cause, multi-vendor compare
     code     — webhooks, integrations, API transforms, automation scripts
+
+Tenant routing:
+    When tenant.llm_routing == "local", route_llm returns the local Ollama callable.
+    assert_no_frontier raises RuntimeError when a restricted tenant touches a frontier client.
+    This is a runtime guard — it does not prevent import but does prevent execution.
 """
 
 from __future__ import annotations
@@ -177,6 +184,61 @@ def log_route_decision(decision: RouteDecision, path: str | None = None) -> None
             fh.write(json.dumps(entry) + "\n")
     except OSError:
         pass
+
+
+# ---------------------------------------------------------------------------
+# Tenant-aware routing + frontier guard
+# ---------------------------------------------------------------------------
+
+# Lazy import to avoid circular deps and module-level network calls.
+_FINANCE_TIERS = frozenset({"confidential", "restricted"})
+
+
+def route_llm(tenant: "Tenant") -> "Callable[..., str]":  # type: ignore[name-defined]
+    """Return the LLM callable appropriate for the tenant's routing policy.
+
+    local  -> agent.local_client.call_local  (Ollama; no frontier traffic)
+    frontier -> agent.hermes_client.call_hermes (default frontier routine path)
+
+    Import is deferred so this module stays importable without network access.
+    """
+    from typing import Callable  # noqa: F401 — kept local for 3.9 compat
+
+    if tenant.llm_routing == "local":
+        from agent.local_client import call_local
+        return call_local
+
+    from agent.hermes_client import call_hermes
+    return call_hermes
+
+
+def assert_no_frontier(tenant: "Tenant") -> None:  # type: ignore[name-defined]
+    """Raise RuntimeError if a local/restricted tenant is about to use a frontier API.
+
+    Call this at the top of any code path that would invoke hermes_client,
+    nvidia_client, or any other remote LLM, before making the network call.
+    Mirrors bjornswarm's import-time treasury guard as a runtime-checkable version.
+
+    Raises RuntimeError if:
+      - tenant.llm_routing == "local", or
+      - tenant.sensitivity is in {confidential, restricted}
+    """
+    if tenant.llm_routing == "local":
+        raise RuntimeError(
+            f"Tenant '{tenant.slug}' has llm_routing='local' — "
+            f"frontier API calls are structurally prohibited."
+        )
+    if tenant.sensitivity in _FINANCE_TIERS:
+        raise RuntimeError(
+            f"Tenant '{tenant.slug}' has sensitivity='{tenant.sensitivity}' — "
+            f"frontier API calls are structurally prohibited for finance-sensitive tenants."
+        )
+
+
+# Type alias import for annotation only (avoids circular import at runtime).
+def _Tenant_hint() -> None:
+    """Forward-reference holder — keeps Tenant resolvable as a string annotation."""
+    from agent.tenancy import Tenant  # noqa: F401
 
 
 if __name__ == "__main__":

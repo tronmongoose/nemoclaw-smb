@@ -1,0 +1,21 @@
+date,vendor,amount_usd,category,recurring
+2024-11-01,Airbnb Host Fee,180.00,platform_fee,true
+2024-11-05,Pacific Gas & Electric,112.45,utilities,true
+2024-11-08,Spectrum Internet,79.99,utilities,true
+2024-11-10,Cleaning Crew LLC,240.00,maintenance,true
+2024-11-12,Lowe's Home Improvement,87.32,maintenance,false
+2024-11-15,Airbnb Host Fee,180.00,platform_fee,true
+2024-11-18,Property Manager Co,350.00,management_fee,true
+2024-11-20,Pacific Gas & Electric,98.10,utilities,true
+2024-11-22,Cleaning Crew LLC,240.00,maintenance,true
+2024-11-28,Ring Security,9.99,security,true
+2024-12-01,Airbnb Host Fee,180.00,platform_fee,true
+2024-12-03,Pacific Gas & Electric,141.20,utilities,true
+2024-12-05,Spectrum Internet,79.99,utilities,true
+2024-12-10,Cleaning Crew LLC,240.00,maintenance,true
+2024-12-14,Airbnb Host Fee,180.00,platform_fee,true
+2024-12-15,Property Manager Co,350.00,management_fee,true
+2024-12-19,Pacific Gas & Electric,118.60,utilities,true
+2024-12-20,Cleaning Crew LLC,310.00,maintenance,true
+2024-12-26,Ring Security,9.99,security,true
+2024-12-28,Lowe's Home Improvement,214.50,maintenance,false
