@@ -34,23 +34,27 @@ verifies end to end.
 
 ## What is real vs mocked
 
-Honest accounting. Every integration sits behind a seam: real when keyed, mock otherwise,
-so tests and the demo always run.
+Honest accounting, and it is enforced: `make reality` prints a live status matrix, and
+`tests/live/` holds falsifying tests that fail when a real integration breaks. Run it — do
+not trust this table from memory (counts drift). Full analysis in `ANALYSIS.md`.
 
 | Layer | Status |
 |---|---|
-| Hermes orchestrator (Nous Portal) | Real, live-verified. Demo replays a captured run for determinism. |
-| NemoClaw safe-execution harness | Real. |
-| Nemotron 3 Ultra reasoning (NVIDIA NIM) | Real, live-verified. |
-| NVIDIA agent skills (8) | Real. |
-| Stripe Skills for Hermes (Stripe MCP) | Real in test mode when a `sk_test_` key + Node are present. Falls back to direct SDK, then mock. |
-| ConductorOne control plane | Real and local via Baton (open source). C1 SaaS client present, default mock (tenant deferred). |
-| GBrain memory | In-process graph is real. External GBrain MCP is a seam with mock fallback. |
-| QuickBooks / Intuit books | Mocked. |
+| Audit hash chain, anomaly math, policy, approval, graph | REAL (local, no network) |
+| NemoClaw harness (single payment chokepoint) | REAL |
+| Hermes orchestrator (Nous Portal) | LIVE-OK — real calls, proven by a live test |
+| Nemotron reasoning (NVIDIA NIM) | LIVE-OK — real calls (550B model, slow) |
+| Stripe buy/provision/pay (SDK + MCP) | LIVE-OK in test mode (verified PaymentIntent); `sk_live_` refused |
+| Baton access governance | LIVE-OK (binary); access DATA is a fixture until a connector cred |
+| NeMo Guardrails | REAL when `NEMOCLAW_GUARDRAILS=1`; built-in denylist otherwise |
+| Sandbox | Real subprocess isolation (`NEMOCLAW_SANDBOX`); OpenShell is NOT used |
+| ConductorOne API | BUILD-TO-SPEC; graceful fallback, never crashes; live needs a tenant |
+| GBrain memory | In-memory graph is real; real MCP client wired, install user-gated |
+| QuickBooks / Intuit | MOCK; needs Intuit sandbox creds |
 
 Reasoning-model output is stochastic, so the recorded demo replays a captured Hermes run
-(`fixtures/captured/hermes_run.json`) rather than a live call. Live orchestration works and
-is verified separately (see the runbook).
+(`fixtures/captured/hermes_run.json`) rather than a live call. Live orchestration is real and
+proven by `tests/live/` — it is just not deterministic enough to record.
 
 ## Quick start
 

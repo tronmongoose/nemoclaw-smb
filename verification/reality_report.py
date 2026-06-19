@@ -109,11 +109,15 @@ def probe_stripe_sdk() -> ProbeResult:
 
     try:
         bal = stripe.Balance.retrieve()
-        avail = bal.get("available", [{}])
-        currency = avail[0].get("currency", "?") if avail else "?"
-        return ProbeResult("Stripe-SDK", "LIVE-OK", f"balance.retrieve ok, currency={currency}")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001 — the API call itself is the live signal
         return ProbeResult("Stripe-SDK", "LIVE-FAIL", str(exc)[:80])
+    currency = "?"
+    try:
+        avail = bal["available"]
+        currency = avail[0]["currency"] if avail else "?"
+    except Exception:  # noqa: BLE001 — result parsing must not mask a successful call
+        pass
+    return ProbeResult("Stripe-SDK", "LIVE-OK", f"balance.retrieve ok, currency={currency}")
 
 
 def probe_stripe_mcp() -> ProbeResult:

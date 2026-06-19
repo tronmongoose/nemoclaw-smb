@@ -64,12 +64,18 @@ narrates the loop in a terminal beside it.
 Then, live: approve the Adobe item in the dashboard. It clears, the audit chain grows, and
 re-verifies.
 
-## What is real
+## What is real (verified, not asserted)
 
-Hermes orchestration, the NemoClaw harness, Nemotron reasoning, the 8 skills, and the local
-ConductorOne/Baton path are real. Stripe is real in test mode the moment a `sk_test_` key is
-present. 197 tests pass. The recorded demo replays a captured Hermes run for determinism
-because reasoning-model output varies run to run; live orchestration is verified separately.
+`make reality` prints a live status matrix and `tests/live/` fails if a real integration
+breaks. Verified live: Hermes orchestration (Nous Portal), Nemotron reasoning (NVIDIA NIM),
+Stripe buy/provision/pay (test mode — a real PaymentIntent is created), and the Baton binary.
+Real local: the NemoClaw harness (now the single payment chokepoint), the SHA-256 audit
+chain, anomaly math, policy, approval, the 9 skills, and the knowledge graph. Real opt-in:
+NeMo Guardrails (`LLMRails`) and a subprocess sandbox (OpenShell is not used — stated plainly).
+Build-to-spec, live-deferred: the ConductorOne API client (needs a tenant) and the GBrain MCP
+client (needs a user-gated install). Mock: Intuit/QuickBooks. The offline suite (225+ tests)
+proves logic and mock shape; the live tests prove the integrations. The recorded demo replays
+a captured Hermes run because reasoning-model output is stochastic. Full accounting: `ANALYSIS.md`.
 
 ## Repo
 
