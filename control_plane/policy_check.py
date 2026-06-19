@@ -53,13 +53,20 @@ def _mock_check(vendor: str, amount: float, policy: dict[str, Any]) -> PolicyDec
 
 
 def _c1_check(vendor: str, amount: float, requester: str, policy: dict[str, Any]) -> PolicyDecision:
-    """ConductorOne policy backend — not yet wired; warns and falls back to local policy."""
-    _logger.warning(
-        "ConductorOne backend not yet wired; falling back to local policy "
-        "(vendor=%s amount=%s requester=%s)",
-        vendor, amount, requester,
-    )
-    return _mock_check(vendor, amount, policy)
+    """Attempt a ConductorOne policy check; fall back to local policy on any error."""
+    from control_plane.c1_client import C1ClientError, check_policy_c1
+    from control_plane.c1_client import PolicyDecision as _C1Decision
+
+    try:
+        result: _C1Decision = check_policy_c1(vendor, amount, requester)
+        return PolicyDecision(allowed=result.allowed, reason=result.reason, limit=result.limit)
+    except C1ClientError as exc:
+        _logger.warning(
+            "C1 policy check failed; falling back to local policy "
+            "(vendor=%s amount=%s requester=%s error=%s)",
+            vendor, amount, requester, exc,
+        )
+        return _mock_check(vendor, amount, policy)
 
 
 def check_policy(vendor: str, amount: float, requester: str = "agent") -> PolicyDecision:
