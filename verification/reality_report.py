@@ -15,6 +15,7 @@ Exit 0 always — this is a report, not a gate.
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -216,6 +217,94 @@ def probe_audit_chain() -> ProbeResult:
         tmp.unlink(missing_ok=True)
 
 
+def probe_guardrails() -> ProbeResult:
+    """NeMo Guardrails: LIVE-OK when real LLM check runs; DENYLIST when disabled/unkeyed."""
+    guardrails_on = os.environ.get("NEMOCLAW_GUARDRAILS") == "1"
+    nous_key = os.environ.get("NOUS_PORTAL_API_KEY", "")
+
+    if not guardrails_on:
+        return ProbeResult(
+            "NeMo-Guardrails",
+            "DENYLIST",
+            "NEMOCLAW_GUARDRAILS not set; built-in denylist active (set =1 to enable LLM rail)",
+        )
+
+    if not nous_key:
+        return ProbeResult(
+            "NeMo-Guardrails",
+            "DENYLIST",
+            "NEMOCLAW_GUARDRAILS=1 but NOUS_PORTAL_API_KEY absent; denylist fallback active",
+        )
+
+    try:
+        from nemoguardrails import LLMRails, RailsConfig  # noqa: PLC0415
+    except ImportError:
+        return ProbeResult(
+            "NeMo-Guardrails",
+            "DENYLIST",
+            "nemoguardrails not installed; denylist fallback active (pip install nemoguardrails)",
+        )
+
+    script = (
+        "import os, sys, json; "
+        "sys.path.insert(0, '.'); "
+        "os.environ['NEMOCLAW_GUARDRAILS'] = '1'; "
+        "from agent.nemoclaw_harness import _nemo_guardrails_check; "
+        "result = _nemo_guardrails_check('onboarding_skill', {}, (True, 'fallback')); "
+        "print(json.dumps({'allowed': result[0], 'reason': result[1]}))"
+    )
+    proc = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True, text=True, timeout=30,
+    )
+    if proc.returncode != 0:
+        err = proc.stderr.strip()[-120:]
+        return ProbeResult("NeMo-Guardrails", "LIVE-FAIL", f"child exited {proc.returncode}: {err}")
+    try:
+        data = json.loads(proc.stdout)
+        label = "LIVE-OK" if data.get("allowed") is not None else "LIVE-FAIL"
+        return ProbeResult("NeMo-Guardrails", label, f"allowed={data.get('allowed')} reason={data.get('reason','')[:60]}")
+    except Exception as exc:  # noqa: BLE001
+        return ProbeResult("NeMo-Guardrails", "LIVE-FAIL", f"parse error: {exc} stdout={proc.stdout[:80]}")
+
+
+def probe_sandbox() -> ProbeResult:
+    """Subprocess sandbox: SUBPROCESS when real child process ran; IN-PROCESS otherwise."""
+    sandbox_on_val = os.environ.get("NEMOCLAW_SANDBOX", "").strip().lower()
+    sandbox_on = sandbox_on_val in ("1", "true", "yes", "on")
+
+    if not sandbox_on:
+        return ProbeResult(
+            "Sandbox",
+            "IN-PROCESS",
+            "NEMOCLAW_SANDBOX not set; skills run in-process (set truthy to enable subprocess isolation)",
+        )
+
+    script = (
+        "import os, sys, json; "
+        "sys.path.insert(0, '.'); "
+        "os.environ['NEMOCLAW_SANDBOX'] = 'true'; "
+        "import agent.skills.onboarding_skill; "
+        "from agent.nemoclaw_harness import _run_skill; "
+        "result, label = _run_skill('onboarding_skill', {}); "
+        "print(json.dumps({'label': label, 'has_result': result is not None}))"
+    )
+    proc = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True, text=True, timeout=60,
+    )
+    if proc.returncode != 0:
+        err = proc.stderr.strip()[-120:]
+        return ProbeResult("Sandbox", "LIVE-FAIL", f"child exited {proc.returncode}: {err}")
+    try:
+        data = json.loads(proc.stdout)
+        label = data.get("label", "unknown")
+        status = "SUBPROCESS" if label == "subprocess" else "IN-PROCESS"
+        return ProbeResult("Sandbox", status, f"sandbox_label={label} has_result={data.get('has_result')}")
+    except Exception as exc:  # noqa: BLE001
+        return ProbeResult("Sandbox", "LIVE-FAIL", f"parse error: {exc} stdout={proc.stdout[:80]}")
+
+
 def probe_intuit() -> ProbeResult:
     """Intuit: credentials detected -> KEYED-UNVERIFIED (SDK path unimplemented); else MOCK."""
     from payments.intuit_reconciler import _INTUIT_READY
@@ -243,9 +332,11 @@ _PROBES = [
     probe_gbrain,
     probe_audit_chain,
     probe_intuit,
+    probe_guardrails,
+    probe_sandbox,
 ]
 
-_STATUS_ORDER = ["REAL", "LIVE-OK", "LIVE-FAIL", "MOCK", "HOLLOW", "KEYED-UNVERIFIED"]
+_STATUS_ORDER = ["REAL", "LIVE-OK", "SUBPROCESS", "LIVE-FAIL", "MOCK", "HOLLOW", "DENYLIST", "IN-PROCESS", "KEYED-UNVERIFIED"]
 
 
 def _run_probes() -> list[ProbeResult]:
