@@ -111,11 +111,11 @@ def test_summarize_seats_counts_adobe():
 # ---------------------------------------------------------------------------
 
 def test_access_governance_skill_is_registered():
-    """access_governance_skill is in the registry (8 total skills)."""
+    """access_governance_skill is in the registry (9 total skills after pay_invoice_skill added)."""
     from agent.skills.base import all_skills_names
     names = all_skills_names()
     assert "access_governance_skill" in names
-    assert len(names) == 8
+    assert len(names) == 9
 
 
 def test_access_governance_skill_run_shape():

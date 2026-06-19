@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +11,7 @@ from typing import Any
 import yaml
 
 _DEFAULT_POLICY_PATH = Path(__file__).parent / "policy_mock.yaml"
+_logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -50,14 +52,19 @@ def _mock_check(vendor: str, amount: float, policy: dict[str, Any]) -> PolicyDec
     return PolicyDecision(allowed=False, reason=f"Unknown vendor '{vendor}' denied: ${amount} exceeds default ${default_limit} limit", limit=default_limit)
 
 
-def _c1_check(vendor: str, amount: float, requester: str) -> PolicyDecision:
-    """ConductorOne policy backend — ships disabled; raises until a C1 API key is sanctioned."""
-    raise NotImplementedError("ConductorOne backend gated on C1 blessing")
+def _c1_check(vendor: str, amount: float, requester: str, policy: dict[str, Any]) -> PolicyDecision:
+    """ConductorOne policy backend — not yet wired; warns and falls back to local policy."""
+    _logger.warning(
+        "ConductorOne backend not yet wired; falling back to local policy "
+        "(vendor=%s amount=%s requester=%s)",
+        vendor, amount, requester,
+    )
+    return _mock_check(vendor, amount, policy)
 
 
 def check_policy(vendor: str, amount: float, requester: str = "agent") -> PolicyDecision:
     """Primary entry point. Delegates to C1 if C1_API_KEY is present, otherwise uses the mock."""
-    if os.environ.get("C1_API_KEY"):
-        return _c1_check(vendor, amount, requester)
     policy = _load_policy()
+    if os.environ.get("C1_API_KEY"):
+        return _c1_check(vendor, amount, requester, policy)
     return _mock_check(vendor, amount, policy)

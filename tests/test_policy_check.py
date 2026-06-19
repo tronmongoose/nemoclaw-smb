@@ -65,13 +65,23 @@ def test_unknown_vendor_at_default_limit_allowed():
 
 
 # ---------------------------------------------------------------------------
-# C1_API_KEY present -> raises NotImplementedError (gated backend)
+# C1_API_KEY present -> graceful fallback to local policy (no C1 client wired)
 # ---------------------------------------------------------------------------
 
-def test_c1_backend_raises_when_key_present(monkeypatch):
+def test_c1_backend_falls_back_when_key_present(monkeypatch):
+    """C1_API_KEY set but no real client wired; must not raise and must return a valid decision."""
     monkeypatch.setenv("C1_API_KEY", "test-key")
-    with pytest.raises(NotImplementedError):
-        check_policy("Adobe", 340.0)
+    decision = check_policy("Adobe", 340.0)
+    assert decision.allowed is True
+    assert decision.limit == 400.0
+
+
+def test_c1_backend_fallback_denied_when_over_limit(monkeypatch):
+    """C1 fallback still enforces local policy limits."""
+    monkeypatch.setenv("C1_API_KEY", "test-key")
+    decision = check_policy("Adobe", 500.0)
+    assert decision.allowed is False
+    assert decision.limit == 400.0
 
 
 # ---------------------------------------------------------------------------

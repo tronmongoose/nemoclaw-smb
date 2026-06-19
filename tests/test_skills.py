@@ -24,16 +24,17 @@ _EXPECTED_SKILLS = {
     "handle_402_skill",
     "approval_gate_skill",
     "audit_skill",
+    "pay_invoice_skill",
 }
 
 
 def test_registry_count():
-    """Registry contains exactly 8 skills."""
-    assert len(skills_module.all_skills()) == 8
+    """Registry contains exactly 9 skills."""
+    assert len(skills_module.all_skills()) == 9
 
 
 def test_registry_names_match():
-    """all_skills_names() returns the exact expected set of 8 skill names."""
+    """all_skills_names() returns the exact expected set of 9 skill names."""
     assert set(skills_module.all_skills_names()) == _EXPECTED_SKILLS
 
 

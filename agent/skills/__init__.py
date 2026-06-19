@@ -23,4 +23,5 @@ import agent.skills.audit_skill              # noqa: F401
 import agent.skills.handle_402_skill         # noqa: F401
 import agent.skills.invoice_ingest_skill     # noqa: F401
 import agent.skills.onboarding_skill         # noqa: F401
+import agent.skills.pay_invoice_skill        # noqa: F401
 import agent.skills.vendor_analyze_skill     # noqa: F401

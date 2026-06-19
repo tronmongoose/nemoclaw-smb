@@ -1,9 +1,12 @@
 """
 payment_402_handler.py — HTTP-402 demo centerpiece for nemoclaw-smb hackathon.
 
-Orchestrates the full gbrain → policy → anomaly → decision → payment/escalation
+Orchestrates the full gbrain -> policy -> anomaly -> decision -> payment/escalation
 pipeline for a single vendor invoice event. Returns a structured outcome dict
 with an audit-chain entry hash on every call.
+
+All spend-gating and payment execution pass through nemoclaw_harness.execute()
+so that enforce_spend, Stripe, and audit are a single chokepoint.
 
 Exports:
     handle_402(event, graph, *, threshold, audit_path) -> dict
@@ -18,7 +21,6 @@ from agent import audit_log, require_approval
 from control_plane.policy_check import check_policy
 from gbrain.anomaly_detector import score_invoice
 from payments import intuit_reconciler as intuit
-from payments import stripe_client as stripe
 
 if TYPE_CHECKING:
     from gbrain.knowledge_graph import KnowledgeGraph
@@ -26,7 +28,6 @@ if TYPE_CHECKING:
 # Default spend threshold when caller does not supply one.
 # Set to 500 to cover typical SMB SaaS recurring invoices (e.g. AWS $312, Adobe ~$277)
 # without requiring approval on every routine renewal.
-# Callers may override via the threshold kwarg or SPEND_APPROVAL_THRESHOLD env var.
 #COMPLETION_DRIVE: 500 is a reasonable SMB default; production installs should configure explicitly
 _DEFAULT_THRESHOLD = 500.0
 
@@ -113,50 +114,38 @@ def _try_pay(
     threshold: float,
     audit_path: str | None,
 ) -> dict:
-    """Gate spend via threshold; escalate if approval is required but not yet granted."""
-    try:
-        require_approval.enforce_spend(
-            "purchase", vendor, amount, actor="agent",
-            context={"invoice_id": invoice_id, "date": date, "threshold": threshold},
-            threshold=threshold,
-        )
-        return _do_payment(vendor, amount, date, invoice_id, anomaly, steps, graph, audit_path)
-    except require_approval.ApprovalRequired as exc:
+    """Route the payment through nemoclaw_harness (single chokepoint for spend-gate + audit).
+
+    On harness escalation (over-threshold), delegates to _do_escalation.
+    On harness execution, reconciles the payment and records in graph.
+    """
+    from agent import nemoclaw_harness as harness  # lazy: breaks payment_402_handler -> skills -> handle_402_skill cycle
+    harness_result = harness.execute(
+        "pay_invoice_skill",
+        {"vendor": vendor, "amount": amount, "invoice_id": invoice_id},
+        actor="agent",
+        amount=amount,
+        vendor=vendor,
+        threshold=threshold,
+        audit_path=audit_path,
+    )
+
+    if harness_result["outcome"] == "escalated":
         steps.append({"step": "decision", "status": "approval_required",
                       "detail": f"spend ${amount} exceeds threshold ${threshold}"})
         return _do_escalation(
             vendor, amount, invoice_id, anomaly, steps, threshold, audit_path,
-            request_id=exc.request_id, policy_reason=None,
+            request_id=harness_result["approval_request_id"], policy_reason=None,
         )
 
-
-def _do_payment(
-    vendor: str,
-    amount: float,
-    date: str,
-    invoice_id: str,
-    anomaly,
-    steps: list[dict],
-    graph: "KnowledgeGraph",
-    audit_path: str | None,
-) -> dict:
-    """Execute payment, reconcile, record in graph, append audit entry."""
+    # outcome == "executed": harness ran enforce_spend + stripe.pay + audit
+    payment: dict = harness_result["result"]
     steps.append({"step": "decision", "status": "approved", "detail": "policy allowed, no anomaly"})
 
-    payment = stripe.pay(vendor, amount, idempotency_key=invoice_id)
     ledger_entry = intuit.reconcile(payment, category=None, date=date)
     graph.record_payment(vendor, amount, date, anomaly_flag=False)
 
-    audit_entry = audit_log.append_action(
-        "payment", vendor, amount,
-        decision="auto_paid",
-        actor="agent",
-        metadata={"invoice_id": invoice_id, "stripe_id": payment["id"],
-                  "ledger_id": ledger_entry["entry_id"]},
-        path=audit_path,
-    )
-    steps.append({"step": "payment", "status": "succeeded",
-                  "detail": f"stripe {payment['id']}"})
+    steps.append({"step": "payment", "status": "succeeded", "detail": f"stripe {payment['id']}"})
 
     return {
         "invoice_id": invoice_id,
@@ -168,7 +157,7 @@ def _do_payment(
         "ledger_entry": ledger_entry,
         "approval_request_id": None,
         "anomaly": None,
-        "audit_entry_hash": audit_entry["entry_hash"],
+        "audit_entry_hash": harness_result["audit_entry_hash"],
     }
 
 
