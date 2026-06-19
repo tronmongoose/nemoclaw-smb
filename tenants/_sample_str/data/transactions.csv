@@ -1,21 +1,72 @@
-date,vendor,amount_usd,category,recurring
-2024-11-01,Airbnb Host Fee,180.00,platform_fee,true
-2024-11-05,Pacific Gas & Electric,112.45,utilities,true
-2024-11-08,Spectrum Internet,79.99,utilities,true
-2024-11-10,Cleaning Crew LLC,240.00,maintenance,true
-2024-11-12,Lowe's Home Improvement,87.32,maintenance,false
-2024-11-15,Airbnb Host Fee,180.00,platform_fee,true
-2024-11-18,Property Manager Co,350.00,management_fee,true
-2024-11-20,Pacific Gas & Electric,98.10,utilities,true
-2024-11-22,Cleaning Crew LLC,240.00,maintenance,true
-2024-11-28,Ring Security,9.99,security,true
-2024-12-01,Airbnb Host Fee,180.00,platform_fee,true
-2024-12-03,Pacific Gas & Electric,141.20,utilities,true
-2024-12-05,Spectrum Internet,79.99,utilities,true
-2024-12-10,Cleaning Crew LLC,240.00,maintenance,true
-2024-12-14,Airbnb Host Fee,180.00,platform_fee,true
-2024-12-15,Property Manager Co,350.00,management_fee,true
-2024-12-19,Pacific Gas & Electric,118.60,utilities,true
-2024-12-20,Cleaning Crew LLC,310.00,maintenance,true
-2024-12-26,Ring Security,9.99,security,true
-2024-12-28,Lowe's Home Improvement,214.50,maintenance,false
+date,vendor,amount_usd,category,direction
+2025-01-05,STR Rental Income,2800.00,rental_income,income
+2025-01-05,STR Rental Income,1200.00,rental_income,income
+2025-01-08,Pacific Gas & Electric,98.50,utilities,expense
+2025-01-08,Spectrum Internet,74.99,utilities,expense
+2025-01-10,Cleaning Crew LLC,240.00,maintenance,expense
+2025-01-14,Lawn Care Pro,85.00,lawn,expense
+2025-01-15,Airbnb Host Fee,175.00,platform_fee,expense
+2025-01-18,Property Manager Co,350.00,management_fee,expense
+2025-01-22,Cleaning Crew LLC,240.00,maintenance,expense
+2025-01-25,STR License Renewal,150.00,str_license,expense
+2025-01-28,Ring Security,9.99,security,expense
+2025-01-30,StreamGuest Pro,19.99,subscription,expense
+2025-02-04,STR Rental Income,3100.00,rental_income,income
+2025-02-05,STR Rental Income,800.00,rental_income,income
+2025-02-07,Pacific Gas & Electric,104.20,utilities,expense
+2025-02-07,Spectrum Internet,74.99,utilities,expense
+2025-02-10,Cleaning Crew LLC,240.00,maintenance,expense
+2025-02-14,Lawn Care Pro,85.00,lawn,expense
+2025-02-15,Airbnb Host Fee,190.00,platform_fee,expense
+2025-02-17,Property Manager Co,350.00,management_fee,expense
+2025-02-20,Cleaning Crew LLC,240.00,maintenance,expense
+2025-02-25,Ring Security,9.99,security,expense
+2025-02-28,StreamGuest Pro,22.99,subscription,expense
+2025-03-04,STR Rental Income,3400.00,rental_income,income
+2025-03-04,STR Rental Income,600.00,rental_income,income
+2025-03-07,Pacific Gas & Electric,112.80,utilities,expense
+2025-03-07,Spectrum Internet,74.99,utilities,expense
+2025-03-10,Cleaning Crew LLC,240.00,maintenance,expense
+2025-03-14,Lawn Care Pro,90.00,lawn,expense
+2025-03-15,Airbnb Host Fee,210.00,platform_fee,expense
+2025-03-17,Property Manager Co,350.00,management_fee,expense
+2025-03-19,Cleaning Crew LLC,240.00,maintenance,expense
+2025-03-20,Lowe's Home Improvement,214.50,maintenance,expense
+2025-03-25,Ring Security,9.99,security,expense
+2025-03-28,StreamGuest Pro,25.99,subscription,expense
+2025-04-04,STR Rental Income,4200.00,rental_income,income
+2025-04-04,STR Rental Income,900.00,rental_income,income
+2025-04-07,Pacific Gas & Electric,121.40,utilities,expense
+2025-04-07,Spectrum Internet,74.99,utilities,expense
+2025-04-10,Cleaning Crew LLC,240.00,maintenance,expense
+2025-04-14,Lawn Care Pro,90.00,lawn,expense
+2025-04-15,Airbnb Host Fee,230.00,platform_fee,expense
+2025-04-16,Property Manager Co,420.00,management_fee,expense
+2025-04-19,Cleaning Crew LLC,240.00,maintenance,expense
+2025-04-22,Lowe's Home Improvement,87.32,maintenance,expense
+2025-04-25,Ring Security,9.99,security,expense
+2025-04-28,StreamGuest Pro,28.99,subscription,expense
+2025-05-04,STR Rental Income,4800.00,rental_income,income
+2025-05-04,STR Rental Income,1100.00,rental_income,income
+2025-05-07,Pacific Gas & Electric,138.90,utilities,expense
+2025-05-07,Spectrum Internet,74.99,utilities,expense
+2025-05-10,Cleaning Crew LLC,300.00,maintenance,expense
+2025-05-14,Lawn Care Pro,90.00,lawn,expense
+2025-05-15,Airbnb Host Fee,260.00,platform_fee,expense
+2025-05-16,Property Manager Co,420.00,management_fee,expense
+2025-05-19,Cleaning Crew LLC,300.00,maintenance,expense
+2025-05-22,Lowe's Home Improvement,312.75,maintenance,expense
+2025-05-25,Ring Security,9.99,security,expense
+2025-05-28,StreamGuest Pro,32.99,subscription,expense
+2025-06-04,STR Rental Income,5200.00,rental_income,income
+2025-06-04,STR Rental Income,1400.00,rental_income,income
+2025-06-07,Pacific Gas & Electric,152.30,utilities,expense
+2025-06-07,Spectrum Internet,74.99,utilities,expense
+2025-06-10,Cleaning Crew LLC,300.00,maintenance,expense
+2025-06-14,Lawn Care Pro,90.00,lawn,expense
+2025-06-15,Airbnb Host Fee,295.00,platform_fee,expense
+2025-06-16,Property Manager Co,420.00,management_fee,expense
+2025-06-19,Cleaning Crew LLC,300.00,maintenance,expense
+2025-06-22,Lowe's Home Improvement,145.80,maintenance,expense
+2025-06-25,Ring Security,9.99,security,expense
+2025-06-28,StreamGuest Pro,36.99,subscription,expense

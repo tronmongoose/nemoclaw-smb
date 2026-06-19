@@ -32,3 +32,6 @@ tenant-list: ## List all configured tenants
 
 tenant-run: ## Load TENANT and print resolved config + routing decision (TENANT=<slug>)
 	PYTHONPATH=. python3 scripts/tenant_run.py $(TENANT)
+
+tenant-analyze: ## Run full analysis pipeline for TENANT (ingest → graph → P&L → findings → report)
+	PYTHONPATH=. python3 scripts/tenant_analyze.py $(TENANT)

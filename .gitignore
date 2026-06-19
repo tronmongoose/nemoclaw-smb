@@ -44,3 +44,6 @@ tenants/*/.env
 # Exclude real data dirs while keeping the synthetic sample's data/ tracked.
 # Real tenants' data/ will also be excluded by $NEMOCLAW_TENANTS_ROOT placement.
 tenants/[!_]*/data/
+
+# generated tenant analysis reports
+tenants/*/data/report.md

@@ -37,6 +37,8 @@ class Tenant:
 
     data_root may be an absolute path outside the repo.
     brain_path and audit_path default to subdirs of data_root.
+    local_model: optional Ollama model tag (e.g. "gemma4:26b") used by route_llm
+        when llm_routing == "local". Falls back to OLLAMA_MODEL env / local_client default.
     """
 
     slug: str
@@ -47,6 +49,8 @@ class Tenant:
     thresholds: dict = field(default_factory=dict)
     brain_path: str = ""
     audit_path: str = ""
+    local_model: str | None = None   # optional: pin a specific local Ollama model
+    ingestion: dict = field(default_factory=dict)  # raw ingestion section from config
 
 
 def _resolve_paths(slug: str, raw: dict[str, Any], config_dir: Path) -> dict[str, Any]:
@@ -127,6 +131,8 @@ def load_tenant(slug: str, tenants_root: str | None = None) -> Tenant:
         thresholds=raw.get("thresholds", {}),
         brain_path=paths["brain_path"],
         audit_path=paths["audit_path"],
+        local_model=raw.get("local_model") or None,
+        ingestion=raw.get("ingestion") or {},
     )
     _validate(tenant)
     return tenant

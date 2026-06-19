@@ -206,6 +206,11 @@ def route_llm(tenant: "Tenant") -> "Callable[..., str]":  # type: ignore[name-de
 
     if tenant.llm_routing == "local":
         from agent.local_client import call_local
+        model = getattr(tenant, "local_model", None)
+        if model:
+            import functools
+            # Bind the pinned model so callers use the standard call_local signature
+            return functools.partial(call_local, model=model)  # type: ignore[return-value]
         return call_local
 
     from agent.hermes_client import call_hermes

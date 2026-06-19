@@ -7,6 +7,10 @@ llm_routing: local
 sensitivity: restricted
 mode: advisory
 
+# Optional: pin a specific local Ollama model for this tenant's LLM calls.
+# Falls back to OLLAMA_MODEL env / local_client default when absent.
+local_model: gemma4:26b
+
 # data_root is relative to this config file's directory when not absolute.
 data_root: data
 
@@ -15,3 +19,14 @@ thresholds:
   auto_approve_usd: 250.0    # amounts below this need no human gate
   monthly_opex_limit: 4000.0 # total monthly operating expense ceiling
   alert_delta_pct: 20.0      # alert when a vendor's charge changes > 20% month-over-month
+
+# Column mapping for spreadsheet adapter (used for the synthetic CSV below).
+# Chase CSV files are auto-detected by header and do not need this.
+ingestion:
+  spreadsheet:
+    columns:
+      date: date
+      vendor: vendor
+      amount: amount_usd
+      category: category
+      direction: direction
