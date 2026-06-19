@@ -5,22 +5,26 @@ Exports:
     KnowledgeGraph          — main graph class (add_vendor, record_payment, load_records, query, persist)
     build_graph_from_invoices — convenience: ingest_to_graph_records then load_records
 
-Swap note: if GBRAIN_MCP_URL env var is set, a production deployment would instantiate a real
-GBrain MCP client (Garry Tan's PGLite-backed server) instead of this in-memory mock. The public
-API surface here mirrors the GBrain contract so that swap is a single localized change.
+GBrain mirroring: when GBRAIN_MCP_CMD is set and the mcp package is importable,
+writes are mirrored to a real GBrain MCP backend (garrytan/gbrain, MIT).
+The in-memory graph is always the source of truth for reads; GBrain is append-only
+shadow storage. Any GBrainError is logged and swallowed — the graph never crashes on
+backend failure.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import os
 import statistics
 from pathlib import Path
 
 from gbrain.invoice_ingestion import ingest_to_graph_records
 
-#COMPLETION_DRIVE: GBRAIN_MCP_URL presence is documented but not acted on; mock is always used here
-_GBRAIN_MCP_URL = os.environ.get("GBRAIN_MCP_URL")
+logger = logging.getLogger(__name__)
+
+_GBRAIN_MCP_URL = os.environ.get("GBRAIN_MCP_URL", "")
 
 
 def _normalize_name(name: str) -> str:
@@ -57,6 +61,7 @@ class KnowledgeGraph:
         node.update(attrs)
         self._vendors[key] = node
         self._payments.setdefault(key, [])
+        self._mirror_vendor(key, name, node["category"])
 
     def record_payment(
         self,
@@ -80,6 +85,7 @@ class KnowledgeGraph:
         }
         self._payments[key].append(edge)
         self._payments[key].sort(key=lambda e: e["date"])
+        self._mirror_payment(key, vendor, float(amount), date, edge["category"], anomaly_flag)
 
     def load_records(self, records: list[dict]) -> None:
         """Ingest invoice_ingestion graph records (vendor nodes + paid edges)."""
@@ -101,6 +107,42 @@ class KnowledgeGraph:
                     category=rec.get("category"),
                     anomaly_flag=rec.get("anomaly_flag"),
                 )
+
+    # ------------------------------------------------------------------
+    # GBrain mirroring (fire-and-forget; never raise to caller)
+    # ------------------------------------------------------------------
+
+    def _mirror_vendor(self, key: str, label: str, category: str) -> None:
+        """Mirror a vendor upsert to GBrain; swallow GBrainError on failure."""
+        from gbrain.gbrain_client import GBrainError, gbrain_available, write_vendor_page
+        if not gbrain_available():
+            return
+        try:
+            write_vendor_page(key, label, category)
+        except GBrainError as exc:
+            logger.warning("GBrain mirror write_vendor_page failed (in-memory unaffected): %s", exc)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("GBrain mirror unexpected error in write_vendor_page: %s", exc)
+
+    def _mirror_payment(
+        self,
+        key: str,
+        label: str,
+        amount: float,
+        date: str,
+        category: str,
+        anomaly_flag: bool | None,
+    ) -> None:
+        """Mirror a payment write to GBrain; swallow GBrainError on failure."""
+        from gbrain.gbrain_client import GBrainError, gbrain_available, write_payment_page
+        if not gbrain_available():
+            return
+        try:
+            write_payment_page(key, label, amount, date, category, anomaly_flag)
+        except GBrainError as exc:
+            logger.warning("GBrain mirror write_payment_page failed (in-memory unaffected): %s", exc)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("GBrain mirror unexpected error in write_payment_page: %s", exc)
 
     # ------------------------------------------------------------------
     # Query

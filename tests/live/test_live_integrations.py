@@ -188,3 +188,56 @@ def test_baton_live() -> None:
         f"baton --version exited {result.returncode}: {result.stderr.strip()}"
     )
     assert result.stdout.strip(), "baton --version produced no output"
+
+
+# ---------------------------------------------------------------------------
+# GBrain MCP (real write+read round-trip)
+# ---------------------------------------------------------------------------
+
+def test_gbrain_live() -> None:
+    """Real GBrain write+read round-trip when GBRAIN_MCP_CMD is set.
+
+    Required env:
+        GBRAIN_MCP_CMD — command to launch the GBrain stdio MCP server.
+          #SUGGEST_VERIFY: once bun is installed, the expected value is:
+            GBRAIN_MCP_CMD="bun /path/to/gbrain/src/cli.ts serve"
+          After `npm install -g github:garrytan/gbrain` and bun on PATH:
+            GBRAIN_MCP_CMD="gbrain serve"
+
+    The test writes a probe vendor page and reads it back, asserting the
+    expected content is present. This validates the full put_page -> get_page
+    round-trip through the real GBrain MCP server.
+    """
+    import os
+
+    from gbrain.gbrain_client import (
+        GBrainError,
+        gbrain_available,
+        read_page,
+        write_vendor_page,
+    )
+
+    if not os.environ.get("GBRAIN_MCP_CMD"):
+        pytest.skip("GBRAIN_MCP_CMD not set")
+
+    if not gbrain_available():
+        pytest.skip("mcp package not importable")
+
+    probe_label = "Live Test Probe Vendor"
+    probe_key = "live-test-probe"
+    probe_slug = f"nemoclaw/vendors/{probe_key}"
+
+    try:
+        write_vendor_page(probe_key, probe_label, "probe")
+    except GBrainError as exc:
+        pytest.fail(f"write_vendor_page failed: {exc}")
+
+    try:
+        content = read_page(probe_slug)
+    except GBrainError as exc:
+        pytest.fail(f"read_page failed after write: {exc}")
+
+    assert content is not None, f"read_page returned None for slug {probe_slug!r}"
+    assert probe_label in content, (
+        f"Expected {probe_label!r} in page content; got: {content[:200]!r}"
+    )

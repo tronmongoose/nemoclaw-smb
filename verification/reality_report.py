@@ -178,17 +178,55 @@ def probe_c1_policy() -> ProbeResult:
 
 
 def probe_gbrain() -> ProbeResult:
-    """GBrain: GBRAIN_MCP_URL set but the code always uses in-memory -> MOCK."""
-    url = os.environ.get("GBRAIN_MCP_URL", "")
-    if url:
-        # #COMPLETION_DRIVE: knowledge_graph.py reads _GBRAIN_MCP_URL but never acts on it;
-        # real GBrain client path is unimplemented. Report HOLLOW when URL is set.
+    """GBrain: attempt a real write+read round-trip when GBRAIN_MCP_CMD is set.
+
+    LIVE-OK  — GBRAIN_MCP_CMD set, mcp importable, write+read round-trip succeeded
+    LIVE-FAIL — GBRAIN_MCP_CMD set, mcp importable, but the round-trip failed
+    MOCK     — GBRAIN_MCP_CMD unset; in-memory KnowledgeGraph active (default)
+    """
+    from gbrain.gbrain_client import (
+        GBrainError,
+        gbrain_available,
+        read_page,
+        write_vendor_page,
+    )
+
+    cmd = os.environ.get("GBRAIN_MCP_CMD", "")
+    if not cmd:
+        url = os.environ.get("GBRAIN_MCP_URL", "")
+        if url:
+            # URL is set but CMD is not; HTTP transport not yet implemented
+            return ProbeResult(
+                "GBrain",
+                "MOCK",
+                f"GBRAIN_MCP_URL set but GBRAIN_MCP_CMD absent; in-memory active "
+                f"(HTTP transport not yet wired — set GBRAIN_MCP_CMD to enable)",
+            )
+        return ProbeResult("GBrain", "MOCK", "GBRAIN_MCP_CMD unset; in-memory KnowledgeGraph active")
+
+    if not gbrain_available():
         return ProbeResult(
             "GBrain",
-            "HOLLOW",
-            f"GBRAIN_MCP_URL={url[:40]} set but client path is unimplemented (in-memory always)",
+            "LIVE-FAIL",
+            "GBRAIN_MCP_CMD set but mcp package not importable (pip install mcp)",
         )
-    return ProbeResult("GBrain", "MOCK", "GBRAIN_MCP_URL unset; in-memory KnowledgeGraph active")
+
+    probe_slug = "nemoclaw/vendors/reality-probe"
+    try:
+        write_vendor_page("reality-probe", "Reality Probe", "probe")
+    except GBrainError as exc:
+        return ProbeResult("GBrain", "LIVE-FAIL", f"write_vendor_page failed: {str(exc)[:80]}")
+
+    try:
+        content = read_page(probe_slug)
+    except GBrainError as exc:
+        return ProbeResult("GBrain", "LIVE-FAIL", f"read_page after write failed: {str(exc)[:80]}")
+
+    if content and "Reality Probe" in content:
+        return ProbeResult("GBrain", "LIVE-OK", f"write+read round-trip succeeded (slug={probe_slug})")
+    if content is None:
+        return ProbeResult("GBrain", "LIVE-FAIL", f"read_page returned None after write (slug={probe_slug})")
+    return ProbeResult("GBrain", "LIVE-FAIL", f"read_page content missing expected text: {content[:80]}")
 
 
 def probe_audit_chain() -> ProbeResult:
