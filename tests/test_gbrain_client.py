@@ -62,11 +62,11 @@ class TestGbrainAvailable:
 
     def test_true_when_cmd_set_and_mcp_importable(self) -> None:
         """Returns True when GBRAIN_MCP_CMD is set and mcp is importable."""
+        pytest.importorskip("mcp")  # mcp lives in the 3.11 venv, not system 3.9
         with patch.dict(os.environ, {"GBRAIN_MCP_CMD": "gbrain serve"}):
             import importlib
             import gbrain.gbrain_client as mod
             importlib.reload(mod)
-            # mcp is actually installed in this venv
             assert mod.gbrain_available() is True
             importlib.reload(mod)  # restore
 
