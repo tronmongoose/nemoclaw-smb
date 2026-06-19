@@ -215,15 +215,19 @@ def test_orchestrate_escalates_on_spend_above_threshold(audit_path: str, monkeyp
 
 
 def test_orchestrate_respects_max_steps(audit_path: str):
-    """An llm that always returns run_skill terminates after max_steps; no infinite loop."""
+    """An llm that always returns the same run_skill terminates at or before max_steps.
+
+    With the anti-repeat guard, the 3rd consecutive identical call force-finalizes
+    without executing the skill, so steps <= MAX and final is non-empty.
+    """
     MAX = 3
 
     def always_run_skill(messages, *, system=None, **_):
         return json.dumps({"action": "run_skill", "skill": "invoice_ingest_skill", "args": {"invoices": []}, "reason": "loop"})
 
     result = orchestrate(intent="loop test", llm=always_run_skill, audit_path=audit_path, max_steps=MAX)
-    assert len(result["steps"]) == MAX
-    assert result["final"] is None  # no explicit final action was issued
+    assert len(result["steps"]) <= MAX
+    assert result["final"] is not None  # force-finalize guard sets a non-empty summary
 
 
 # ---------------------------------------------------------------------------
@@ -240,3 +244,65 @@ def test_orchestrate_malformed_output_finalizes_gracefully(audit_path: str):
     assert result["escalated"] is False
     assert result["final"] is not None
     assert len(result["steps"]) == 0
+
+
+# ---------------------------------------------------------------------------
+# orchestrate — anti-repeat / force-finalize guard
+# ---------------------------------------------------------------------------
+
+
+def test_orchestrate_same_skill_force_finalizes_with_nonempty_summary(audit_path: str):
+    """An llm that always returns the same skill is force-finalized with a non-empty summary.
+
+    The anti-repeat guard terminates the loop with a non-empty final summary and
+    never executes the same skill more than twice.
+    """
+    def always_invoice_ingest(messages, *, system=None, **_):
+        return json.dumps({
+            "action": "run_skill",
+            "skill": "invoice_ingest_skill",
+            "args": {"invoices": []},
+            "reason": "keep calling",
+        })
+
+    result = orchestrate(
+        intent="repeat skill test",
+        llm=always_invoice_ingest,
+        audit_path=audit_path,
+        max_steps=8,
+    )
+
+    # Must terminate with a non-empty final (not None, not empty string)
+    assert result["final"] is not None
+    assert len(result["final"]) > 0
+
+    # The same skill must not have been executed more than twice
+    skill_executions = [s for s in result["steps"] if s["skill"] == "invoice_ingest_skill"]
+    assert len(skill_executions) <= 2
+
+
+def test_orchestrate_same_skill_terminates_before_max_steps(audit_path: str):
+    """An always-same-skill llm terminates via force-finalize, not exhausting max_steps.
+
+    With max_steps=8 and a force-finalize threshold of 3 consecutive calls,
+    the loop must exit well before step 8.
+    """
+    def always_anomaly_detect(messages, *, system=None, **_):
+        return json.dumps({
+            "action": "run_skill",
+            "skill": "anomaly_detect_skill",
+            "args": {"invoices": []},
+            "reason": "loop",
+        })
+
+    result = orchestrate(
+        intent="early termination test",
+        llm=always_anomaly_detect,
+        audit_path=audit_path,
+        max_steps=8,
+    )
+
+    # Force-finalize fires before exhausting all 8 steps
+    assert len(result["steps"]) < 8
+    assert result["final"] is not None
+    assert len(result["final"]) > 0

@@ -35,11 +35,12 @@ def _build_system_prompt(
     context: dict | None,
     graph,
     threshold: float | None,
+    executed_history: list[dict] | None = None,
 ) -> str:
     """Build the CFO orchestrator system prompt with the skill manifest.
 
-    Includes the skill manifest, optional graph/context summary, and the
-    exact JSON action protocol the model must follow.
+    Includes the skill manifest, optional graph/context summary, the exact JSON
+    action protocol, and the history of already-executed skills for this run.
     """
     manifest = json.dumps([to_nat_function(s) for s in all_skills()], indent=2)
 
@@ -55,6 +56,27 @@ def _build_system_prompt(
 
     threshold_note = f"\nSpend threshold: ${threshold:.2f} — amounts above this escalate." if threshold else ""
 
+    history_block = ""
+    if executed_history:
+        lines = [
+            f"  - {h['skill']} (args={json.dumps(h['args'])}) → outcome={h['outcome']}"
+            for h in executed_history
+        ]
+        history_block = (
+            "\nSkills already executed this run (DO NOT repeat unless new information demands it):\n"
+            + "\n".join(lines)
+            + "\n"
+        )
+
+    finalize_instruction = (
+        "\nCRITICAL RULES:\n"
+        "1. Do NOT call a skill that has already been executed unless new information requires it.\n"
+        "2. When the user's intent has been satisfied by the observations so far, you MUST respond "
+        'with {"action":"final","summary":"<concise summary of findings and decision>"}.\n'
+        "3. Prefer finalizing over repeating work. If you have run one or more skills and have "
+        "enough information to answer the intent, finalize NOW.\n"
+    )
+
     return (
         f"You are the SMB CFO orchestrator powered by Hermes. Your job is to fulfill the "
         f"following intent by dispatching skills through the NemoClaw safe-execution harness.\n\n"
@@ -62,6 +84,8 @@ def _build_system_prompt(
         f"{ctx_block}"
         f"{threshold_note}\n\n"
         f"Available skills (NeMo Agent Toolkit manifest):\n{manifest}\n\n"
+        f"{history_block}"
+        f"{finalize_instruction}\n"
         f"Reply with EXACTLY ONE JSON object per turn — no prose before or after:\n"
         f'  run_skill: {{"action":"run_skill","skill":<name>,"args":{{...}},"reason":"..."}}\n'
         f'  done:      {{"action":"final","summary":"..."}}\n'
@@ -75,7 +99,6 @@ def _parse_action(text: str) -> dict | None:
 
     Tolerates surrounding prose and partial mock prefixes.
     """
-    # Strip known mock prefix if present
     stripped = re.sub(r"^\[hermes-mock\]\s*", "", text.strip())
     m = _JSON_RE.search(stripped)
     if not m:
@@ -101,7 +124,6 @@ def _run_step(
     skill_name: str = action.get("skill", "")
     args: dict = action.get("args", {})
 
-    # Resolve __SEED__ sentinel to real seed invoices
     args = {
         k: (seed_invoices_fn() if v == "__SEED__" else v)
         for k, v in args.items()
@@ -124,6 +146,7 @@ def _run_step(
         "step": step_idx,
         "action": "run_skill",
         "skill": skill_name,
+        "args": args,
         "reason": action.get("reason", ""),
         "outcome": result.get("outcome"),
         "audit_entry_hash": result.get("audit_entry_hash"),
@@ -133,6 +156,20 @@ def _run_step(
             if k in ("anomaly_count", "recurring", "graph_node_count", "ranked_alternatives")
         },
     }
+
+
+def _assemble_final_from_steps(steps: list[dict]) -> str:
+    """Assemble a readable final summary from completed step records.
+
+    Used when the loop force-finalizes due to repeated skill calls.
+    """
+    if not steps:
+        return "No skills executed; intent could not be evaluated."
+    parts = [
+        f"{s['skill']} → {s['outcome']}"
+        for s in steps
+    ]
+    return "Force-finalized after repeated skill selection. Results: " + "; ".join(parts) + "."
 
 
 def orchestrate(
@@ -147,13 +184,16 @@ def orchestrate(
     """Run the bounded Hermes CFO orchestration loop.
 
     Dispatches skills through the NemoClaw harness up to max_steps times.
+    Anti-repeat guard: if the model selects the same skill+args consecutively,
+    an observation is injected; on the 3rd consecutive identical call the loop
+    force-finalizes with a summary assembled from prior steps.
     The llm param is dependency-injected so tests can pass a scripted planner.
     Returns intent, step trace, final summary, escalation state, and audit hashes.
     """
     # Deferred import to avoid circular dependency at module load
     from fixtures.seed_data import seed_invoices as _seed  # noqa: PLC0415
 
-    system_prompt = _build_system_prompt(intent, context, graph, threshold)
+    executed_history: list[dict] = []
     messages: list[dict] = [{"role": "user", "content": f"Begin orchestration for: {intent}"}]
 
     steps: list[dict] = []
@@ -162,7 +202,13 @@ def orchestrate(
     escalated = False
     approval_request_id: str | None = None
 
+    # Anti-repeat state: track consecutive identical (skill, frozen-args) selections
+    _last_skill_key: str | None = None
+    _consecutive_count: int = 0
+    _CONSECUTIVE_FORCE_FINALIZE = 3  # force-finalize on 3rd consecutive identical call
+
     for i in range(max_steps):  # bounded: satisfies loop-bound rule
+        system_prompt = _build_system_prompt(intent, context, graph, threshold, executed_history)
         reply = llm(messages, system=system_prompt)
         action = _parse_action(reply)
 
@@ -182,8 +228,38 @@ def orchestrate(
             break
 
         if act_type == "run_skill":
+            skill_name = action.get("skill", "")
+            raw_args = {k: v for k, v in action.get("args", {}).items() if v != "__SEED__"}
+            skill_key = f"{skill_name}::{json.dumps(raw_args, sort_keys=True)}"
+
+            if skill_key == _last_skill_key:
+                _consecutive_count += 1
+            else:
+                _last_skill_key = skill_key
+                _consecutive_count = 1
+
+            if _consecutive_count >= _CONSECUTIVE_FORCE_FINALIZE:
+                # Third consecutive identical call: force-finalize without re-running
+                final_summary = _assemble_final_from_steps(steps)
+                break
+
+            if _consecutive_count == 2:
+                # Second consecutive identical call: inject reminder, do not re-run
+                obs = (
+                    f"REMINDER: {skill_name} was already executed with the same args and returned "
+                    f"outcome={steps[-1]['outcome'] if steps else 'unknown'}. "
+                    f"Do not repeat it. Review the observations and emit {{\"action\":\"final\",...}}."
+                )
+                messages.append({"role": "tool", "content": obs})
+                continue  # skip execution, re-prompt
+
             step_rec = _run_step(action, i, threshold, audit_path, _seed)
             steps.append(step_rec)
+            executed_history.append({
+                "skill": step_rec["skill"],
+                "args": step_rec.get("args", {}),
+                "outcome": step_rec["outcome"],
+            })
 
             h = step_rec.get("audit_entry_hash")
             if h:
