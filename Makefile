@@ -23,3 +23,6 @@ lint: ## Ruff lint
 
 demo: ## Run the end-to-end demo dry-run on seed data
 	python -m fixtures.demo_runner
+
+reality: ## Print the live integration status matrix
+	python3 verification/reality_report.py

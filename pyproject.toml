@@ -34,3 +34,6 @@ select = ["F", "I", "UP", "B", "E", "W"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "live: marks tests that make real network/binary calls (skip when unkeyed)",
+]
