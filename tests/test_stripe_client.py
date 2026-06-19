@@ -164,11 +164,15 @@ class TestLiveKeyRefused:
 # ---------------------------------------------------------------------------
 
 class TestLiveBranchMonkeypatched:
-    """Exercise the real branch with a fake sk_test_ key and a stub stripe module."""
+    """Exercise the SDK branch with a fake sk_test_ key and a stub stripe module.
+
+    STRIPE_FORCE_SDK=1 disables the MCP path so the SDK branch is isolated.
+    """
 
     def _patch(self, monkeypatch, stub):
         """Set env key and patch the stripe import inside _get_stripe."""
         monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake_key_for_testing")
+        monkeypatch.setenv("STRIPE_FORCE_SDK", "1")
         import sys
         sys.modules["stripe"] = stub
         yield
@@ -179,6 +183,7 @@ class TestLiveBranchMonkeypatched:
     def test_pay_calls_payment_intent_create(self, monkeypatch):
         stub = _make_stripe_stub(pi_id="pi_real_test_001")
         monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake_key")
+        monkeypatch.setenv("STRIPE_FORCE_SDK", "1")
         import sys
         sys.modules["stripe"] = stub
         try:
@@ -201,6 +206,7 @@ class TestLiveBranchMonkeypatched:
     def test_create_subscription_calls_product_price_subscription(self, monkeypatch):
         stub = _make_stripe_stub(sub_id="sub_real_test_002")
         monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake_key")
+        monkeypatch.setenv("STRIPE_FORCE_SDK", "1")
         import sys
         sys.modules["stripe"] = stub
         try:
@@ -226,6 +232,7 @@ class TestLiveBranchMonkeypatched:
     def test_collect_fee_calls_payment_intent_create(self, monkeypatch):
         stub = _make_stripe_stub(pi_id="pi_real_fee_003")
         monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake_key")
+        monkeypatch.setenv("STRIPE_FORCE_SDK", "1")
         import sys
         sys.modules["stripe"] = stub
         try:
@@ -252,6 +259,7 @@ class TestLiveBranchMonkeypatched:
 
         stub.PaymentIntent = _Failing
         monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake_key")
+        monkeypatch.setenv("STRIPE_FORCE_SDK", "1")
         import sys
         sys.modules["stripe"] = stub
         try:
@@ -274,6 +282,7 @@ class TestLiveBranchMonkeypatched:
 
         stub.Product = _Failing
         monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake_key")
+        monkeypatch.setenv("STRIPE_FORCE_SDK", "1")
         import sys
         sys.modules["stripe"] = stub
         try:

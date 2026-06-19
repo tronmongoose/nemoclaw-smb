@@ -28,40 +28,135 @@ stripe listen --forward-to localhost:8000/webhooks/stripe  # optional: forward e
 
 ---
 
-## 2. Local MCP Server for Hermes Runtime Tools
+## 2. Stripe Skills for Hermes via MCP
 
-Stripe publishes an MCP server that exposes Stripe's API as tool calls. Two deployment modes:
+NemoClaw routes `pay`, `create_subscription`, and `collect_fee` through the Stripe
+MCP server when `STRIPE_SECRET_KEY` is a `sk_test_` key and `npx` is on PATH.
+This is the "Stripe Skills for Hermes" path. Set `STRIPE_FORCE_SDK=1` to force
+the direct SDK path; leave `STRIPE_SECRET_KEY` unset to use the mock path.
 
-**Local (npx, recommended for hackathon)**
+### Backend preference order
+
+1. **MCP** — `npx @stripe/mcp` proxying `mcp.stripe.com` (this section).
+   Active when: `npx` on PATH + `STRIPE_SECRET_KEY=sk_test_*` + `STRIPE_FORCE_SDK` not set.
+   Result dict includes `"backend": "mcp"`.
+2. **SDK** — direct `stripe-python` SDK calls.
+   Active when: MCP is off/unavailable + `STRIPE_SECRET_KEY=sk_test_*`.
+   Result dict includes `"backend": "sdk"`.
+3. **Mock** — deterministic sha256 ids, no network.
+   Active when: no key or all live paths fail.
+   Result dict includes `"backend": "mock"`.
+
+### Register the Stripe MCP server into Hermes
+
+**Local stdio (recommended for hackathon — uses your Restricted API Key)**
 
 ```bash
-npx @stripe/mcp --tools=all --api-key=sk_test_...
+# The @stripe/mcp server reads STRIPE_SECRET_KEY from env or --api-key flag.
+# --tools flag was removed in v0.3.0; scope is controlled by your RAK.
+# Verified CLI flags (v0.3.3): --api-key, --stripe-account (no --tools).
+hermes mcp add stripe \
+  --command "npx" \
+  --args "-y @stripe/mcp --api-key=sk_test_..." \
+  --transport stdio
 ```
 
-Common tool subsets:
-- `--tools=payment_intents` — pay path only
-- `--tools=subscriptions,products,prices` — provision path
-- `--tools=all` — full surface
-
-The server listens on stdio by default. Point Hermes (or Claude Desktop) at it via the MCP client config. Reference: docs.stripe.com/mcp.
-
-**Remote OAuth (no local process)**
-
-Add the remote server to your MCP client config:
+Or as a JSON entry in your Hermes MCP config (`~/.hermes/mcp.json` or equivalent):
 
 ```json
 {
   "mcpServers": {
     "stripe": {
       "command": "npx",
-      "args": ["-y", "@stripe/agent-toolkit"],
-      "env": { "STRIPE_SECRET_KEY": "sk_test_..." }
+      "args": ["-y", "@stripe/mcp", "--api-key=sk_test_..."],
+      "transport": "stdio"
     }
   }
 }
 ```
 
-Or connect via `https://mcp.stripe.com` using OAuth — the remote server handles auth without passing a key to the client. Reference: docs.stripe.com/mcp#remote-server.
+**Remote OAuth (no local process, no key in config)**
+
+```bash
+hermes mcp add stripe --url https://mcp.stripe.com --transport streamable-http
+```
+
+The remote server authenticates via OAuth — no key passed to the client.
+Reference: docs.stripe.com/mcp#remote-server.
+
+### How NemoClaw routes payments through MCP
+
+`payments/stripe_mcp.py` wraps the Python `mcp` SDK (`mcp>=1.0`) with:
+
+- `stripe_mcp_enabled()` — gate check (npx + sk_test_ + not STRIPE_FORCE_SDK)
+- `call_tool(name, arguments)` — sync stdio MCP session, one tool call, returns parsed dict
+- `mcp_pay(amount_cents, currency, metadata)` — calls `create_payment_intent`
+- `mcp_create_subscription(vendor, amount_cents)` — calls `create_product` -> `create_price`
+  -> `create_customer` -> `create_subscription` in sequence
+- `mcp_collect_fee(amount_cents, metadata)` — calls `create_payment_intent` with fee metadata
+
+`payments/stripe_client.py` calls `stripe_mcp_enabled()` at the top of `pay`,
+`create_subscription`, and `collect_fee` and routes through MCP first.
+
+### Verified Stripe MCP tool names (mcp.stripe.com, 2026-06)
+
+The `@stripe/mcp` server (v0.3.3) is a pure stdio proxy to `mcp.stripe.com`.
+Tool permissions are granted by the Restricted API Key (RAK) scope — not by a
+local flag. The following tool names are exposed by the remote server:
+
+| Tool name | Purpose |
+|---|---|
+| `create_payment_intent` | Create a PaymentIntent (our `pay` path) |
+| `confirm_payment_intent` | Confirm a PaymentIntent (separate step if not auto-confirmed) |
+| `retrieve_payment_intent` | Fetch a PaymentIntent by id |
+| `list_payment_intents` | List PaymentIntents |
+| `create_customer` | Create a Customer (our `create_subscription` step 3) |
+| `retrieve_customer` | Fetch a Customer by id |
+| `list_customers` | List Customers |
+| `create_product` | Create a Product (our `create_subscription` step 1) |
+| `retrieve_product` | Fetch a Product by id |
+| `list_products` | List Products |
+| `create_price` | Create a Price (our `create_subscription` step 2) |
+| `retrieve_price` | Fetch a Price by id |
+| `list_prices` | List Prices |
+| `create_subscription` | Create a Subscription (our `create_subscription` step 4) |
+| `retrieve_subscription` | Fetch a Subscription by id |
+| `cancel_subscription` | Cancel a Subscription |
+| `list_subscriptions` | List Subscriptions |
+| `retrieve_balance` | Fetch account balance |
+| `list_charges` | List Charges |
+| `create_refund` | Issue a Refund |
+
+#SUGGEST_VERIFY: connect with a live `sk_test_` key and call `tools/list` via
+the MCP session to confirm the exact tool set against your RAK permissions.
+The remote server may add or rename tools as the Stripe MCP surface evolves.
+
+### CLI flags verified (npx @stripe/mcp v0.3.3)
+
+```
+Accepted arguments: api-key, stripe-account
+Note: --tools flag was removed in v0.3.0. Tool permissions are now controlled
+by your Restricted API Key (RAK). Create a RAK with the desired permissions at
+https://dashboard.stripe.com/apikeys
+```
+
+### Keyless sandbox option
+
+```bash
+stripe sandbox create   # provisions a fresh Stripe test environment
+stripe login            # authenticates the CLI
+```
+
+`stripe sandbox create` is documented at docs.stripe.com/building-with-ai.
+It provisions a fresh test environment without a Dashboard account.
+
+---
+
+## 3. Local MCP Server (legacy section — superseded by section 2)
+
+The original entry point `npx @stripe/mcp --api-key=sk_test_...` still works;
+the `--tools` flag logged in earlier doc drafts has been removed upstream.
+See section 2 for the current integration pattern.
 
 ---
 

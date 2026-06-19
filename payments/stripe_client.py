@@ -1,13 +1,19 @@
 """
-NemoClaw Stripe client — test-mode/mock payment interface.
+NemoClaw Stripe client — MCP-first, SDK fallback, mock final fallback.
+
+Backend preference order:
+  1. Stripe MCP (via npx @stripe/mcp proxying mcp.stripe.com) when
+     stripe_mcp_enabled() is True — the "Stripe Skills for Hermes" path.
+  2. Direct Stripe SDK when STRIPE_SECRET_KEY is a sk_test_ key and MCP
+     is disabled or unavailable.
+  3. Deterministic mock when no key is set or all live paths fail.
+
+Each result dict includes a "backend" field ("mcp" | "sdk" | "mock") so the
+demo and audit log can show which path executed.
 
 Behavior:
-- If STRIPE_SECRET_KEY is present in env AND begins with "sk_test_", the live Stripe
-  test-mode SDK path is taken (PaymentIntent, Subscription, etc.).
-- sk_live_ keys are explicitly refused — this is a hackathon project and live-mode
-  charges would be a safety hazard.
-- Any Stripe SDK error or missing key falls through to the deterministic mock path;
-  callers are never raised-to.
+- sk_live_ keys are explicitly refused; falling back to mock.
+- Any live-path error (MCP or SDK) falls through gracefully; callers never raised-to.
 
 Public API:
     pay(vendor, amount, idempotency_key) -> dict
@@ -24,6 +30,9 @@ import json
 import logging
 import os
 from typing import Optional
+
+from payments.stripe_mcp import StripeMcpError, mcp_collect_fee  # noqa: E402
+from payments.stripe_mcp import mcp_create_subscription, mcp_pay, stripe_mcp_enabled
 
 STRIPE_MODE = "test"
 
@@ -89,22 +98,40 @@ def pay(
 ) -> dict:
     """Charge a vendor via PaymentIntent; returns a PaymentIntent-shaped dict.
 
-    Live path: stripe.PaymentIntent.create(amount_cents, currency, payment_method,
-    confirm=True). Mock path: deterministic id from sha256(vendor, amount, key).
-    amount is in dollars; converted to cents for Stripe.
+    Backend order: MCP -> SDK -> mock. amount is dollars; converted to cents internally.
     """
-    key = idempotency_key or f"{vendor}:{amount}"
+    ikey = idempotency_key or f"{vendor}:{amount}"
+    amount_cents = int(round(amount * 100))
+
+    if stripe_mcp_enabled():
+        try:
+            result = mcp_pay(
+                amount_cents,
+                currency="usd",
+                metadata={"vendor": vendor, "idempotency_key": ikey},
+            )
+            return {
+                "id": result.get("id", _stable_id("pi_test", vendor, amount, ikey)),
+                "status": result.get("status", "succeeded"),
+                "amount": amount,
+                "vendor": vendor,
+                "mode": STRIPE_MODE,
+                "livemode": False,
+                "backend": "mcp",
+            }
+        except StripeMcpError as exc:
+            logger.warning("MCP pay failed (%s); falling back to SDK", exc)
+
     stripe = _get_stripe()
     if stripe is not None:
         try:
-            amount_cents = int(round(amount * 100))
             pi = stripe.PaymentIntent.create(
                 amount=amount_cents,
                 currency="usd",
                 payment_method=_TEST_PM,
                 confirm=True,
                 automatic_payment_methods={"enabled": True, "allow_redirects": "never"},
-                idempotency_key=key,
+                idempotency_key=ikey,
             )
             return {
                 "id": pi.id,
@@ -113,11 +140,12 @@ def pay(
                 "vendor": vendor,
                 "mode": STRIPE_MODE,
                 "livemode": False,
+                "backend": "sdk",
             }
         except Exception as exc:
             logger.warning("Stripe pay failed (%s); using mock", exc)
 
-    pi_id = _stable_id("pi_test", vendor, amount, key)
+    pi_id = _stable_id("pi_test", vendor, amount, ikey)
     return {
         "id": pi_id,
         "status": "succeeded",
@@ -125,6 +153,7 @@ def pay(
         "vendor": vendor,
         "mode": STRIPE_MODE,
         "livemode": False,
+        "backend": "mock",
     }
 
 
@@ -145,16 +174,29 @@ def cancel_subscription(vendor: str) -> dict:
 
 
 def create_subscription(vendor: str, amount: float) -> dict:
-    """Provision a Stripe subscription (Product + Price + Subscription).
+    """Provision a Stripe subscription (Product + Price + Customer + Subscription).
 
-    Live path: creates a Product, a recurring monthly Price (amount in cents),
-    and a Subscription with a test Customer. Mock path: deterministic id.
-    amount is monthly dollars.
+    Backend order: MCP -> SDK -> mock. amount is monthly dollars.
     """
+    amount_cents = int(round(amount * 100))
+
+    if stripe_mcp_enabled():
+        try:
+            sub = mcp_create_subscription(vendor, amount_cents)
+            return {
+                "id": sub.get("id", _stable_id("sub_test", vendor, amount, "create")),
+                "vendor": vendor,
+                "amount": amount,
+                "status": sub.get("status", "active"),
+                "mode": STRIPE_MODE,
+                "backend": "mcp",
+            }
+        except StripeMcpError as exc:
+            logger.warning("MCP create_subscription failed (%s); falling back to SDK", exc)
+
     stripe = _get_stripe()
     if stripe is not None:
         try:
-            amount_cents = int(round(amount * 100))
             product = stripe.Product.create(name=f"NemoClaw SaaS — {vendor}")
             price = stripe.Price.create(
                 product=product.id,
@@ -176,6 +218,7 @@ def create_subscription(vendor: str, amount: float) -> dict:
                 "amount": amount,
                 "status": sub.status,
                 "mode": STRIPE_MODE,
+                "backend": "sdk",
             }
         except Exception as exc:
             logger.warning("Stripe create_subscription failed (%s); using mock", exc)
@@ -187,20 +230,37 @@ def create_subscription(vendor: str, amount: float) -> dict:
         "amount": amount,
         "status": "active",
         "mode": STRIPE_MODE,
+        "backend": "mock",
     }
 
 
 def collect_fee(amount: float, basis: str) -> dict:
-    """Record NemoClaw's own 0.5% revenue fee via a test-mode PaymentIntent.
+    """Record NemoClaw's 0.5% platform fee via a test-mode PaymentIntent.
 
-    Live path: stripe.PaymentIntent.create for the fee amount (in cents).
-    Mock path: deterministic id.
-    amount is in dollars.
+    Backend order: MCP -> SDK -> mock. amount is in dollars.
     """
+    amount_cents = int(round(amount * 100))
+
+    if stripe_mcp_enabled():
+        try:
+            result = mcp_collect_fee(
+                amount_cents,
+                metadata={"basis": basis},
+            )
+            return {
+                "id": result.get("id", _stable_id("pi_test", "nemoclaw_fee", amount, basis)),
+                "amount": amount,
+                "status": result.get("status", "succeeded"),
+                "mode": STRIPE_MODE,
+                "basis": basis,
+                "backend": "mcp",
+            }
+        except StripeMcpError as exc:
+            logger.warning("MCP collect_fee failed (%s); falling back to SDK", exc)
+
     stripe = _get_stripe()
     if stripe is not None:
         try:
-            amount_cents = int(round(amount * 100))
             pi = stripe.PaymentIntent.create(
                 amount=amount_cents,
                 currency="usd",
@@ -215,6 +275,7 @@ def collect_fee(amount: float, basis: str) -> dict:
                 "status": pi.status,
                 "mode": STRIPE_MODE,
                 "basis": basis,
+                "backend": "sdk",
             }
         except Exception as exc:
             logger.warning("Stripe collect_fee failed (%s); using mock", exc)
@@ -226,4 +287,5 @@ def collect_fee(amount: float, basis: str) -> dict:
         "status": "succeeded",
         "mode": STRIPE_MODE,
         "basis": basis,
+        "backend": "mock",
     }
