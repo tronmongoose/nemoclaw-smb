@@ -35,3 +35,6 @@ tenant-run: ## Load TENANT and print resolved config + routing decision (TENANT=
 
 tenant-analyze: ## Run full analysis pipeline for TENANT (ingest → graph → P&L → findings → report)
 	PYTHONPATH=. python3 scripts/tenant_analyze.py $(TENANT)
+
+tenant-loop: ## Run ingestion+analysis cycle for TENANT and MODE (weekly|monthly)
+	PYTHONPATH=. python3 scripts/tenant_loop.py $(TENANT) $(MODE)

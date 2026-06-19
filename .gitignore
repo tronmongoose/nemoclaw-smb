@@ -45,5 +45,7 @@ tenants/*/.env
 # Real tenants' data/ will also be excluded by $NEMOCLAW_TENANTS_ROOT placement.
 tenants/[!_]*/data/
 
-# generated tenant analysis reports
+# generated tenant analysis reports and loop runtime state
 tenants/*/data/report.md
+tenants/*/data/state/
+tenants/*/data/escalations.jsonl

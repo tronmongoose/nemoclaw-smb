@@ -26,6 +26,9 @@ dev = [
 guardrails = [
     "nemoguardrails>=0.11",
 ]
+plaid = [
+    "plaid-python>=18.0",
+]
 
 [tool.ruff]
 line-length = 100
