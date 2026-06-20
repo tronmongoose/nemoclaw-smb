@@ -29,7 +29,7 @@ import os
 import time
 from dataclasses import asdict
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -100,7 +100,7 @@ def validate_mpp_token(token: str) -> bool:
     return token.startswith(_DEMO_TOKEN_PREFIX)
 
 
-def _extract_token(authorization: str | None) -> str | None:
+def _extract_token(authorization: Optional[str]) -> Optional[str]:
     """Parse Bearer token from Authorization header. Returns None if absent/malformed."""
     if not authorization:
         return None
@@ -119,7 +119,7 @@ def _write_earn_event(
     service: str,
     amount_cents: int,
     token_id: str,
-    audit_path_env: str | None = None,
+    audit_path_env: Optional[str] = None,
 ) -> dict:
     """Append an MPP earn event to the hash-chained audit log.
 
@@ -204,7 +204,7 @@ def _c1_authorize(action: str) -> tuple[bool, str]:
 @app.post("/price")
 async def price_endpoint(
     body: PriceRequestBody,
-    authorization: str | None = Header(default=None),
+    authorization: Optional[str] = Header(default=None),
 ) -> JSONResponse:
     """POST /price -- $0.25 per call.
 
@@ -260,7 +260,7 @@ async def price_endpoint(
 @app.post("/aeo-audit")
 async def aeo_audit_endpoint(
     body: AEORequestBody,
-    authorization: str | None = Header(default=None),
+    authorization: Optional[str] = Header(default=None),
 ) -> JSONResponse:
     """POST /aeo-audit -- $1.00 per call.
 

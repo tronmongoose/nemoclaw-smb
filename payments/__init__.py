@@ -10,13 +10,11 @@ Exports:
 from payments.connect import ConnectedAccount, ensure_owner_accounts, get_connected_account
 from payments.issuing import CleanerCardResult, RevokeResult, issue_cleaner_card, revoke_card
 from payments.metronome import OwnerInvoice, calculate_ubp
-from payments.mpp_server import (
-    AEO_AUDIT_ENDPOINT_CENTS,
-    PRICE_ENDPOINT_CENTS,
-    app as mpp_app,
-    validate_mpp_token,
-)
 from payments.payouts import PayoutBatch, PayoutRecord, run_payouts
+
+# mpp_server pulls in FastAPI; import it directly as payments.mpp_server where the
+# MPP earn server runs. Keeping it out of the package import avoids dragging
+# FastAPI into every consumer of payments and keeps the 3.9 test collection clean.
 
 __all__ = [
     "CleanerCardResult",
@@ -31,8 +29,4 @@ __all__ = [
     "get_connected_account",
     "OwnerInvoice",
     "calculate_ubp",
-    "mpp_app",
-    "validate_mpp_token",
-    "PRICE_ENDPOINT_CENTS",
-    "AEO_AUDIT_ENDPOINT_CENTS",
 ]
