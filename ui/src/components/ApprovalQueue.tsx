@@ -59,7 +59,9 @@ function ApprovalCard({
           {formatUSD(item.amount)}
         </span>
       </div>
-      <div className="text-slate-500 mb-2 leading-relaxed">{item.context}</div>
+      <div className="text-slate-500 mb-2 leading-relaxed">
+        {item.context?.anomaly_reason ?? item.context?.policy_reason ?? ""}
+      </div>
       <div className="flex items-center justify-between">
         <span className="text-slate-600">
           expires {formatRelativeTime(item.expires_at)}

@@ -45,12 +45,19 @@ export interface AnomalyRecord {
   reason: string;
 }
 
+export interface ApprovalContext {
+  invoice_id?: string;
+  threshold?: number;
+  policy_reason?: string;
+  anomaly_reason?: string;
+}
+
 export interface ApprovalItem {
   id: string;
   action: string;
   vendor: string;
   amount: number;
-  context: string;
+  context: ApprovalContext;
   created_at: string;
   expires_at: string;
   status: string;
