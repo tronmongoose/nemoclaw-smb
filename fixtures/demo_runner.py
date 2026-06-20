@@ -280,7 +280,23 @@ def scene_6(aws_result: dict, switch_result: dict) -> None:
     print(f"\nYou owe NemoClaw ${fee_amount:.2f}")
 
     ok, msg = verify_chain(_AUDIT_PATH_STR)
-    print(f"\nAudit chain verify: {ok}  --  {msg}")
+    print(f"\nAudit chain: {msg}  |  tamper-evident: {ok}")
+    if _AUDIT_PATH.exists():
+        import json as _json
+        print("\nChain entries:")
+        with _AUDIT_PATH.open("r", encoding="utf-8") as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if not _line:
+                    continue
+                _e = _json.loads(_line)
+                _hash8 = str(_e.get("entry_hash", ""))[:8]
+                print(
+                    f"  [{_e.get('seq', '?'):>2}] {_e.get('action', ''):<20}"
+                    f"  {_e.get('vendor', ''):<28}"
+                    f"  ${float(_e.get('amount', 0)):>9.2f}"
+                    f"  #{_hash8}"
+                )
 
 
 def main() -> None:

@@ -9,6 +9,7 @@ import { InvoiceFeed } from "./components/InvoiceFeed";
 import { ApprovalQueue } from "./components/ApprovalQueue";
 import { SavingsPanel } from "./components/SavingsPanel";
 import { TenantDashboard } from "./components/tenant/TenantDashboard";
+import { OpsHeadlineBand } from "./components/OpsHeadlineBand";
 import { usePoll } from "./hooks/usePoll";
 import { AuditResponse } from "./types";
 
@@ -48,6 +49,7 @@ export function App() {
       <main className="flex-1 p-4">
         {view === "ops" ? (
           <ErrorBoundary label="Ops Dashboard">
+            <OpsHeadlineBand />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-[minmax(360px,auto)]">
               <PanelCard title="Knowledge Graph" className="lg:row-span-2">
                 <ErrorBoundary label="Knowledge Graph">
