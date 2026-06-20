@@ -3,8 +3,16 @@
 Exports: load_transactions
 
 Discovers *.csv and *.xlsx files in tenant.data_root, dispatches each to
-the appropriate adapter (Chase CSV if Chase header detected, else spreadsheet),
-merges results, deduplicates by (date, vendor, amount), and sorts by date.
+the appropriate adapter:
+  - cashflow matrix (month headers detected by is_matrix) -> cashflow_matrix adapter
+  - Chase CSV (Chase header detected by is_chase_csv) -> chase_csv adapter
+  - all others -> spreadsheet adapter with column map from tenant config
+
+When ingestion.include globs are present in tenant config, only files matching
+at least one glob are ingested. This lets a tenant select just the cashflow
+matrix CSV and exclude a Chase CSV to avoid double-counting the same spend.
+
+Merges results, deduplicates by (date, vendor, amount), and sorts by date.
 """
 
 from __future__ import annotations
@@ -28,6 +36,34 @@ def _get_column_map(tenant: "Tenant") -> dict[str, str]:
     return spreadsheet.get("columns", {}) if isinstance(spreadsheet, dict) else {}
 
 
+def _get_include_globs(tenant: "Tenant") -> list[str]:
+    """Extract ingestion.include glob list from tenant config; empty means include all."""
+    ingestion = getattr(tenant, "ingestion", {}) or {}
+    if not isinstance(ingestion, dict):
+        return []
+    include = ingestion.get("include")
+    if not include:
+        return []
+    return list(include) if isinstance(include, (list, tuple)) else [str(include)]
+
+
+def _get_cashflow_config(tenant: "Tenant") -> dict[str, Any]:
+    """Extract ingestion.cashflow sub-config from tenant config."""
+    ingestion = getattr(tenant, "ingestion", {}) or {}
+    if not isinstance(ingestion, dict):
+        return {}
+    cashflow = ingestion.get("cashflow")
+    return dict(cashflow) if isinstance(cashflow, dict) else {}
+
+
+def _file_matches_include(path: Path, globs: list[str]) -> bool:
+    """Return True when the file matches any of the provided glob patterns."""
+    for pattern in globs:
+        if path.match(pattern):
+            return True
+    return False
+
+
 def _dedup(transactions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Deduplicate by (date, vendor, amount); preserve first occurrence order."""
     seen: set[tuple] = set()
@@ -47,9 +83,11 @@ def load_transactions(tenant: "Tenant") -> list[dict[str, Any]]:
         date (ISO), vendor (str), amount (float, positive),
         direction ("expense"|"income"), category (str|None), source (str)
 
-    Files matching Chase CSV header use chase_csv adapter; all others use
-    spreadsheet adapter with column map from tenant config.
+    Dispatch order: cashflow_matrix -> chase_csv -> spreadsheet.
     """
+    from ingestion.cashflow_matrix import (
+        DEFAULT_EXPENSE, DEFAULT_INCOME, DEFAULT_SKIP, is_matrix, load_matrix,
+    )
     from ingestion.chase_csv import is_chase_csv, parse_chase_csv
     from ingestion.spreadsheet import parse_spreadsheet
 
@@ -66,18 +104,44 @@ def load_transactions(tenant: "Tenant") -> list[dict[str, Any]]:
         _log.warning("load_transactions: no CSV/XLSX files found in %s", data_root)
         return []
 
-    # Column map only used by spreadsheet adapter; lazily resolved once.
+    include_globs = _get_include_globs(tenant)
+    if include_globs:
+        files = [f for f in files if _file_matches_include(f, include_globs)]
+        if not files:
+            _log.warning(
+                "load_transactions: include globs %s matched no files in %s",
+                include_globs, data_root,
+            )
+            return []
+
     col_map = _get_column_map(tenant)
+    cf_cfg = _get_cashflow_config(tenant)
+    cf_year: int | None = cf_cfg.get("year") or None
+    cf_income: list[str] = cf_cfg.get("income", DEFAULT_INCOME)
+    cf_expense: list[str] = cf_cfg.get("expense", DEFAULT_EXPENSE)
+    cf_skip: list[str] = cf_cfg.get("skip", DEFAULT_SKIP)
 
     all_transactions: list[dict[str, Any]] = []
     for f in files:
         try:
-            if is_chase_csv(f):
+            if is_matrix(f):
+                txns = load_matrix(f, cf_year, cf_income, cf_expense, cf_skip)
+                _log.info(
+                    "load_transactions: %s -> cashflow_matrix adapter (%d rows)",
+                    f.name, len(txns),
+                )
+            elif is_chase_csv(f):
                 txns = parse_chase_csv(f)
-                _log.info("load_transactions: %s -> chase adapter (%d rows)", f.name, len(txns))
+                _log.info(
+                    "load_transactions: %s -> chase adapter (%d rows)",
+                    f.name, len(txns),
+                )
             else:
                 txns = parse_spreadsheet(f, column_map=col_map)
-                _log.info("load_transactions: %s -> spreadsheet adapter (%d rows)", f.name, len(txns))
+                _log.info(
+                    "load_transactions: %s -> spreadsheet adapter (%d rows)",
+                    f.name, len(txns),
+                )
             all_transactions.extend(txns)
         except Exception as exc:  # noqa: BLE001
             _log.warning("load_transactions: failed to parse %s: %s", f.name, exc)
