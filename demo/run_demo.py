@@ -1,4 +1,4 @@
-"""demo/run_demo.py -- Three-act console demo runner for the STR agent.
+"""demo/run_demo.py: Three-act console demo runner for the STR agent.
 
 Orchestrates all three acts in sequence using real act functions. DEMO_MODE
 must be set (default: true) so no live credentials are required.
@@ -6,10 +6,10 @@ must be set (default: true) so no live credentials are required.
 Run with: python -m demo.run_demo
 
 Public API:
-    run_act_1() -> None  -- STR Owner: ledger, anomaly, approval gate, payment
-    run_act_2() -> None  -- Property Mgmt: checkout, card, payouts, UBP invoice
-    run_act_3() -> None  -- Platform: MPP 402/200 loop, AEO audit, earn metrics
-    run_demo()  -> None  -- Runs all three acts then prints audit chain verification
+    run_act_1() -> None: STR Owner: ledger, anomaly, approval gate, payment
+    run_act_2() -> None: Property Mgmt: checkout, card, payouts, UBP invoice
+    run_act_3() -> None: Platform: MPP 402/200 loop, AEO audit, earn metrics
+    run_demo()  -> None: Runs all three acts then prints audit chain verification
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ from acts.str_owner_agent import reconcile_month
 from agent.audit_log import verify_chain
 from config.model_routing import HERMES_SMALL, NEMOTRON_ULTRA
 from data.mock_listings import LISTINGS
-from payments.mpp_server import app as _mpp_app  # noqa: F401 -- drives TestClient
+from payments.mpp_server import app as _mpp_app  # noqa: F401 (drives TestClient)
 from demo._act_helpers import (
     pause_for_narration,
     print_act_header,
@@ -92,7 +92,7 @@ def run_act_1() -> None:
     shows the C1 NHI, demonstrates REQUIRE_APPROVAL holding the corrected $840,
     simulates approval, and shows the signed payment plus audit chain tail.
     """
-    print_act_header("ACT 1 -- I'M A PROPERTY OWNER")
+    print_act_header("ACT 1: I'M A PROPERTY OWNER")
     pause_for_narration(f"Model routing: heavy tasks -> {NEMOTRON_ULTRA}")
     #COMPLETION_DRIVE: reconcile_month runs the full Act I flow including demo auto-approval
     report = reconcile_month(_DEMO_PROPERTY, _DEMO_MONTH)
@@ -136,7 +136,7 @@ def run_act_2() -> None:
     MCC 7349/5251, EOD expiry), runs month-end payouts to 3 crew, and shows
     per-owner UBP invoices.
     """
-    print_act_header("ACT 2 -- I'M THE MANAGEMENT COMPANY")
+    print_act_header("ACT 2: I'M THE MANAGEMENT COMPANY")
     pause_for_narration(f"Model routing: small/format tasks -> {HERMES_SMALL}")
     card = handle_checkout_event(_DEMO_PROPERTY, _DEMO_CHECKOUT_DATE)
     _show_act2_checkout(card)
@@ -193,7 +193,7 @@ def _mpp_aeo_roundtrip() -> dict:
 
 def _show_act3_pricing(price_data: dict) -> None:
     """Display the pricing recommendation from the 200 response."""
-    pause_for_narration("MPP /price -- 200 OK with earn event:")
+    pause_for_narration("MPP /price: 200 OK with earn event:")
     r200_body = price_data["result"]
     show_mpp_exchange(price_data["status_200"], {
         "service": r200_body.get("service"),
@@ -206,7 +206,7 @@ def _show_act3_pricing(price_data: dict) -> None:
 
 def _show_act3_aeo(aeo_data: dict) -> None:
     """Display the full AEO audit from the 200 response plus the serve_aeo_call result."""
-    pause_for_narration("MPP /aeo-audit -- 200 OK. Running full AEO audit...")
+    pause_for_narration("MPP /aeo-audit: 200 OK. Running full AEO audit...")
     listing = LISTINGS["prop-001"]
     aeo_full = serve_aeo_call(
         listing_text=listing["description"],
@@ -234,7 +234,7 @@ def run_act_3() -> None:
     (51/100 breakdown, CRITICAL dog-only conflict, optimized opening, JSON-LD
     schema), and shows platform earn metrics plus mpp_earn audit events.
     """
-    print_act_header("ACT 3 -- I'M THE PLATFORM")
+    print_act_header("ACT 3: I'M THE PLATFORM")
     reset_metrics()
     # Pricing roundtrip: 402 -> 200
     pause_for_narration("Calling POST /price without a token to show the 402 gate...")

@@ -1,4 +1,4 @@
-# NemoClaw STR Agent -- Hackathon Submission
+# NemoClaw STR Agent: Hackathon Submission
 
 Hermes Agent Accelerated Business Hackathon (Nous Research x NVIDIA x Stripe).
 Submission deadline: 2026-06-30.

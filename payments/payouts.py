@@ -1,11 +1,11 @@
-"""payments/payouts.py -- Global Payouts wrapper for crew members (mocked).
+"""payments/payouts.py: Global Payouts wrapper for crew members (mocked).
 
 Pays each crew member for a given month via a signed Carryall envelope and
 a mocked Stripe Transfer. Audit entries are written as if real.
 
 Public API:
-    PayoutBatch    -- dataclass with per-member results
-    PayoutRecord   -- dataclass for a single payout
+    PayoutBatch: dataclass with per-member results
+    PayoutRecord: dataclass for a single payout
     run_payouts(crew, month) -> PayoutBatch
 """
 from __future__ import annotations

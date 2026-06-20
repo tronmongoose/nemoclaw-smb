@@ -73,7 +73,7 @@ in code.
 ## Architecture
 
 ```
-Hermes (Nous Portal) -- orchestrator, intent parsing
+Hermes (Nous Portal): orchestrator, intent parsing
         |
         v
 NemoClaw harness (REQUIRE_APPROVAL gate, spend threshold)
@@ -115,7 +115,7 @@ Audit: SHA-256 hash-chained log, verified end-to-end
 | **Stripe Global Payouts** | Stripe | Month-end crew payouts | 2 |
 | **Metronome UBP** | Stripe ecosystem | Usage-based owner invoices per property per month | 2 |
 | **Stripe MPP / HTTP-402** | Stripe | Platform agent sells pricing + AEO audits to AI callers | 3 |
-| **ConductorOne** | -- | Agent NHI, sub-agent scoping, Baton OSS access inventory | All |
+| **ConductorOne** | (no sponsor tier) | Agent NHI, sub-agent scoping, Baton OSS access inventory | All |
 
 ---
 

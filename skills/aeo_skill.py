@@ -1,14 +1,14 @@
-"""skills/aeo_skill.py -- Agent Engine Optimization (AEO) audit skill.
+"""skills/aeo_skill.py: Agent Engine Optimization (AEO) audit skill.
 
 Scores STR listings for machine parseability by AI booking agents.
 Sweet Clementine result is pre-seeded (instant demo, no inference required).
 All other listings run the deterministic rubric defined below.
 
 Public API:
-    AEOAuditRequest   -- input dataclass
-    AEOAuditResult    -- output dataclass
-    DimensionScores   -- 4 x 25 pts breakdown
-    AEOFlag           -- severity-coded issue with plain_english explanation
+    AEOAuditRequest: input dataclass
+    AEOAuditResult: output dataclass
+    DimensionScores: 4 x 25 pts breakdown
+    AEOFlag: severity-coded issue with plain_english explanation
     audit_listing(req) -> AEOAuditResult
 """
 from __future__ import annotations
@@ -79,7 +79,7 @@ class AEOAuditRequest:
     listing_text: str             # Full prose description
     amenities_list: List[str]     # Structured amenities already present
     existing_schema: dict         # Any existing JSON-LD/schema.org data (may be empty)
-    listing_url: str              # For reference only -- not fetched at runtime
+    listing_url: str              # For reference only (not fetched at runtime)
 
 
 @dataclass
@@ -179,7 +179,7 @@ _CLEMENTINE_FLAGS: List[AEOFlag] = [
     AEOFlag(
         severity="CRITICAL",
         code="checkin_time_missing",
-        message="Check-in time is not stated anywhere in the listing -- structured or prose.",
+        message="Check-in time is not stated anywhere in the listing, structured or prose.",
         plain_english=(
             "AI booking agents cannot answer 'What time is check-in?' "
             "for this property. Every guest inquiry requires a host response."
@@ -188,7 +188,7 @@ _CLEMENTINE_FLAGS: List[AEOFlag] = [
     AEOFlag(
         severity="CRITICAL",
         code="checkout_time_missing",
-        message="Checkout time is not stated anywhere in the listing -- structured or prose.",
+        message="Checkout time is not stated anywhere in the listing, structured or prose.",
         plain_english=(
             "AI booking agents cannot answer 'What time is checkout?' "
             "for this property. Late checkout requests cannot be auto-processed."
@@ -263,7 +263,7 @@ _SWEET_CLEMENTINE_RESULT = AEOAuditResult(
 
 
 # ---------------------------------------------------------------------------
-# Live rubric helpers -- used for all listings that are NOT Sweet Clementine.
+# Live rubric helpers: used for all listings that are NOT Sweet Clementine.
 # ---------------------------------------------------------------------------
 
 def _score_structure(req: AEOAuditRequest) -> int:
@@ -277,16 +277,16 @@ def _score_structure(req: AEOAuditRequest) -> int:
     amenities = [a.lower() for a in req.amenities_list]
 
     pts = 0
-    # Check-in and checkout times -- 5 pts each, only if structured
+    # Check-in and checkout times: 5 pts each, only if structured
     if schema.get("checkinTime"):
         pts += 5
     if schema.get("checkoutTime"):
         pts += 5
-    # Max occupancy -- 3 pts
+    # Max occupancy: 3 pts
     occ = schema.get("x-str-max-occupancy") or schema.get("occupancy", {})
     if occ:
         pts += 3
-    # Pet policy with species and fee -- 4 pts total
+    # Pet policy with species and fee: 4 pts total
     pet = schema.get("x-str-pet-policy", {})
     if pet.get("allowed") is not None:
         pts += 1
@@ -294,26 +294,26 @@ def _score_structure(req: AEOAuditRequest) -> int:
         pts += 2
     if pet.get("feePerPetPerNight") is not None:
         pts += 1
-    # Smoking policy -- 2 pts if structured
+    # Smoking policy: 2 pts if structured
     if "smokingAllowed" in schema:
         pts += 2
-    # Cancellation tier -- 2 pts if structured
+    # Cancellation tier: 2 pts if structured
     cancel = schema.get("x-str-cancellation-policy", {})
     if cancel.get("tier"):
         pts += 2
-    # Parking -- 2 pts if structured with type
+    # Parking: 2 pts if structured with type
     parking = schema.get("x-str-parking", {})
     if parking.get("available") is not None:
         pts += 1
     if parking.get("type"):
         pts += 1
-    # Quiet hours -- 1 pt
+    # Quiet hours: 1 pt
     if schema.get("x-str-quiet-hours"):
         pts += 1
-    # Permit number -- 2 pts
+    # Permit number: 2 pts
     if schema.get("x-str-permit") or "permit" in text:
         pts += 2
-    # Min stay -- 2 pts if structured
+    # Min stay: 2 pts if structured
     if schema.get("x-str-min-stay") or "minimum stay" in text:
         pts += 1
 
@@ -333,7 +333,7 @@ def _score_parseability(req: AEOAuditRequest) -> int:
     pet = schema.get("x-str-pet-policy", {})
     parking = schema.get("x-str-parking", {})
 
-    # 1. can_bring_dog -- need structured pet policy with species
+    # 1. can_bring_dog: need structured pet policy with species
     if pet.get("species"):
         answered += 1
     # 2. checkin_time
@@ -357,7 +357,7 @@ def _score_parseability(req: AEOAuditRequest) -> int:
     # 8. max_guests
     if schema.get("x-str-max-occupancy"):
         answered += 1
-    # 9. outdoor_space -- WiFi in amenities list counts as structured
+    # 9. outdoor_space: WiFi in amenities list counts as structured
     outdoor_terms = {"fire pit", "backyard", "patio", "deck", "balcony", "outdoor"}
     if any(t in a for a in amenities for t in outdoor_terms):
         answered += 1
@@ -407,7 +407,7 @@ def _score_description(req: AEOAuditRequest) -> int:
 
 
 def _score_conflict_free(req: AEOAuditRequest) -> int:
-    """Dimension 4: Conflict-free. Starts at 25 -- deductions for contradictions.
+    """Dimension 4: Conflict-free. Starts at 25; deductions for contradictions.
 
     -25 for a structured/prose contradiction on a material policy field.
     -10 for a credibility mismatch (claim vs. stated data).
@@ -561,7 +561,7 @@ def _build_optimized_opening(req: AEOAuditRequest) -> str:
 # Public entry point
 # ---------------------------------------------------------------------------
 
-# Listing URL for Sweet Clementine -- used to route to the pre-seeded result.
+# Listing URL for Sweet Clementine: used to route to the pre-seeded result.
 _CLEMENTINE_URL: str = "https://www.airbnb.com/rooms/838634728141757030"
 _DEMO_MODE: bool = os.environ.get("DEMO_MODE", "true").lower() == "true"
 

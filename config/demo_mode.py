@@ -1,11 +1,11 @@
-"""config/demo_mode.py -- First-class DEMO_MODE flag for the STR agent.
+"""config/demo_mode.py: First-class DEMO_MODE flag for the STR agent.
 
 When DEMO_MODE is true, Stripe primitives log-but-mock instead of executing
 real payment calls. Default is true so no keys are needed to run the demo.
 
 Public API:
-    DEMO_MODE_ENV   -- name of the controlling environment variable ("DEMO_MODE")
-    demo_mode()     -- return True when demo mode is active
+    DEMO_MODE_ENV: name of the controlling environment variable ("DEMO_MODE")
+    demo_mode(): return True when demo mode is active
 """
 from __future__ import annotations
 

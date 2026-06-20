@@ -1,4 +1,4 @@
-"""demo -- STR agent demo runner package.
+"""demo: STR agent demo runner package.
 
 STRUCTURE NOTE: Act orchestrators live in acts/ (not agents/) to avoid colliding
 with the existing agent/ package. Stripe primitives live in payments/ (not stripe/)

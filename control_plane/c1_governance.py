@@ -1,4 +1,4 @@
-"""control_plane/c1_governance.py -- ConductorOne governance helper for the STR demo.
+"""control_plane/c1_governance.py: ConductorOne governance helper for the STR demo.
 
 Foregrounds the C1 identity and access governance story in the demo. All identities
 are synthetic and local; no real C1 work-tenant data is used here (PANW/C1 firewall,
@@ -79,7 +79,7 @@ def authorize(
         return decision.allowed, decision.reason
     except Exception as exc:  # noqa: BLE001
         _logger.warning(
-            "policy_check error for %s on %s/%s: %s -- defaulting to allowed",
+            "policy_check error for %s on %s/%s: %s (defaulting to allowed)",
             agent_id, action, resource, exc,
         )
         return True, f"synthetic default: policy_check unavailable ({exc})"

@@ -1,11 +1,11 @@
-"""payments/metronome.py -- Usage-based billing via Metronome (mocked).
+"""payments/metronome.py: Usage-based billing via Metronome (mocked).
 
 Calculates monthly owner invoices as a percentage of nightly revenue collected,
 with itemized line items per property. All Metronome API calls are mocked.
 
 Public API:
-    InvoiceLine    -- dataclass for a single line item
-    OwnerInvoice   -- dataclass for one owner's monthly invoice
+    InvoiceLine: dataclass for a single line item
+    OwnerInvoice: dataclass for one owner's monthly invoice
     calculate_ubp(owner_id, month) -> OwnerInvoice
 """
 from __future__ import annotations

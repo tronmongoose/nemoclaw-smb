@@ -1,4 +1,4 @@
-"""payments/mpp_server.py -- MPP (Machine Payments Protocol) HTTP-402 earn server.
+"""payments/mpp_server.py: MPP (Machine Payments Protocol) HTTP-402 earn server.
 
 Exposes two paid endpoints where the STR agent EARNS by charging callers:
     POST /price       -> $0.25 (25 cents)
@@ -16,10 +16,10 @@ a platform NHI scoped to ["str:price", "str:aeo-audit"]. Unauthorized NHI
 (expired or wrong scope) receives 403 before execution.
 
 Public API:
-    app                         -- FastAPI application instance
-    PRICE_ENDPOINT_CENTS        -- 25
-    AEO_AUDIT_ENDPOINT_CENTS    -- 100
-    validate_mpp_token(token)   -- bool (DEMO_MODE or real Stripe check)
+    app: FastAPI application instance
+    PRICE_ENDPOINT_CENTS: 25
+    AEO_AUDIT_ENDPOINT_CENTS: 100
+    validate_mpp_token(token): bool (DEMO_MODE or real Stripe check)
 """
 from __future__ import annotations
 
@@ -96,7 +96,7 @@ def validate_mpp_token(token: str) -> bool:
     """
     if demo_mode():
         return token.startswith(_DEMO_TOKEN_PREFIX)
-    # Production: token verification via Stripe MPP -- not implemented (no creds)
+    # Production: token verification via Stripe MPP (not implemented, no creds)
     return token.startswith(_DEMO_TOKEN_PREFIX)
 
 
@@ -206,7 +206,7 @@ async def price_endpoint(
     body: PriceRequestBody,
     authorization: Optional[str] = Header(default=None),
 ) -> JSONResponse:
-    """POST /price -- $0.25 per call.
+    """POST /price: $0.25 per call.
 
     Returns HTTP 402 with WWW-Authenticate header when no valid token is present.
     Executes dynamic pricing skill and writes earn event when token is valid.
@@ -262,7 +262,7 @@ async def aeo_audit_endpoint(
     body: AEORequestBody,
     authorization: Optional[str] = Header(default=None),
 ) -> JSONResponse:
-    """POST /aeo-audit -- $1.00 per call.
+    """POST /aeo-audit: $1.00 per call.
 
     Returns HTTP 402 with WWW-Authenticate header when no valid token is present.
     Executes the AEO audit skill and writes earn event when token is valid.

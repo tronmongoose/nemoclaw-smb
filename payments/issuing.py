@@ -1,12 +1,12 @@
-"""payments/issuing.py -- Stripe Issuing for single-use cleaner cards.
+"""payments/issuing.py: Stripe Issuing for single-use cleaner cards.
 
 Issues MCC-restricted, same-day-expiry virtual cards for cleaner crew.
 All Stripe calls are DEMO_MODE-mocked; audit entries are written as if real.
-Raw PAN is never returned, logged, or stored -- only the card token/id.
+Raw PAN is never returned, logged, or stored; only the card token/id.
 
 Public API:
-    CleanerCardResult  -- dataclass returned by issue_cleaner_card
-    RevokeResult       -- dataclass returned by revoke_card
+    CleanerCardResult: dataclass returned by issue_cleaner_card
+    RevokeResult: dataclass returned by revoke_card
     issue_cleaner_card(job_id, property_id, cleaner_id, amount_cents) -> CleanerCardResult
     revoke_card(card_id, reason) -> RevokeResult
 """
@@ -78,7 +78,7 @@ def issue_cleaner_card(
 
     Signs a Carryall envelope before the (mocked) Stripe Issuing call.
     Audit entry records card_id, job_id, amount_cap, expiry, MCC list.
-    Returns a card TOKEN -- never the raw PAN.
+    Returns a card TOKEN (never the raw PAN).
     """
     #COMPLETION_DRIVE: assumes Stripe Issuing is available in the connected account
     expiry_dt = _same_day_eod_utc()

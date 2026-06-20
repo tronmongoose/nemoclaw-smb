@@ -1,4 +1,4 @@
-"""demo/_act_helpers.py -- Display helpers for the three-act STR demo runner.
+"""demo/_act_helpers.py: Display helpers for the three-act STR demo runner.
 
 Provides formatted console output for ledger tables, card issuance results,
 payout batches, AEO breakdowns, and MPP 402/200 exchanges. All output targets
@@ -106,7 +106,7 @@ def show_nhi(nhi_id: str, scopes: list[str], label: str = "Agent NHI") -> None:
 
 def show_approval_hold(amount_cents: int) -> None:
     """Print the REQUIRE_APPROVAL gate message."""
-    print(f"\n  {_c(_YELLOW, 'REQUIRE_APPROVAL')} -- corrected fee ${amount_cents / 100:.2f}")
+    print(f"\n  {_c(_YELLOW, 'REQUIRE_APPROVAL')}: corrected fee ${amount_cents / 100:.2f}")
     print("  Payment held for human approval before any funds move.")
 
 
@@ -168,7 +168,7 @@ def show_mpp_exchange(status: int, body: dict, label: str) -> None:
 def show_aeo_breakdown(aeo_result: Any) -> None:
     """Print the AEO score breakdown, CRITICAL flag, and optimized opening."""
     ds = aeo_result.dimension_scores
-    print(f"\n  {_c(_BOLD, 'AEO Audit -- Sweet Clementine by the Sea')}")
+    print(f"\n  {_c(_BOLD, 'AEO Audit: Sweet Clementine by the Sea')}")
     print(f"  Overall score : {_c(_RED if aeo_result.overall_score < 70 else _GREEN, str(aeo_result.overall_score))}/100")
     print(_SEP_THIN)
     print(f"  {'Dimension':<35} {'Score':>6} / 25")

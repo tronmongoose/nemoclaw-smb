@@ -1,4 +1,4 @@
-"""acts/property_mgmt_agent.py -- Act II: Property Management Agent orchestrator.
+"""acts/property_mgmt_agent.py: Act II: Property Management Agent orchestrator.
 
 Handles checkout-triggered cleaner card issuance (with C1-scoped NHI),
 month-end crew payouts, UBP invoice calculation, and portfolio summary.
@@ -8,7 +8,7 @@ for the "cleaner-subagent" identity (scopes: ["card:issue:cleaning"]) and
 authorized before any card is issued. This is the ConductorOne showcase path.
 
 Public API:
-    PortfolioSummary  -- dataclass with portfolio-level stats
+    PortfolioSummary: dataclass with portfolio-level stats
     handle_checkout_event(property_id, checkout_date) -> CleanerCardResult
     run_month_end_payouts(month) -> PayoutBatch
     calculate_ubp_invoices(month) -> list[OwnerInvoice]

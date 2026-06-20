@@ -1,4 +1,4 @@
-"""payments/envelopes.py -- Ed25519 signed envelope for Stripe writes.
+"""payments/envelopes.py: Ed25519 signed envelope for Stripe writes.
 
 Attempts to import authority_runtime (Carryall, published to PyPI as
 authority-runtime >= 0.5.0). If unavailable, falls back to a thin signer built
@@ -37,9 +37,9 @@ _USING_AUTHORITY_RUNTIME = False
 try:
     import authority_runtime  # type: ignore[import]
     _USING_AUTHORITY_RUNTIME = True
-    _logger.info("authority_runtime available -- using real Carryall envelopes")
+    _logger.info("authority_runtime available: using real Carryall envelopes")
 except ImportError:
-    _logger.info("authority_runtime not installed -- using thin Ed25519 signer (pynacl fallback)")
+    _logger.info("authority_runtime not installed: using thin Ed25519 signer (pynacl fallback)")
 
 
 def _load_or_generate_key() -> tuple[str, str]:
@@ -61,7 +61,7 @@ def _load_or_generate_key() -> tuple[str, str]:
         private_key = Ed25519PrivateKey.generate()
         priv_bytes = private_key.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
         _logger.warning(
-            "CARRYALL_SIGNING_KEY_B64 not set -- using ephemeral demo key. "
+            "CARRYALL_SIGNING_KEY_B64 not set: using ephemeral demo key. "
             "Signatures from this session will not verify across restarts."
         )
         _ = base64.b64encode(priv_bytes).decode()  # available in logs if needed
@@ -142,7 +142,7 @@ def sign_stripe_envelope(
     sig = sign(envelope_payload, priv_hex)
     envelope = {**envelope_payload, "signature": sig}
 
-    # Audit log write BEFORE Stripe write -- required by the envelope contract.
+    # Audit log write BEFORE Stripe write (required by the envelope contract).
     vendor = payload.get("vendor", action)
     amount = float(payload.get("amount_cents", 0)) / 100.0
     append_action(

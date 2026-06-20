@@ -1,18 +1,18 @@
-"""data/mock_listings.py -- Canonical STR listing data and pre-seeded AEO results.
+"""data/mock_listings.py: Canonical STR listing data and pre-seeded AEO results.
 
 Two listings are defined here:
-  (a) Sweet Clementine by the Sea (prop-001) -- low AEO score 51/100 with
+  (a) Sweet Clementine by the Sea (prop-001): low AEO score 51/100 with
       critical conflicts and missing metadata, exactly per the master brief.
-  (b) The Pelican Cottage (prop-002) -- high AEO score 91/100, clean, all
+  (b) The Pelican Cottage (prop-002): high AEO score 91/100, clean, all
       10 booking questions answerable, no conflicts.
 
 The actual AEO scoring logic ships in a later wave (skills/aeo_skill). These
 constants hold the canonical data and pre-seeded results for the demo.
 
 Public API:
-    LISTINGS        -- dict keyed by listing_id with full listing dicts
-    CLEMENTINE_AEO  -- pre-seeded AEO result for Sweet Clementine (51/100)
-    PELICAN_AEO     -- pre-seeded AEO result for The Pelican Cottage (91/100)
+    LISTINGS: dict keyed by listing_id with full listing dicts
+    CLEMENTINE_AEO: pre-seeded AEO result for Sweet Clementine (51/100)
+    PELICAN_AEO: pre-seeded AEO result for The Pelican Cottage (91/100)
 """
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ LISTINGS: dict[str, dict] = {
     },
 }
 
-# Pre-seeded AEO result for Sweet Clementine -- scores per the master brief.
+# Pre-seeded AEO result for Sweet Clementine: scores per the master brief.
 CLEMENTINE_AEO: dict = {
     "property_id": "prop-001",
     "overall_score": 51,
@@ -121,7 +121,7 @@ CLEMENTINE_AEO: dict = {
     },
 }
 
-# Pre-seeded AEO result for The Pelican Cottage -- high-scoring clean listing.
+# Pre-seeded AEO result for The Pelican Cottage: high-scoring clean listing.
 PELICAN_AEO: dict = {
     "property_id": "prop-002",
     "overall_score": 91,

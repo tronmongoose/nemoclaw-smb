@@ -1,4 +1,4 @@
-"""skills/dynamic_pricing_skill.py -- Dynamic pricing recommendation skill.
+"""skills/dynamic_pricing_skill.py: Dynamic pricing recommendation skill.
 
 Synthesizes occupancy, local events, comp-set rates, seasonality, and day-of-week
 into a nightly rate recommendation. The reasoning trace routes to Nemotron Ultra
@@ -9,11 +9,11 @@ Mock inputs include three Oceanside comps and local events (Comic-Con, Farmers
 Market, holiday weekends) that exercise the full signal-synthesis path.
 
 Public API:
-    PricingRequest          -- input dataclass
-    PricingRecommendation   -- output dataclass
-    recommend_price(req)    -- PricingRequest -> PricingRecommendation
-    OCEANSIDE_COMPS         -- three Oceanside comp-set mock listings
-    LOCAL_EVENTS            -- local-event mock inputs (Comic-Con + others)
+    PricingRequest: input dataclass
+    PricingRecommendation: output dataclass
+    recommend_price(req): PricingRequest -> PricingRecommendation
+    OCEANSIDE_COMPS: three Oceanside comp-set mock listings
+    LOCAL_EVENTS: local-event mock inputs (Comic-Con + others)
 """
 from __future__ import annotations
 
@@ -219,9 +219,9 @@ def _title_tweak(req: PricingRequest, final_rate: float) -> str:
     """Generate a brief title tweak reflecting current demand signal."""
     if req.local_events:
         event_name = req.local_events[0]
-        return f"Perfect for {event_name} -- book now at ${final_rate:.0f}/night"
+        return f"Perfect for {event_name}. Book now at ${final_rate:.0f}/night"
     if req.season == "peak":
-        return f"Peak season available -- ${final_rate:.0f}/night"
+        return f"Peak season available: ${final_rate:.0f}/night"
     if req.occupancy_rate >= 0.80:
         return f"Limited availability at ${final_rate:.0f}/night"
     return f"Great value at ${final_rate:.0f}/night this {req.day_of_week.title()}"
@@ -235,7 +235,7 @@ def _demo_reasoning_trace(req: PricingRequest, final_rate: float) -> str:
     """Return the Nemotron reasoning trace, using cached mock in DEMO_MODE."""
     model = route_for("dynamic_pricing")
     if demo_mode():
-        # Deterministic, no live call -- cache satisfies demo requirement
+        # Deterministic, no live call. Cache satisfies demo requirement.
         return (
             f"[{model}/demo-cached] "
             + _build_reasoning(req, final_rate, final_rate)

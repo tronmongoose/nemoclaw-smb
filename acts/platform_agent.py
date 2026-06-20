@@ -1,4 +1,4 @@
-"""acts/platform_agent.py -- Act 3 platform orchestrator for the STR agent.
+"""acts/platform_agent.py: Act 3 platform orchestrator for the STR agent.
 
 Routes pricing and AEO-audit requests through their respective skills, logs
 every earn event to the audit chain, and tracks platform-level metrics:
@@ -10,7 +10,7 @@ Public API:
     serve_pricing_call(property_id, ...)  -> dict
     serve_aeo_call(listing_text, ...)     -> dict
     get_metrics()                         -> dict
-    reset_metrics()                       -- testing only
+    reset_metrics(): testing only
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ _PLATFORM_SCOPES: list[str] = ["str:price", "str:aeo-audit"]
 
 
 # ---------------------------------------------------------------------------
-# Platform metrics (module-level -- lightweight for demo; reset_metrics() for tests)
+# Platform metrics (module-level, lightweight for demo; reset_metrics() for tests)
 # ---------------------------------------------------------------------------
 
 @dataclass

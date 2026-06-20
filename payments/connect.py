@@ -1,10 +1,10 @@
-"""payments/connect.py -- Stripe Connect multi-owner connected accounts (mocked).
+"""payments/connect.py: Stripe Connect multi-owner connected accounts (mocked).
 
 Each STR property owner gets a Stripe Connect account so payouts flow to their
 bank. All Stripe API calls are mocked in DEMO_MODE.
 
 Public API:
-    ConnectedAccount   -- dataclass representing an owner's Stripe account
+    ConnectedAccount: dataclass representing an owner's Stripe account
     ensure_owner_accounts(owners) -> dict[owner_id, ConnectedAccount]
     get_connected_account(owner_id) -> ConnectedAccount | None
 """

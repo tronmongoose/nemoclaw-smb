@@ -1,16 +1,16 @@
-"""acts/str_owner_agent.py -- Act I: STR Owner Agent (management fee reconciliation).
+"""acts/str_owner_agent.py: Act I: STR Owner Agent (management fee reconciliation).
 
 Detects management fee overcharges and initiates a governed Stripe reconciliation
 payout. prop-001 "Sweet Clementine" is charged 22% against a 20% contract on
-$4,200 revenue -- a $84 overcharge the agent catches, holds for approval, and
+$4,200 revenue: an $84 overcharge the agent catches, holds for approval, and
 pays back once approved.
 
 Public API:
-    LedgerSummary       -- dataclass: revenue, fee percentages, line items
-    AnomalyResult       -- dataclass: is_anomaly, expected vs charged, reason
-    PaymentResult       -- dataclass: payment_id, amount_cents, status, audit_hash
-    ReconciliationReport -- dataclass: summary, anomaly, payment, audit_ok
-    REQUIRE_APPROVAL_THRESHOLD_CENTS -- 50000 (equals $500)
+    LedgerSummary: dataclass: revenue, fee percentages, line items
+    AnomalyResult: dataclass: is_anomaly, expected vs charged, reason
+    PaymentResult: dataclass: payment_id, amount_cents, status, audit_hash
+    ReconciliationReport: dataclass: summary, anomaly, payment, audit_ok
+    REQUIRE_APPROVAL_THRESHOLD_CENTS: 50000 (equals $500)
     ingest_ledger(property_id, month) -> LedgerSummary
     detect_fee_anomaly(summary, contract) -> AnomalyResult
     trigger_payment(amount_cents, vendor_id, requires_approval) -> PaymentResult

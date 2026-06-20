@@ -1,11 +1,11 @@
-"""payments -- Stripe payment primitives for NemoClaw SMB agent.
+"""payments: Stripe payment primitives for NemoClaw SMB agent.
 
 Exports:
-    envelopes    -- Ed25519 signed envelopes for Stripe writes
-    issuing      -- Stripe Issuing single-use cleaner cards
-    payouts      -- Global Payouts for crew
-    connect      -- Stripe Connect multi-owner accounts
-    metronome    -- Usage-based billing invoices
+    envelopes: Ed25519 signed envelopes for Stripe writes
+    issuing: Stripe Issuing single-use cleaner cards
+    payouts: Global Payouts for crew
+    connect: Stripe Connect multi-owner accounts
+    metronome: Usage-based billing invoices
 """
 from payments.connect import ConnectedAccount, ensure_owner_accounts, get_connected_account
 from payments.issuing import CleanerCardResult, RevokeResult, issue_cleaner_card, revoke_card

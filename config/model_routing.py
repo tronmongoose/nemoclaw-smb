@@ -1,4 +1,4 @@
-"""config/model_routing.py -- Task-to-model routing table for the STR agent.
+"""config/model_routing.py: Task-to-model routing table for the STR agent.
 
 Nemotron Ultra handles reasoning-heavy tasks (anomaly detection, dynamic pricing,
 AEO scoring). Hermes-small (Nemotron Super) handles lightweight formatting,
@@ -10,16 +10,16 @@ actual client callers (nvidia_client.py uses NEMOTRON_MODEL; hermes_client.py
 uses HERMES_MODEL). Constants here mirror those defaults exactly.
 
 Public API:
-    MODEL_ROUTING   -- dict mapping task name -> model identifier string
-    route_for(task) -- return model identifier for a task; raises KeyError on unknown task
-    NEMOTRON_ULTRA  -- canonical Nemotron Ultra model identifier constant
-    HERMES_SMALL    -- canonical Hermes-small (Nemotron Super) model identifier constant
+    MODEL_ROUTING: dict mapping task name -> model identifier string
+    route_for(task): return model identifier for a task; raises KeyError on unknown task
+    NEMOTRON_ULTRA: canonical Nemotron Ultra model identifier constant
+    HERMES_SMALL: canonical Hermes-small (Nemotron Super) model identifier constant
 """
 from __future__ import annotations
 
 import os
 
-# Model identifier constants -- match the defaults in nvidia_client.py and
+# Model identifier constants: match the defaults in nvidia_client.py and
 # hermes_client.py so routing table, clients, and env vars stay in sync.
 # Override via NEMOTRON_MODEL / HERMES_MODEL in the environment.
 NEMOTRON_ULTRA: str = os.environ.get(
@@ -32,14 +32,14 @@ HERMES_SMALL: str = os.environ.get(
 # Tasks that demand multi-step reasoning or pricing optimization go to Nemotron Ultra.
 # Tasks that are classification, formatting, or templating go to Hermes-small.
 MODEL_ROUTING: dict[str, str] = {
-    # Nemotron Ultra tier -- anomaly detection, pricing, AEO reasoning
+    # Nemotron Ultra tier: anomaly detection, pricing, AEO reasoning
     "anomaly_detection": NEMOTRON_ULTRA,
     "dynamic_pricing": NEMOTRON_ULTRA,
     "aeo_scoring": NEMOTRON_ULTRA,
     "aeo_reasoning": NEMOTRON_ULTRA,
     "revenue_analysis": NEMOTRON_ULTRA,
     "management_fee_audit": NEMOTRON_ULTRA,
-    # Hermes-small tier -- classification, formatting, template rendering
+    # Hermes-small tier: classification, formatting, template rendering
     "listing_format": HERMES_SMALL,
     "guest_message_classify": HERMES_SMALL,
     "crew_dispatch_template": HERMES_SMALL,

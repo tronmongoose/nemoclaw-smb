@@ -1,14 +1,14 @@
-"""data/mock_ledger.py -- Deterministic synthetic STR ledger data.
+"""data/mock_ledger.py: Deterministic synthetic STR ledger data.
 
 Fixed-seed randomness ensures stable test output. prop-001 ("Sweet Clementine
 by the Sea") intentionally carries a management fee anomaly: charged 0.22 vs
 the contracted 0.20, which Act I's anomaly skill should detect.
 
 Public API:
-    PROPERTIES              -- property registry (dict keyed by property_id)
-    MANAGEMENT_FEES_CHARGED -- actual fee pct per property
-    MONTHLY_REVENUE         -- latest monthly revenue in cents per property
-    CREW                    -- list of crew member dicts
+    PROPERTIES: property registry (dict keyed by property_id)
+    MANAGEMENT_FEES_CHARGED: actual fee pct per property
+    MONTHLY_REVENUE: latest monthly revenue in cents per property
+    CREW: list of crew member dicts
     get_property(property_id)           -> dict
     get_ledger_summary(property_id, month) -> dict
     list_properties_for_owner(owner_id) -> list[str]
@@ -68,7 +68,7 @@ PROPERTIES: dict[str, dict] = {
     },
 }
 
-# prop-001 is charged 0.22 vs contract 0.20 -- the Act I anomaly to detect.
+# prop-001 is charged 0.22 vs contract 0.20: the Act I anomaly to detect.
 MANAGEMENT_FEES_CHARGED: dict[str, float] = {
     "prop-001": 0.22,
     "prop-002": 0.20,
