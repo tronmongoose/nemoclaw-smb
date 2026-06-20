@@ -21,6 +21,9 @@ test: ## Run core loop tests
 lint: ## Ruff lint
 	python3 -m ruff check agent api gbrain control_plane payments procurement ingestion analysis connectors verification scripts tests
 
+lint-emdash: ## Scan STR agent sources for em-dash characters (U+2014)
+	python3 -m pytest tests/test_no_em_dash.py -v
+
 demo: ## Run the end-to-end demo dry-run on seed data
 	python3 -m fixtures.demo_runner
 

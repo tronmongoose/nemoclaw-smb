@@ -1,0 +1,67 @@
+"""config/model_routing.py -- Task-to-model routing table for the STR agent.
+
+Nemotron Ultra handles reasoning-heavy tasks (anomaly detection, dynamic pricing,
+AEO scoring). Hermes-small handles lightweight formatting, classification, and
+template rendering. No Chinese-origin models are present or permitted.
+
+Public API:
+    MODEL_ROUTING   -- dict mapping task name -> model identifier string
+    route_for(task) -- return model identifier for a task; raises KeyError on unknown task
+    NEMOTRON_ULTRA  -- canonical Nemotron Ultra model identifier constant
+    HERMES_SMALL    -- canonical Hermes-small model identifier constant
+"""
+from __future__ import annotations
+
+# Model identifier constants -- sourced from public US-origin providers only.
+NEMOTRON_ULTRA: str = "nvidia/nemotron-ultra-253b-v1"
+HERMES_SMALL: str = "nous-hermes-2-pro-llama-3-8b"
+
+# Tasks that demand multi-step reasoning or pricing optimization go to Nemotron Ultra.
+# Tasks that are classification, formatting, or templating go to Hermes-small.
+MODEL_ROUTING: dict[str, str] = {
+    # Nemotron Ultra tier -- anomaly detection, pricing, AEO reasoning
+    "anomaly_detection": NEMOTRON_ULTRA,
+    "dynamic_pricing": NEMOTRON_ULTRA,
+    "aeo_scoring": NEMOTRON_ULTRA,
+    "aeo_reasoning": NEMOTRON_ULTRA,
+    "revenue_analysis": NEMOTRON_ULTRA,
+    "management_fee_audit": NEMOTRON_ULTRA,
+    # Hermes-small tier -- classification, formatting, template rendering
+    "listing_format": HERMES_SMALL,
+    "guest_message_classify": HERMES_SMALL,
+    "crew_dispatch_template": HERMES_SMALL,
+    "booking_confirmation_template": HERMES_SMALL,
+    "owner_report_template": HERMES_SMALL,
+    "expense_categorize": HERMES_SMALL,
+}
+
+_BANNED_ORIGIN_SUBSTRINGS: tuple[str, ...] = (
+    "qwen", "deepseek", "yi-", "baichuan", "glm", "chatglm",
+    "internlm", "minimax", "moonshot", "kimi", "hunyuan",
+)
+
+
+def _assert_no_chinese_models() -> None:
+    """Raise AssertionError if any routing value contains a banned model substring."""
+    for task, model in MODEL_ROUTING.items():
+        lower = model.lower()
+        for banned in _BANNED_ORIGIN_SUBSTRINGS:
+            assert banned not in lower, (
+                f"Chinese-origin model banned by policy: task={task!r} model={model!r} "
+                f"matched banned substring {banned!r}"
+            )
+
+
+_assert_no_chinese_models()
+
+
+def route_for(task: str) -> str:
+    """Return the model identifier for the given task name.
+
+    Raises KeyError when task is not in MODEL_ROUTING.
+    """
+    if task not in MODEL_ROUTING:
+        raise KeyError(
+            f"Unknown STR task {task!r}. Known tasks: {sorted(MODEL_ROUTING)}"
+        )
+    return MODEL_ROUTING[task]
