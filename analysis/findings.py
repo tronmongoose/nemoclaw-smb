@@ -14,9 +14,16 @@ Finding schema:
 
 find() produces ranked advisory findings:
     1. Expense anomalies (z-score via gbrain.anomaly_detector.scan)
+       Revenue-correlated categories use ratio-to-revenue z-score, not absolute.
     2. Recurring-bill month-over-month jumps > alert_delta_pct
     3. Likely-duplicate or forgotten recurring charges
     4. Top recurring vendors by annualized cost (informational, low confidence)
+
+Revenue-aware suppression (see revenue_correlation.py):
+    Categories matched by config substring list OR auto-detected via Pearson r >= 0.7
+    are scored on cost/revenue ratio, not absolute amount. A constant-% fee that rises
+    with revenue produces no finding. A ratio that actually climbs fires a finding whose
+    'why' cites the percentage change, not the dollar change.
 """
 
 from __future__ import annotations
@@ -25,6 +32,16 @@ import statistics
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
+
+from analysis.revenue_correlation import (
+    DEFAULT_CORR_THRESHOLD,
+    DEFAULT_CORRELATED_SUBSTRINGS,
+    DEFAULT_RATIO_JUMP_THRESHOLD,
+    DEFAULT_RATIO_Z_THRESHOLD,
+    build_correlated_categories,
+    ratio_findings_for_category,
+    revenue_by_month as _revenue_by_month,
+)
 
 if TYPE_CHECKING:
     from gbrain.knowledge_graph import KnowledgeGraph
@@ -42,13 +59,28 @@ class Finding:
     why: str
 
 
-def _expense_anomaly_findings(transactions: list[dict[str, Any]]) -> list[Finding]:
-    """Return findings for statistically-anomalous expense transactions."""
+def _expense_anomaly_findings(
+    transactions: list[dict[str, Any]],
+    correlated_categories: frozenset[str],
+    rev_by_month: dict[str, float],
+    ratio_z_threshold: float,
+    ratio_jump_threshold: float,
+) -> list[Finding]:
+    """Return findings for anomalous expenses.
+
+    Revenue-correlated categories get ratio-based detection.
+    Fixed-cost categories use the existing absolute z-score via anomaly_detector.
+    """
     from gbrain.anomaly_detector import scan
 
     expenses = [t for t in transactions if t.get("direction") == "expense"]
-    anomalies = scan(expenses)
 
+    # Fixed-cost path: exclude transactions whose category is revenue-correlated
+    fixed_expenses = [
+        t for t in expenses
+        if t.get("category", "") not in correlated_categories
+    ]
+    anomalies = scan(fixed_expenses)
     findings: list[Finding] = []
     for a in anomalies:
         delta = a.current_amount - a.baseline_mean
@@ -60,6 +92,16 @@ def _expense_anomaly_findings(transactions: list[dict[str, Any]]) -> list[Findin
             confidence="high" if abs(a.z_score) >= 3.0 else "medium",
             why=a.reason,
         ))
+
+    # Revenue-correlated path: ratio-based detection per category
+    for cat in correlated_categories:
+        findings.extend(
+            ratio_findings_for_category(
+                cat, expenses, rev_by_month,
+                ratio_z_threshold, ratio_jump_threshold,
+            )
+        )
+
     return findings
 
 
@@ -73,7 +115,6 @@ def _recurring_jump_findings(
     expenses = [t for t in transactions if t.get("direction") == "expense"]
     recurring = detect_recurring(expenses)
 
-    # Build per-vendor monthly amounts for MoM comparison
     by_vendor_month: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     for t in expenses:
         vendor = t.get("vendor", "")
@@ -188,11 +229,39 @@ def find(
 
     Ranking: anomalies (high confidence) first, then jumps, duplicates, informational.
     graph is accepted for API completeness; future use for vendor-history cross-check.
+
+    thresholds keys (all optional):
+        alert_delta_pct (float): MoM recurring-jump % threshold. Default 20.
+        revenue_correlated (list[str]): additional category names to treat as
+            revenue-correlated (added to the default substring-match set).
+        corr_threshold (float): Pearson r floor for auto-detection. Default 0.7.
+        ratio_z_threshold (float): z-score threshold for ratio anomaly. Default 2.0.
+        ratio_jump_threshold (float): relative ratio rise threshold. Default 0.30.
     """
     alert_delta_pct = float(thresholds.get("alert_delta_pct", 20.0))
+    corr_threshold = float(thresholds.get("corr_threshold", DEFAULT_CORR_THRESHOLD))
+    ratio_z_threshold = float(thresholds.get("ratio_z_threshold", DEFAULT_RATIO_Z_THRESHOLD))
+    ratio_jump_threshold = float(thresholds.get("ratio_jump_threshold", DEFAULT_RATIO_JUMP_THRESHOLD))
+
+    extra_correlated: list[str] = thresholds.get("revenue_correlated", [])
+    config_substrings = DEFAULT_CORRELATED_SUBSTRINGS + tuple(
+        s.lower() for s in extra_correlated
+    )
+
+    expenses = [t for t in transactions if t.get("direction") == "expense"]
+    rev_by_month = _revenue_by_month(transactions)
+
+    correlated_categories = build_correlated_categories(
+        expenses, rev_by_month, config_substrings, corr_threshold,
+    )
 
     all_findings: list[Finding] = []
-    all_findings.extend(_expense_anomaly_findings(transactions))
+    all_findings.extend(
+        _expense_anomaly_findings(
+            transactions, correlated_categories, rev_by_month,
+            ratio_z_threshold, ratio_jump_threshold,
+        )
+    )
     all_findings.extend(_recurring_jump_findings(transactions, alert_delta_pct))
     all_findings.extend(_duplicate_charge_findings(transactions))
     all_findings.extend(_top_recurring_findings(transactions))
