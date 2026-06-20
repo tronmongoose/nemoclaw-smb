@@ -52,10 +52,13 @@ def main() -> None:
         print("Usage: python scripts/tenant_analyze.py <slug>", file=sys.stderr)
         sys.exit(1)
 
+    from datetime import datetime, timezone
+
     from agent.tenancy import load_tenant
     from gbrain.knowledge_graph import KnowledgeGraph
     from ingestion import load_transactions
     from analysis import compute_pnl, find, build_report
+    from analysis.export import write_analysis_json
 
     tenant = load_tenant(slug)
     print(f"Tenant: {tenant.slug}  |  sensitivity: {tenant.sensitivity}  |  routing: {tenant.llm_routing}")
@@ -77,12 +80,16 @@ def main() -> None:
     findings = find(transactions, graph, tenant.thresholds)
     report = build_report(tenant, pnl, findings)
 
+    generated_at = datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
+    analysis_path = write_analysis_json(tenant, pnl, findings, generated_at)
+
     _print_pnl_summary(pnl)
     _print_findings(findings)
 
     from pathlib import Path
     report_path = Path(tenant.data_root) / "report.md"
     print(f"\nReport written to: {report_path}")
+    print(f"Analysis JSON:    {analysis_path}")
 
 
 if __name__ == "__main__":

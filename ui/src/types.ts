@@ -97,3 +97,46 @@ export interface AuditResponse {
   entries: AuditEntry[];
   verify: AuditVerify;
 }
+
+// --- Tenant Dashboard ---
+
+export interface AnalysisTotals {
+  income: number;
+  expense: number;
+  net: number;
+  margin_pct: number;
+}
+
+export interface AnalysisByMonth {
+  month: string;
+  income: number;
+  expense: number;
+  net: number;
+}
+
+export interface AnalysisByCategory {
+  category: string;
+  amount: number;
+}
+
+export interface AnalysisFinding {
+  title: string;
+  category: string;
+  monthly_impact: number;
+  annual_impact: number;
+  confidence: "high" | "medium" | "low";
+  why: string;
+}
+
+export interface AnalysisPnl {
+  totals: AnalysisTotals;
+  by_month: AnalysisByMonth[];
+  expense_by_category: AnalysisByCategory[];
+}
+
+export interface TenantAnalysis {
+  tenant: string;
+  generated_at: string;
+  pnl: AnalysisPnl;
+  findings: AnalysisFinding[];
+}

@@ -1,12 +1,14 @@
-/** Top header: wordmark, audit-chain badge, orchestrator pill. */
+/** Top header: wordmark, audit-chain badge, orchestrator pill, optional nav slot. */
 
+import { ReactNode } from "react";
 import { AuditResponse } from "../types";
 
 interface HeaderProps {
   audit: AuditResponse | null;
+  navSlot?: ReactNode;
 }
 
-export function Header({ audit }: HeaderProps) {
+export function Header({ audit, navSlot }: HeaderProps) {
   const chainOk = audit?.verify?.ok ?? null;
   const entryCount = audit?.count ?? 0;
 
@@ -20,6 +22,7 @@ export function Header({ audit }: HeaderProps) {
         <span className="text-slate-200 text-sm font-semibold tracking-wide uppercase">
           SMB Ops Agent
         </span>
+        {navSlot && <div className="ml-4">{navSlot}</div>}
       </div>
 
       <div className="flex items-center gap-3">

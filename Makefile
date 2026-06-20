@@ -38,3 +38,10 @@ tenant-analyze: ## Run full analysis pipeline for TENANT (ingest → graph → P
 
 tenant-loop: ## Run ingestion+analysis cycle for TENANT and MODE (weekly|monthly)
 	PYTHONPATH=. python3 scripts/tenant_loop.py $(TENANT) $(MODE)
+
+tenant-dashboard: ## View tenant P&L dashboard locally
+	@echo "1. Generate analysis:  make tenant-analyze TENANT=_sample_str"
+	@echo "2. Start API:          make dev"
+	@echo "3. Start UI:           cd ui && npm run dev"
+	@echo "4. Open browser:       http://localhost:5173 → click 'Tenant P&L'"
+	@echo "   To switch tenant:   VITE_TENANT=<slug> npm run dev (in ui/)"

@@ -15,7 +15,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import approvals, graph, webhooks
-from api.routes import audit, invoices, savings
+from api.routes import audit, invoices, savings, tenant as tenant_routes
 from api.seed import seed_demo
 
 
@@ -42,6 +42,7 @@ app.include_router(approvals.router)
 app.include_router(invoices.router)
 app.include_router(savings.router)
 app.include_router(audit.router)
+app.include_router(tenant_routes.router)
 
 
 @app.get("/health")

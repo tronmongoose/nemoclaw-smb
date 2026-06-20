@@ -205,10 +205,13 @@ def _run_monthly(
     from analysis.pnl import compute_pnl
     from analysis.findings import find
     from analysis.report import build_report
+    from analysis.export import write_analysis_json
 
     pnl = compute_pnl(transactions)
     findings = find(transactions, graph, tenant.thresholds)
     build_report(tenant, pnl, findings)
+    generated_at = datetime.now(tz=timezone.utc).isoformat(timespec="seconds")
+    write_analysis_json(tenant, pnl, findings, generated_at)
 
     new_findings = _diff_findings(findings, last_findings_map)
     updated_map = {_finding_key(f): {"title": f.title, "why": f.why} for f in findings}
