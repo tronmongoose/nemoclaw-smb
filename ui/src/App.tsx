@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Header } from "./components/Header";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PanelCard } from "./components/PanelCard";
 import { GraphPanel } from "./components/GraphPanel";
 import { InvoiceFeed } from "./components/InvoiceFeed";
@@ -46,25 +47,31 @@ export function App() {
 
       <main className="flex-1 p-4">
         {view === "ops" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-[minmax(360px,auto)]">
-            <PanelCard title="Knowledge Graph" className="lg:row-span-2">
-              <GraphPanel />
-            </PanelCard>
+          <ErrorBoundary label="Ops Dashboard">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-[minmax(360px,auto)]">
+              <PanelCard title="Knowledge Graph" className="lg:row-span-2">
+                <ErrorBoundary label="Knowledge Graph">
+                  <GraphPanel />
+                </ErrorBoundary>
+              </PanelCard>
 
-            <PanelCard title="Invoice Feed" className="overflow-hidden">
-              <InvoiceFeed />
-            </PanelCard>
+              <PanelCard title="Invoice Feed" className="overflow-hidden">
+                <InvoiceFeed />
+              </PanelCard>
 
-            <PanelCard title="Approval Queue">
-              <ApprovalQueue />
-            </PanelCard>
+              <PanelCard title="Approval Queue">
+                <ApprovalQueue />
+              </PanelCard>
 
-            <PanelCard title="Savings Intelligence" className="lg:col-span-2">
-              <SavingsPanel />
-            </PanelCard>
-          </div>
+              <PanelCard title="Savings Intelligence" className="lg:col-span-2">
+                <SavingsPanel />
+              </PanelCard>
+            </div>
+          </ErrorBoundary>
         ) : (
-          <TenantDashboard />
+          <ErrorBoundary label="Tenant P&L">
+            <TenantDashboard />
+          </ErrorBoundary>
         )}
       </main>
     </div>

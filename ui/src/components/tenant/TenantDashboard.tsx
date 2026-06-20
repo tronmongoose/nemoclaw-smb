@@ -30,11 +30,17 @@ export function TenantDashboard() {
     );
   }
 
-  if (!data) {
+  if (!data || !data.pnl) {
     return <EmptyState />;
   }
 
-  const { pnl, findings, generated_at } = data;
+  const generated_at = data.generated_at ?? "";
+  const findings = data.findings ?? [];
+  const pnl = {
+    totals: data.pnl.totals ?? { income: 0, expense: 0, net: 0, margin_pct: 0 },
+    by_month: data.pnl.by_month ?? [],
+    expense_by_category: data.pnl.expense_by_category ?? [],
+  };
 
   return (
     <div className="flex flex-col gap-4">
