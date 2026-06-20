@@ -11,8 +11,9 @@ Finding schema:
     annual_impact (float): estimated annual $ impact
     confidence (str): "high" | "medium" | "low"
     why (str): one-sentence explanation
+    action (str): imperative recommendation for the dashboard headline
 
-find() produces ranked advisory findings:
+find() produces ranked advisory findings sorted by annual_impact desc:
     1. Expense anomalies (z-score via gbrain.anomaly_detector.scan)
        Revenue-correlated categories use ratio-to-revenue z-score, not absolute.
     2. Recurring-bill month-over-month jumps > alert_delta_pct
@@ -49,7 +50,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Finding:
-    """A single advisory finding with $ impact and confidence."""
+    """A single advisory finding with $ impact, confidence, and action recommendation."""
 
     title: str
     category: str
@@ -57,6 +58,7 @@ class Finding:
     annual_impact: float
     confidence: str   # "high" | "medium" | "low"
     why: str
+    action: str = ""  # imperative recommendation; populated by each generator
 
 
 def _expense_anomaly_findings(
@@ -84,13 +86,20 @@ def _expense_anomaly_findings(
     findings: list[Finding] = []
     for a in anomalies:
         delta = a.current_amount - a.baseline_mean
+        cat = _vendor_category(a.vendor, expenses)
+        direction = "up" if delta >= 0 else "down"
+        pct = round(abs(delta) / max(a.baseline_mean, 0.01) * 100)
         findings.append(Finding(
             title=f"Expense spike: {a.vendor}",
-            category=_vendor_category(a.vendor, expenses),
+            category=cat,
             monthly_impact=round(delta, 2),
             annual_impact=round(delta * 12, 2),
             confidence="high" if abs(a.z_score) >= 3.0 else "medium",
             why=a.reason,
+            action=(
+                f"Review {cat}: {direction} {pct}% — "
+                "check for a rate change, error, or one-off."
+            ),
         ))
 
     # Revenue-correlated path: ratio-based detection per category
@@ -137,9 +146,10 @@ def _recurring_jump_findings(
             pct = (curr - prev) / prev * 100
             if pct > alert_delta_pct:
                 delta = curr - prev
+                cat = _vendor_category(vendor, expenses)
                 findings.append(Finding(
                     title=f"Recurring bill jump: {vendor}",
-                    category=_vendor_category(vendor, expenses),
+                    category=cat,
                     monthly_impact=round(delta, 2),
                     annual_impact=round(delta * 12, 2),
                     confidence="medium",
@@ -147,6 +157,10 @@ def _recurring_jump_findings(
                         f"{vendor} charged ${curr:.2f} in {sorted_months[i]} vs "
                         f"${prev:.2f} in {sorted_months[i-1]} "
                         f"(+{pct:.0f}%, threshold {alert_delta_pct:.0f}%)"
+                    ),
+                    action=(
+                        f"Renegotiate or verify {cat} — "
+                        f"up {pct:.0f}% month-over-month."
                     ),
                 ))
 
@@ -169,15 +183,20 @@ def _duplicate_charge_findings(transactions: list[dict[str, Any]]) -> list[Findi
         mean = statistics.mean(amounts)
         if all(abs(a - mean) / max(mean, 0.01) < 0.05 for a in amounts):
             total = sum(amounts)
+            cat = _vendor_category(vendor, expenses)
             findings.append(Finding(
                 title=f"Possible duplicate charge: {vendor}",
-                category=_vendor_category(vendor, expenses),
+                category=cat,
                 monthly_impact=round(total - mean, 2),
                 annual_impact=round((total - mean) * 12, 2),
                 confidence="medium",
                 why=(
                     f"{len(amounts)} charges to {vendor} on {day} "
                     f"each ~${mean:.2f} — review for duplicate billing."
+                ),
+                action=(
+                    f"Review {cat}: {len(amounts)} same-day charges to {vendor} "
+                    "each ~${:.2f} — confirm no duplicate billing.".format(mean)
                 ),
             ))
     return findings
@@ -193,9 +212,10 @@ def _top_recurring_findings(transactions: list[dict[str, Any]]) -> list[Finding]
     findings: list[Finding] = []
     for r in recurring[:3]:
         annual = round(r["monthly_cost"] * 12, 2)
+        cat = _vendor_category(r["vendor"], expenses)
         findings.append(Finding(
             title=f"Top recurring: {r['vendor']}",
-            category=_vendor_category(r["vendor"], expenses),
+            category=cat,
             monthly_impact=round(r["monthly_cost"], 2),
             annual_impact=annual,
             confidence="low",
@@ -203,6 +223,10 @@ def _top_recurring_findings(transactions: list[dict[str, Any]]) -> list[Finding]
                 f"{r['vendor']} is a {r['frequency']} charge averaging "
                 f"${r['amount']:.2f} ({r['occurrences']} occurrences, "
                 f"${annual:.0f}/yr annualized)."
+            ),
+            action=(
+                f"Review {cat}: {r['vendor']} costs ${annual:.0f}/yr — "
+                "confirm still needed or renegotiate."
             ),
         ))
     return findings
@@ -268,7 +292,7 @@ def find(
 
     _CONFIDENCE_ORDER = {"high": 0, "medium": 1, "low": 2}
     all_findings.sort(key=lambda f: (
-        _CONFIDENCE_ORDER.get(f.confidence, 3),
         -f.annual_impact,
+        _CONFIDENCE_ORDER.get(f.confidence, 3),
     ))
     return all_findings

@@ -129,6 +129,7 @@ export interface AnalysisByCategory {
 export interface AnalysisFinding {
   title: string;
   category: string;
+  action: string;
   monthly_impact: number;
   annual_impact: number;
   confidence: "high" | "medium" | "low";
@@ -141,9 +142,48 @@ export interface AnalysisPnl {
   expense_by_category: AnalysisByCategory[];
 }
 
+// v2 additions
+
+export interface HeadlineSeries {
+  month: string;
+  value: number;
+}
+
+export interface AnalysisHeadline {
+  title: string;
+  action: string;
+  annual_impact: number;
+  monthly_impact: number;
+  severity: string;
+  category: string;
+  series: HeadlineSeries[];
+}
+
+export interface LongitudinalNetMonth {
+  month: string;
+  net: number;
+}
+
+export interface LongitudinalCategoryMonth {
+  month: string;
+  value: number;
+}
+
+export interface LongitudinalCategory {
+  category: string;
+  series: LongitudinalCategoryMonth[];
+}
+
+export interface AnalysisLongitudinal {
+  net_by_month: LongitudinalNetMonth[];
+  by_category_monthly: LongitudinalCategory[];
+}
+
 export interface TenantAnalysis {
   tenant: string;
   generated_at: string;
   pnl: AnalysisPnl;
+  headlines: AnalysisHeadline[];
   findings: AnalysisFinding[];
+  longitudinal: AnalysisLongitudinal;
 }

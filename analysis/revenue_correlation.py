@@ -174,6 +174,8 @@ def ratio_findings_for_category(
             rev = rev_by_month[month]
             cost = cost_by_month[month]
             delta_cost = cost - hist_mean * rev
+            prior_pct = round(hist_mean * 100, 1)
+            curr_pct = round(ratio * 100, 1)
             findings.append(Finding(
                 title=f"Expense spike: {category}",
                 category=category,
@@ -184,6 +186,10 @@ def ratio_findings_for_category(
                     f"{category} cost/revenue ratio rose to {ratio:.1%} in {month} "
                     f"vs prior avg {hist_mean:.1%} "
                     f"(+{rel_jump:.0%} ratio increase; z={z:.2f})"
+                ),
+                action=(
+                    f"Renegotiate {category}: now {curr_pct}% of revenue, "
+                    f"up from {prior_pct}%."
                 ),
             ))
     return findings

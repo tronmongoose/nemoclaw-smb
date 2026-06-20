@@ -1,0 +1,414 @@
+{
+  "tenant": "_sample_str",
+  "generated_at": "2026-06-20T01:38:42+00:00",
+  "pnl": {
+    "totals": {
+      "income": 70150.0,
+      "expense": 20671.29,
+      "net": 49478.71,
+      "margin_pct": 70.53
+    },
+    "by_month": [
+      {
+        "month": "2025-01",
+        "income": 6950.0,
+        "expense": 2280.47,
+        "net": 4669.53
+      },
+      {
+        "month": "2025-02",
+        "income": 6850.0,
+        "expense": 2205.17,
+        "net": 4644.83
+      },
+      {
+        "month": "2025-03",
+        "income": 7300.0,
+        "expense": 2419.27,
+        "net": 4880.73
+      },
+      {
+        "month": "2025-04",
+        "income": 8175.0,
+        "expense": 2337.69,
+        "net": 5837.31
+      },
+      {
+        "month": "2025-05",
+        "income": 9375.0,
+        "expense": 2973.62,
+        "net": 6401.38
+      },
+      {
+        "month": "2025-06",
+        "income": 10625.0,
+        "expense": 2789.07,
+        "net": 7835.93
+      },
+      {
+        "month": "2025-07",
+        "income": 4400.0,
+        "expense": 1065.0,
+        "net": 3335.0
+      },
+      {
+        "month": "2025-08",
+        "income": 4250.0,
+        "expense": 1188.0,
+        "net": 3062.0
+      },
+      {
+        "month": "2025-09",
+        "income": 3825.0,
+        "expense": 921.0,
+        "net": 2904.0
+      },
+      {
+        "month": "2025-10",
+        "income": 3000.0,
+        "expense": 793.0,
+        "net": 2207.0
+      },
+      {
+        "month": "2025-11",
+        "income": 2825.0,
+        "expense": 909.0,
+        "net": 1916.0
+      },
+      {
+        "month": "2025-12",
+        "income": 2575.0,
+        "expense": 790.0,
+        "net": 1785.0
+      }
+    ],
+    "expense_by_category": [
+      {
+        "category": "maintenance",
+        "amount": 3880.37
+      },
+      {
+        "category": "Mgmt Fees",
+        "amount": 3820.0
+      },
+      {
+        "category": "management_fee",
+        "amount": 2310.0
+      },
+      {
+        "category": "Electricity+ Gas (SDGE)",
+        "amount": 2285.0
+      },
+      {
+        "category": "platform_fee",
+        "amount": 1360.0
+      },
+      {
+        "category": "utilities",
+        "amount": 1178.04
+      },
+      {
+        "category": "Yard care X2 a  month",
+        "amount": 960.0
+      },
+      {
+        "category": "Internet (7962)",
+        "amount": 960.0
+      },
+      {
+        "category": "Water+water waste (COO)",
+        "amount": 855.0
+      },
+      {
+        "category": "Instacart+Amazon",
+        "amount": 645.0
+      },
+      {
+        "category": "Owner Exp (extra)",
+        "amount": 550.0
+      },
+      {
+        "category": "Oceanside Munirevs",
+        "amount": 540.0
+      },
+      {
+        "category": "lawn",
+        "amount": 530.0
+      },
+      {
+        "category": "City Waste (waste mgmt)",
+        "amount": 420.0
+      },
+      {
+        "category": "subscription",
+        "amount": 167.94
+      },
+      {
+        "category": "str_license",
+        "amount": 150.0
+      },
+      {
+        "category": "security",
+        "amount": 59.94
+      },
+      {
+        "category": "Parents/Friends Stay",
+        "amount": -450.0
+      },
+      {
+        "category": "Pet fees",
+        "amount": -2000.0
+      },
+      {
+        "category": "rental_income",
+        "amount": -29500.0
+      },
+      {
+        "category": "Revenue",
+        "amount": -38200.0
+      }
+    ]
+  },
+  "findings": [
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 243.22,
+      "annual_impact": 2918.67,
+      "confidence": "high",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.3% in 2025-07 vs prior avg 3.8% (+146% ratio increase; z=19.30)"
+    },
+    {
+      "title": "Expense spike: maintenance",
+      "category": "maintenance",
+      "monthly_impact": 186.65,
+      "annual_impact": 2239.77,
+      "confidence": "high",
+      "why": "maintenance cost/revenue ratio rose to 9.5% in 2025-03 vs prior avg 7.0% (+37% ratio increase; z=50.72)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "monthly_impact": 23.0,
+      "annual_impact": 276.0,
+      "confidence": "high",
+      "why": "up 35% from $66 to $89 (z=3.94)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 21.75,
+      "annual_impact": 260.94,
+      "confidence": "high",
+      "why": "Mgmt Fees cost/revenue ratio rose to 4.2% in 2025-03 vs prior avg 3.9% (+8% ratio increase; z=3.72)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "monthly_impact": 15.75,
+      "annual_impact": 189.01,
+      "confidence": "high",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.8% in 2025-07 vs prior avg 0.4% (+82% ratio increase; z=5.30)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "monthly_impact": 11.0,
+      "annual_impact": 132.0,
+      "confidence": "high",
+      "why": "up 18% from $60 to $71 (z=5.50)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "monthly_impact": -27.5,
+      "annual_impact": -330.0,
+      "confidence": "high",
+      "why": "down 14% from $202 to $175 (z=-3.67)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 205.35,
+      "annual_impact": 2464.16,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.4% in 2025-08 vs prior avg 4.6% (+105% ratio increase; z=2.47)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 151.71,
+      "annual_impact": 1820.53,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.2% in 2025-09 vs prior avg 5.2% (+77% ratio increase; z=1.63)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 121.26,
+      "annual_impact": 1455.1,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.7% in 2025-10 vs prior avg 5.6% (+72% ratio increase; z=1.55)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 99.68,
+      "annual_impact": 1196.19,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.6% in 2025-11 vs prior avg 6.0% (+59% ratio increase; z=1.28)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 86.5,
+      "annual_impact": 1037.94,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.7% in 2025-12 vs prior avg 6.3% (+53% ratio increase; z=1.19)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "monthly_impact": 54.17,
+      "annual_impact": 650.04,
+      "confidence": "medium",
+      "why": "up 31% from $176 to $230 (z=2.32)"
+    },
+    {
+      "title": "Expense spike: Instacart+Amazon",
+      "category": "Instacart+Amazon",
+      "monthly_impact": 39.17,
+      "annual_impact": 470.04,
+      "confidence": "medium",
+      "why": "up 77% from $51 to $90 (z=2.69)"
+    },
+    {
+      "title": "Expense spike: Instacart+Amazon",
+      "category": "Instacart+Amazon",
+      "monthly_impact": 29.0,
+      "annual_impact": 348.0,
+      "confidence": "medium",
+      "why": "up 63% from $46 to $75 (z=2.72)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "monthly_impact": 25.17,
+      "annual_impact": 302.04,
+      "confidence": "medium",
+      "why": "up 36% from $70 to $95 (z=2.49)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "monthly_impact": 17.8,
+      "annual_impact": 213.64,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.2% in 2025-10 vs prior avg 0.6% (+104% ratio increase; z=2.94)"
+    },
+    {
+      "title": "Expense spike: Instacart+Amazon",
+      "category": "Instacart+Amazon",
+      "monthly_impact": 17.5,
+      "annual_impact": 210.0,
+      "confidence": "medium",
+      "why": "up 47% from $38 to $55 (z=2.33)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "monthly_impact": 17.29,
+      "annual_impact": 207.51,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.4% in 2025-12 vs prior avg 0.7% (+98% ratio increase; z=2.21)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "monthly_impact": 17.13,
+      "annual_impact": 205.56,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.2% in 2025-11 vs prior avg 0.6% (+96% ratio increase; z=2.32)"
+    },
+    {
+      "title": "Recurring bill jump: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "monthly_impact": 15.0,
+      "annual_impact": 180.0,
+      "confidence": "medium",
+      "why": "Water+water waste (COO) charged $89.00 in 2025-06 vs $74.00 in 2025-05 (+20%, threshold 20%)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "monthly_impact": 14.71,
+      "annual_impact": 176.51,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.9% in 2025-09 vs prior avg 0.5% (+72% ratio increase; z=2.24)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "monthly_impact": 14.23,
+      "annual_impact": 170.8,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.8% in 2025-08 vs prior avg 0.5% (+69% ratio increase; z=2.39)"
+    },
+    {
+      "title": "Recurring bill jump: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "monthly_impact": 13.0,
+      "annual_impact": 156.0,
+      "confidence": "medium",
+      "why": "Water+water waste (COO) charged $71.00 in 2025-03 vs $58.00 in 2025-02 (+22%, threshold 20%)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "monthly_impact": 10.0,
+      "annual_impact": 120.0,
+      "confidence": "medium",
+      "why": "up 16% from $64 to $74 (z=2.11)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "monthly_impact": -38.33,
+      "annual_impact": -459.96,
+      "confidence": "medium",
+      "why": "down 20% from $193 to $155 (z=-2.67)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "monthly_impact": -43.75,
+      "annual_impact": -525.0,
+      "confidence": "medium",
+      "why": "down 24% from $184 to $140 (z=-2.11)"
+    },
+    {
+      "title": "Top recurring: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "monthly_impact": 385.0,
+      "annual_impact": 4620.0,
+      "confidence": "low",
+      "why": "Mgmt Fees is a monthly charge averaging $385.00 (4 occurrences, $4620/yr annualized)."
+    },
+    {
+      "title": "Top recurring: Property Manager Co",
+      "category": "management_fee",
+      "monthly_impact": 350.0,
+      "annual_impact": 4200.0,
+      "confidence": "low",
+      "why": "Property Manager Co is a monthly charge averaging $350.00 (3 occurrences, $4200/yr annualized)."
+    },
+    {
+      "title": "Top recurring: Airbnb Host Fee",
+      "category": "platform_fee",
+      "monthly_impact": 182.5,
+      "annual_impact": 2190.0,
+      "confidence": "low",
+      "why": "Airbnb Host Fee is a monthly charge averaging $182.50 (2 occurrences, $2190/yr annualized)."
+    }
+  ]
+}

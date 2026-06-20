@@ -23,18 +23,21 @@ interface LinkObject {
   anomaly_flag: boolean;
 }
 
+// High-contrast fills: warm off-white for labels; amber for company; muted neutrals for vendors.
+// Red is reserved for anomaly edges only.
 const CATEGORY_COLORS: Record<string, string> = {
-  software: "#06b6d4",
-  infrastructure: "#10b981",
-  marketing: "#f59e0b",
-  payroll: "#8b5cf6",
-  services: "#3b82f6",
-  self: "#f97316",
+  software: "#94a3b8",   // slate-400 — readable on dark background
+  infrastructure: "#7dd3c0", // muted teal, not cyan
+  marketing: "#fbbf24",  // amber-400 — warm accent
+  payroll: "#a5b4fc",    // indigo-300 — differentiated, not purple neon
+  services: "#93c5fd",   // blue-300 — readable
+  self: "#f59e0b",       // amber-500 — company node accent
 };
 
 function nodeColor(node: GraphNode): string {
-  if (node.type === "self") return "#f97316";
-  return CATEGORY_COLORS[node.category] ?? "#94a3b8";
+  // Company node gets amber; all vendors get category color or neutral warm white.
+  if (node.type === "self") return "#f59e0b";
+  return CATEGORY_COLORS[node.category] ?? "#cbd5e1"; // slate-300 default — high contrast
 }
 
 interface Popover {
@@ -108,10 +111,11 @@ export function KnowledgeGraph({ width, height }: KnowledgeGraphProps) {
         nodeColor={(n) => nodeColor(n as unknown as GraphNode)}
         nodeRelSize={6}
         linkColor={(l) =>
-          (l as unknown as LinkObject).anomaly_flag ? "#ef4444" : "#334155"
+          // Red for anomaly; slate-500 for normal (visible but not dominant)
+          (l as unknown as LinkObject).anomaly_flag ? "#ef4444" : "#64748b"
         }
         linkWidth={(l) =>
-          (l as unknown as LinkObject).anomaly_flag ? 3 : 1
+          (l as unknown as LinkObject).anomaly_flag ? 2.5 : 1
         }
         onNodeClick={(node, event) =>
           handleNodeClick(node as unknown as NodeObject, event)
@@ -146,7 +150,7 @@ function NodePopover({
       >
         x
       </button>
-      <div className="text-cyan-400 font-bold mb-1">{popover.node.label}</div>
+      <div className="text-slate-100 font-bold mb-1">{popover.node.label}</div>
       <div className="text-slate-400">
         category:{" "}
         <span className="text-slate-200">{popover.node.category}</span>
