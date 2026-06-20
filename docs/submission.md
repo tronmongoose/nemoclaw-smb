@@ -1,83 +1,164 @@
-# NemoClaw SMB Ops Agent — Submission
+# NemoClaw STR Agent -- Hackathon Submission
 
 Hermes Agent Accelerated Business Hackathon (Nous Research x NVIDIA x Stripe).
+Submission deadline: 2026-06-30.
+
+---
 
 ## The problem
 
-Small businesses leak money through vendor sprawl. Subscriptions creep, prices rise, seats
-go unused, and nobody has time to watch every invoice. A 12-person studio does not have a
-CFO. It has a founder approving charges at midnight.
+Short-term rental operators lose money at every layer of the stack. Owners get
+overcharged on management fees and never notice. Management companies issue cleaner
+cards manually, with shared credentials and no audit trail. Platforms price properties
+on static calendars and optimize listings for human search engines that AI booking
+agents do not use. The entire financial stack is manual, ungoverned, and unoptimized
+for the machine-to-machine economy that is replacing human search.
+
+---
 
 ## The agent
 
-NemoClaw is an autonomous CFO/COO. It learns the business from one conversation, then:
+NemoClaw is a three-act autonomous STR operations agent. It runs through the full
+economic lifecycle of a short-term rental: owner reconciliation, property management
+operations, and platform-level intelligence selling. Every action is gated by
+ConductorOne's identity control plane and logged in a hash-chained audit trail.
+All Stripe money movement runs in DEMO_MODE (mocked but logged); the governance,
+anomaly logic, and audit chain are real.
 
-- Watches every vendor invoice and scores it against the vendor's own history.
-- Pays in-range bills automatically on HTTP 402, escalates anomalies to the CEO.
-- Finds cheaper vendor alternatives and negotiates or switches.
-- Deprovisions unused SaaS seats it discovers through access governance.
-- Charges a 0.5% fee on what it moves. The agent pays for itself.
-
-Nothing executes without passing a safe-execution harness, and every action is hash-chained
-into an audit log that verifies end to end.
+---
 
 ## How each sponsor technology is used
 
-- **Hermes (Nous Research) is the primary orchestrator.** A bounded agent loop parses CEO
-  intent, plans with the Hermes model on Nous Portal, dispatches skills, and finalizes. Live
-  verified against `inference-api.nousresearch.com/v1` (model `nvidia/nemotron-3-super-120b-a12b`).
-- **NemoClaw (NVIDIA) is the safe-execution harness.** Every skill runs guardrail to
-  permission to execute to audit. Denylist plus optional NeMo Guardrails. Spend over threshold
-  escalates for human approval before any money moves.
-- **Nemotron 3 Ultra (NVIDIA)** is the heavy reasoner for vendor analysis, anomaly root
-  cause, and negotiation drafts. Live verified through NVIDIA NIM.
-- **NVIDIA agent skills.** 8 skills (onboarding, invoice-ingest, anomaly-detect,
-  vendor-analyze, 402-handler, approval-gate, audit, access-governance), exportable to the
-  NeMo Agent Toolkit (`agent/nat_workflow.yml`).
-- **Stripe Skills for Hermes.** Payments route through the Stripe MCP server
-  (`npx @stripe/mcp`, proxy to `mcp.stripe.com`). Buy on 402 (`create_payment_intent`),
-  provision on switch (`create_product` + `create_price` + `create_subscription`), and collect
-  the product's own fee. Test mode only. Direct SDK and mock are fallbacks.
-- **ConductorOne** runs locally via open-source **Baton**. No tenant required. It surfaces
-  unused-seat deprovision candidates (3 of 12 Adobe seats idle 60+ days in the demo).
+**Nous Research Hermes** is the primary orchestrator. A bounded agent loop parses
+operator intent, plans with the Hermes model on Nous Portal, and dispatches skills
+through the NemoClaw harness. Live path proven by `test_hermes_live` when
+`NOUS_PORTAL_API_KEY` is set.
 
-## Demo script (6 scenes, ~3 minutes)
+**NVIDIA Nemotron 3 Ultra** handles heavy reasoning: anomaly root cause, pricing
+analysis, and AEO scoring logic. Routes through NVIDIA NIM. Live path proven by
+`test_nemotron_live` when `NVIDIA_NIM_API_KEY` is set.
 
-The dashboard (dark command-center on `:5173`) stays on screen throughout. `make demo`
-narrates the loop in a terminal beside it.
+**NemoClaw (NVIDIA)** is the safe-execution harness. All spend routes through
+`nemoclaw_harness.execute()`. No skill calls a payment API directly. Spend above
+the REQUIRE_APPROVAL threshold (default $500) triggers a human approval gate before
+any execution. Every action writes a SHA-256 hash-chained audit entry.
 
-1. **Onboarding.** "Pinwheel Studio, 12 people, design shop." The agent builds a vendor graph
-   from one profile plus seed invoices. Dashboard graph populates.
-2. **Anomaly caught.** Adobe renews at $340, up from a ~$277 baseline. The agent scores it
-   (+23%, z-score over threshold), and ConductorOne/Baton flags 3 unused seats. It does not
-   auto-pay. It escalates. The approval queue shows the $340 Adobe item.
-3. **Reasoning.** Nemotron 3 Ultra ranks alternatives and drafts the procurement case
-   (Affinity vs Adobe, monthly savings).
-4. **Switch.** The agent provisions the replacement subscription through Stripe and records
-   the realized monthly savings.
-5. **Auto-pay through NemoClaw.** AWS renews in range. The agent runs it through the harness
-   (guardrail to permission to execute to audit), pays via Stripe, and writes the ledger entry.
-   Terminal prints the NemoClaw pipeline stages.
-6. **The close.** Savings panel shows total spend, monthly and annual savings, and the
-   NemoClaw fee (0.5%). The audit-chain badge reads green and verifies. The agent earned its keep.
+**Stripe** covers three distinct primitives across the three acts. Act 1 uses
+PaymentIntents and the approval gate for reconciliation payouts. Act 2 uses Stripe
+Issuing for single-use cleaner cards, Stripe Connect for owner accounts, and Global
+Payouts for crew. Act 3 uses the Machine Payments Protocol (MPP) and HTTP-402 so AI
+callers can pay for dynamic pricing and AEO audits autonomously. Metronome handles
+usage-based invoicing for Act 2. All Stripe writes are DEMO_MODE-mocked; earn events
+are logged as if real. `sk_live_` keys are refused in code.
 
-Then, live: approve the Adobe item in the dashboard. It clears, the audit chain grows, and
-re-verifies.
+**ConductorOne** provides the agent identity control plane. The top-level agent is
+issued a non-human identity (NHI) at startup. Each sub-agent receives its own NHI,
+scoped to only the permissions its task requires, with a TTL. The Act 2 cleaner
+card path is the showcase: `issue_nhi("cleaner-subagent", scopes=["card:issue:cleaning"],
+ttl_seconds=3600)` is called on every checkout event, and the NHI must be authorized
+before any card is issued. Open-source Baton manages access inventory. All data is
+synthetic; no live C1 work-tenant data is used anywhere.
 
-## What is real (verified, not asserted)
+---
 
-`make reality` prints a live status matrix and `tests/live/` fails if a real integration
-breaks. Verified live: Hermes orchestration (Nous Portal), Nemotron reasoning (NVIDIA NIM),
-Stripe buy/provision/pay (test mode — a real PaymentIntent is created), and the Baton binary.
-Real local: the NemoClaw harness (now the single payment chokepoint), the SHA-256 audit
-chain, anomaly math, policy, approval, the 9 skills, and the knowledge graph. Real opt-in:
-NeMo Guardrails (`LLMRails`) and a subprocess sandbox (OpenShell is not used — stated plainly).
-Build-to-spec, live-deferred: the ConductorOne API client (needs a tenant) and the GBrain MCP
-client (needs a user-gated install). Mock: Intuit/QuickBooks. The offline suite (225+ tests)
-proves logic and mock shape; the live tests prove the integrations. The recorded demo replays
-a captured Hermes run because reasoning-model output is stochastic. Full accounting: `ANALYSIS.md`.
+## Demo script (three acts, approximately four minutes)
+
+Run `python -m demo.run_demo` with no credentials needed. DEMO_MODE mocks all Stripe
+writes but logs them to the audit chain as if real. The acts run in sequence.
+
+**Act 1 - Owner catches an overcharge (about 90 seconds)**
+
+The operator loads the monthly ledger for `prop-001` (Sweet Clementine). The agent
+detects a 22% management fee charged against a 20% contract on $4,200 revenue - an
+$84 overcharge. The agent does not auto-pay. It raises an anomaly, logs the finding,
+and queues the corrected $84 reconciliation payout behind the REQUIRE_APPROVAL gate.
+Once the operator approves, the agent signs an Ed25519 Stripe envelope and writes the
+payment record to the audit chain. Terminal prints: ledger ingestion, anomaly score,
+approval prompt, payment result, and audit hash.
+
+**Act 2 - Management company governs card issuance and payouts (about 90 seconds)**
+
+A guest checkout event fires for two properties. For each checkout, ConductorOne
+issues a scoped NHI to `cleaner-subagent` (`card:issue:cleaning`, one-hour TTL) and
+authorizes it before any card is issued. Single-use Stripe Issuing cards are created
+per cleaning job. At month end, the agent runs crew payouts through Stripe Connect,
+calculates usage-based owner invoices through Metronome, and prints a portfolio
+summary. Terminal prints: NHI issuance, authorization decision, card result,
+payout batch, and per-owner invoice amounts.
+
+**Act 3 - Platform sells intelligence on HTTP 402 (about 60 seconds)**
+
+The platform agent starts its MPP server. A simulated AI booking agent sends a pricing
+request. The server returns HTTP 402 with a payment link. The caller pays via
+PaymentIntent (DEMO_MODE-mocked) and receives a dynamic pricing recommendation. The
+same flow runs for an AEO audit: the caller receives a structured report scoring the
+listing on machine-readable data quality, response latency, and policy-compliance
+signals. Terminal prints: 402 challenge, payment event, pricing result, AEO score,
+and platform revenue summary.
+
+At the close, `make audit` verifies the full hash chain across all three acts.
+
+---
+
+## What is real vs DEMO_MODE-mocked
+
+Run `make reality` for the live status matrix. The table below reflects the default
+DEMO_MODE run; live integrations activate when the corresponding key is set.
+
+| Component | Status |
+|---|---|
+| AEO audit logic and scoring | REAL |
+| Anomaly detection | REAL |
+| REQUIRE_APPROVAL gate | REAL |
+| Ed25519 signed envelopes | REAL |
+| SHA-256 audit chain | REAL |
+| HTTP-402 loop shape | REAL |
+| NemoClaw harness | REAL |
+| ConductorOne NHI + scoping | REAL client, synthetic decisions, no live work tenant |
+| Baton OSS binary | REAL (binary verified); access data is a fixture |
+| Hermes orchestration | MOCK by default; LIVE-OK with `NOUS_PORTAL_API_KEY` |
+| Nemotron 3 Ultra | MOCK by default; LIVE-OK with `NVIDIA_NIM_API_KEY` |
+| Stripe money movement | DEMO_MODE-mocked, logged; no real funds move |
+| MPP settlement | DEMO_MODE-mocked, logged |
+| Metronome UBP billing | DEMO_MODE-mocked; invoice math is real |
+
+---
+
+## AEO: the Act 3 differentiator
+
+Agent Engine Optimization is the practice of structuring a listing, product, or
+service to be selected and purchased by an AI booking agent. Where SEO targets keyword
+ranking for human eyes, AEO targets structured data quality, policy-compliance signals,
+API response latency, and machine-readable trust metadata that AI agents use to rank
+and book.
+
+As AI agents become the primary discovery and booking channel for travel, listings
+optimized only for human search engines will be systematically underbooked. The Act 3
+platform agent is both a proof of concept and a business model: an STR platform sells
+AEO audits and dynamic pricing recommendations to other AI agents over HTTP 402,
+earning per call in the machine-to-machine economy.
+
+---
+
+## ConductorOne governance summary
+
+The agent operates under a non-human identity issued by ConductorOne at startup, not
+a shared service-account credential. Sub-agents receive time-limited, scope-narrowed
+NHIs per task. The Act 2 cleaner card flow is the core showcase: one NHI per checkout,
+one scope, one hour TTL, one authorization decision before any money moves. Baton
+provides open-source access inventory that can pull connector snapshots without a live
+C1 SaaS tenant.
+
+This is built on ConductorOne's public GA tooling and open-source Baton. All decisions
+run against synthetic data. No internal roadmap features, no live work tenant, no
+ConductorOne customer data.
+
+---
 
 ## Repo
 
-`github.com/tronmongoose/nemoclaw-smb`. Architecture in `BRIEF.md`, run-day steps in
-`docs/demo_runbook.md`, Stripe MCP setup in `docs/stripe_onboarding.md`.
+`github.com/tronmongoose/nemoclaw-smb`
+
+Architecture: `BRIEF.md` and `ANALYSIS.md`.
+Run-day steps: `docs/demo_runbook.md`.
+Stripe setup: `docs/stripe_onboarding.md`.

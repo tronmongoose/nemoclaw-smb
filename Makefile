@@ -27,6 +27,9 @@ lint-emdash: ## Scan STR agent sources for em-dash characters (U+2014)
 demo: ## Run the end-to-end demo dry-run on seed data
 	python3 -m fixtures.demo_runner
 
+str-demo: ## Run the three-act STR agent console demo (DEMO_MODE, no creds required)
+	DEMO_MODE=true python3 -m demo.run_demo
+
 reality: ## Print the live integration status matrix
 	python3 verification/reality_report.py
 

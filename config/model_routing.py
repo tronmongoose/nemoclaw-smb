@@ -1,20 +1,33 @@
 """config/model_routing.py -- Task-to-model routing table for the STR agent.
 
 Nemotron Ultra handles reasoning-heavy tasks (anomaly detection, dynamic pricing,
-AEO scoring). Hermes-small handles lightweight formatting, classification, and
-template rendering. No Chinese-origin models are present or permitted.
+AEO scoring). Hermes-small (Nemotron Super) handles lightweight formatting,
+classification, and template rendering. No Chinese-origin models are present or
+permitted.
+
+Model IDs are read from environment variables so they stay consistent with the
+actual client callers (nvidia_client.py uses NEMOTRON_MODEL; hermes_client.py
+uses HERMES_MODEL). Constants here mirror those defaults exactly.
 
 Public API:
     MODEL_ROUTING   -- dict mapping task name -> model identifier string
     route_for(task) -- return model identifier for a task; raises KeyError on unknown task
     NEMOTRON_ULTRA  -- canonical Nemotron Ultra model identifier constant
-    HERMES_SMALL    -- canonical Hermes-small model identifier constant
+    HERMES_SMALL    -- canonical Hermes-small (Nemotron Super) model identifier constant
 """
 from __future__ import annotations
 
-# Model identifier constants -- sourced from public US-origin providers only.
-NEMOTRON_ULTRA: str = "nvidia/nemotron-ultra-253b-v1"
-HERMES_SMALL: str = "nous-hermes-2-pro-llama-3-8b"
+import os
+
+# Model identifier constants -- match the defaults in nvidia_client.py and
+# hermes_client.py so routing table, clients, and env vars stay in sync.
+# Override via NEMOTRON_MODEL / HERMES_MODEL in the environment.
+NEMOTRON_ULTRA: str = os.environ.get(
+    "NEMOTRON_MODEL", "nvidia/nemotron-3-ultra-550b-a55b"
+)
+HERMES_SMALL: str = os.environ.get(
+    "HERMES_MODEL", "nvidia/nemotron-3-super-120b-a12b"
+)
 
 # Tasks that demand multi-step reasoning or pricing optimization go to Nemotron Ultra.
 # Tasks that are classification, formatting, or templating go to Hermes-small.
