@@ -38,23 +38,24 @@ Honest accounting, and it is enforced: `make reality` prints a live status matri
 `tests/live/` holds falsifying tests that fail when a real integration breaks. Run it — do
 not trust this table from memory (counts drift). Full analysis in `ANALYSIS.md`.
 
-| Layer | Status |
-|---|---|
-| Audit hash chain, anomaly math, policy, approval, graph | REAL (local, no network) |
-| NemoClaw harness (single payment chokepoint) | REAL |
-| Hermes orchestrator (Nous Portal) | LIVE-OK — real calls, proven by a live test |
-| Nemotron reasoning (NVIDIA NIM) | LIVE-OK — real calls (550B model, slow) |
-| Stripe buy/provision/pay (SDK + MCP) | LIVE-OK in test mode (verified PaymentIntent); `sk_live_` refused |
-| Baton access governance | LIVE-OK (binary); access DATA is a fixture until a connector cred |
-| NeMo Guardrails | REAL when `NEMOCLAW_GUARDRAILS=1`; built-in denylist otherwise |
-| Sandbox | Real subprocess isolation (`NEMOCLAW_SANDBOX`); OpenShell is NOT used |
-| ConductorOne API | BUILD-TO-SPEC; graceful fallback, never crashes; live needs a tenant |
-| GBrain memory | In-memory graph is real; real MCP client wired, install user-gated |
-| QuickBooks / Intuit | MOCK; needs Intuit sandbox creds |
+| Layer | Default state | Keyed/enabled upgrade |
+|---|---|---|
+| Audit hash chain, anomaly math, policy, approval, graph | REAL (local, no network) | — |
+| NemoClaw harness (single payment chokepoint) | REAL | — |
+| Hermes orchestrator (Nous Portal) | MOCK | LIVE-OK when `NOUS_PORTAL_API_KEY` set; proven by `test_hermes_live` |
+| Nemotron reasoning (NVIDIA NIM) | MOCK | LIVE-OK when `NVIDIA_NIM_API_KEY` set (550B model, slow); proven by `test_nemotron_live` |
+| Stripe buy/provision/pay (SDK + MCP) | MOCK | LIVE-OK (test mode) when `STRIPE_SECRET_KEY=sk_test_…`; MCP path needs 3.11 venv + npx; `sk_live_` refused; proven by `test_stripe_live` |
+| Baton access governance | LIVE-OK (binary verified) | access DATA is a fixture until a connector cred produces a real c1z; proven by `test_baton_live` |
+| NeMo Guardrails | DENYLIST (built-in) | REAL LLMRails when `NEMOCLAW_GUARDRAILS=1`; proven by `test_guardrails_live` |
+| Sandbox | in-process fallback | SUBPROCESS isolation when `NEMOCLAW_SANDBOX` set; OpenShell NOT used; proven by `test_sandbox_subprocess_live` |
+| ConductorOne API | LIVE-OK (graceful fallback to local policy; never crashes) | live verify needs a real C1 tenant (`C1_API_KEY` + `C1_BASE_URL`); proven by `test_c1_policy_check_live` |
+| GBrain memory | MOCK (in-memory graph) | LIVE-OK when `GBRAIN_MCP_CMD` set; needs `npm i -g github:garrytan/gbrain` + bun; proven by `test_gbrain_live` |
+| QuickBooks / Intuit | MOCK (in-memory ledger) | needs Intuit sandbox creds; no falsifying test — unverified |
 
 Reasoning-model output is stochastic, so the recorded demo replays a captured Hermes run
-(`fixtures/captured/hermes_run.json`) rather than a live call. Live orchestration is real and
-proven by `tests/live/` — it is just not deterministic enough to record.
+(`fixtures/captured/hermes_run.json`) rather than a live call. Live orchestration requires
+`NOUS_PORTAL_API_KEY`; when set, it is proven by `test_hermes_live` — just not deterministic
+enough to record.
 
 ## Quick start
 

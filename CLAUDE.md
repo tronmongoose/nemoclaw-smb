@@ -27,22 +27,22 @@ were mock-by-default code that no test exercised live. Do not repeat that.
 
 ## Reality matrix (run `make reality` to refresh — counts here drift)
 
-| Layer | Status | Notes |
-|---|---|---|
-| Audit hash chain | REAL | SHA-256 prev_hash→entry_hash, `verify_chain` from genesis. `agent/audit_log.py` |
-| Anomaly detection | REAL | z-score math, `gbrain/anomaly_detector.py` |
-| Policy / approval / TTL | REAL | local YAML policy + deterministic approval gate |
-| Knowledge graph | REAL | in-memory, `gbrain/knowledge_graph.py` |
-| NemoClaw harness | REAL | guardrail → approval → execute → audit; the single payment chokepoint |
-| Hermes (Nous Portal) | LIVE-OK | real call when `NOUS_PORTAL_API_KEY` set; `tests/live` proves it |
-| Nemotron (NVIDIA NIM) | LIVE-OK | real call when `NVIDIA_NIM_API_KEY` set (550B model is slow, ~30–120s) |
-| Stripe (SDK + MCP) | LIVE-OK (test mode) | real test-mode calls when `STRIPE_SECRET_KEY=sk_test_…`; `sk_live_` refused. SDK + Stripe MCP backends; mock fallback |
-| NeMo Guardrails | REAL (opt-in) | real `LLMRails` check when `NEMOCLAW_GUARDRAILS=1`; built-in denylist otherwise |
-| Sandbox | SUBPROCESS | real subprocess isolation for JSON-serializable skills when `NEMOCLAW_SANDBOX` set; in-process fallback for rich objects. OpenShell is NOT installed/used |
-| Baton (binary) | LIVE-OK | `baton` 0.4.5 installed; access-grant DATA still uses a fixture until a connector cred (e.g. a GitHub PAT) produces a real c1z |
-| ConductorOne API | BUILD-TO-SPEC | real client to the public C1 API; live verify needs a tenant. Graceful fallback to local policy, never crashes on key |
-| GBrain MCP | WIRED, LIVE-DEFERRED | real client behind `GBRAIN_MCP_CMD`; needs `npm i -g github:garrytan/gbrain` (user-gated) + bun. In-memory graph is the default and the source of truth |
-| Intuit / QuickBooks | MOCK | in-memory ledger; needs Intuit sandbox creds to go live |
+| Layer | Default state | Keyed/enabled upgrade | Live test? |
+|---|---|---|---|
+| Audit hash chain | REAL | — | no (local, deterministic) |
+| Anomaly detection | REAL | — | no (local math) |
+| Policy / approval / TTL | REAL | — | no (local YAML) |
+| Knowledge graph | REAL (in-memory) | — | no (local) |
+| NemoClaw harness | REAL | — | no (local) |
+| Hermes (Nous Portal) | MOCK | LIVE-OK when `NOUS_PORTAL_API_KEY` set | yes — `test_hermes_live` |
+| Nemotron (NVIDIA NIM) | MOCK | LIVE-OK when `NVIDIA_NIM_API_KEY` set (550B model, ~30–120s) | yes — `test_nemotron_live` |
+| Stripe (SDK + MCP) | MOCK | LIVE-OK (test mode) when `STRIPE_SECRET_KEY=sk_test_…`; `sk_live_` refused; MCP path needs 3.11 venv + npx | yes — `test_stripe_live` |
+| NeMo Guardrails | DENYLIST (built-in) | REAL LLMRails when `NEMOCLAW_GUARDRAILS=1` | yes — `test_guardrails_live` |
+| Sandbox | in-process fallback | SUBPROCESS isolation when `NEMOCLAW_SANDBOX` set; OpenShell NOT used | yes — `test_sandbox_subprocess_live` |
+| Baton (binary) | LIVE-OK (binary verified) | access DATA is a fixture until a connector cred (e.g. GitHub PAT) produces a real c1z | yes — `test_baton_live` (binary only) |
+| ConductorOne API | LIVE-OK (graceful fallback to local policy; never crashes on missing key) | live verify needs a real C1 tenant (`C1_API_KEY` + `C1_BASE_URL`) | yes — `test_c1_policy_check_live` |
+| GBrain MCP | MOCK (in-memory graph) | LIVE-OK when `GBRAIN_MCP_CMD` set; needs `npm i -g github:garrytan/gbrain` + bun | yes — `test_gbrain_live` |
+| Intuit / QuickBooks | MOCK (in-memory ledger) | needs Intuit sandbox creds to go live | no falsifying test — unverified |
 
 ## Architecture
 

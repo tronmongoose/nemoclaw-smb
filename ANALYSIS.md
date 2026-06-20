@@ -24,8 +24,9 @@ invoice feed with the anomaly flagged, the approval queue, and a savings panel w
 agent's own 0.5% fee.
 
 Hermes (Nous Portal) is the orchestrator: it parses a CEO intent, plans, and dispatches the
-skills. That path is real and verified live. The recorded demo replays a captured run because
-reasoning-model output varies run to run.
+skills. That path is MOCK by default; set `NOUS_PORTAL_API_KEY` to activate real Nous Portal
+calls (verified by `test_hermes_live`). The recorded demo replays a captured Hermes run
+because reasoning-model output varies run to run.
 
 ## The value thesis
 
@@ -46,15 +47,15 @@ audited. That is what makes an autonomous money-mover safe enough to run.
 
 | Brief intent | Status | Note |
 |---|---|---|
-| Knowledge graph of the business | DELIVERED-REAL | in-memory graph; real GBrain MCP client wired, install user-gated |
-| Hermes as primary orchestrator | DELIVERED-LIVE | real Nous Portal calls; verified with a falsifying live test |
-| Nemotron heavy reasoning | DELIVERED-LIVE | real NIM calls (550B model, slow) |
-| NemoClaw safe execution | DELIVERED-REAL | real harness + the single payment chokepoint; real NeMo Guardrails opt-in; subprocess sandbox (not OpenShell) |
-| ConductorOne control plane | PARTIAL | real API client built to the public SDK spec; live verify needs a tenant. Access governance is live-local via Baton |
+| Knowledge graph of the business | DELIVERED-REAL (in-memory default); LIVE when keyed | in-memory graph always runs; real GBrain MCP client activates with `GBRAIN_MCP_CMD`; install user-gated. Live test: `test_gbrain_live` |
+| Hermes as primary orchestrator | MOCK by default; LIVE-OK when `NOUS_PORTAL_API_KEY` set | real Nous Portal calls verified by `test_hermes_live` when keyed |
+| Nemotron heavy reasoning | MOCK by default; LIVE-OK when `NVIDIA_NIM_API_KEY` set | real NIM calls (550B model, slow); verified by `test_nemotron_live` |
+| NemoClaw safe execution | DELIVERED-REAL | real harness + single payment chokepoint; NeMo Guardrails opt-in (`NEMOCLAW_GUARDRAILS=1`; denylist otherwise); subprocess sandbox opt-in (`NEMOCLAW_SANDBOX`; in-process fallback otherwise). Live tests: `test_guardrails_live`, `test_sandbox_subprocess_live` |
+| ConductorOne control plane | LIVE-OK (graceful fallback); LIVE-VERIFIED needs a tenant | real API client built to the public SDK spec; falls back to local policy when unconfigured, never crashes. Access governance is live-local via Baton (binary). Live tests: `test_c1_policy_check_live`, `test_baton_live` |
 | HTTP 402 trigger loop | DELIVERED-REAL | full pipeline, both pay and escalate paths |
-| Stripe Skills for Hermes | DELIVERED-LIVE (test mode) | real test-mode buy/provision/pay via SDK and Stripe MCP; verified PaymentIntent created |
-| Intuit reconciliation | MOCK | in-memory ledger; needs Intuit sandbox creds |
-| Vendor negotiation / switch | DELIVERED-REAL (logic) | ranking + switch cascade real; the live vendor-search step is seeded |
+| Stripe Skills for Hermes | MOCK by default; LIVE-OK (test mode) when `STRIPE_SECRET_KEY=sk_test_…` set | real test-mode buy/provision/pay via SDK; Stripe MCP path needs 3.11 venv + npx. `sk_live_` refused. Verified by `test_stripe_live` |
+| Intuit reconciliation | MOCK | in-memory ledger; needs Intuit sandbox creds. No falsifying test — unverified |
+| Vendor negotiation / switch | DELIVERED-REAL (logic) | ranking + switch cascade real; live vendor-search step is seeded |
 | Hash-chained audit | DELIVERED-REAL | SHA-256 chain, verifies end to end |
 | Approval over $100 | DELIVERED-REAL | enforced in the harness |
 
