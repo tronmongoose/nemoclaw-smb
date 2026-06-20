@@ -4,10 +4,10 @@ help: ## Show this help
 	@grep -E '^[a-z][a-z0-9_-]*:.*##' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*##"}{printf "  %-12s %s\n", $$1, $$2}'
 
 install: ## Install Python deps (editable + dev)
-	pip install -e ".[dev]"
+	python3 -m pip install -e ".[dev]"
 
 dev: ## Run API locally with reload
-	uvicorn api.main:app --reload --port 8000
+	python3 -m uvicorn api.main:app --reload --port 8000
 
 up: ## Boot full stack (API + Redis + UI) via docker-compose
 	docker-compose -f infra/docker-compose.yml up --build
@@ -16,13 +16,13 @@ down: ## Stop the stack
 	docker-compose -f infra/docker-compose.yml down
 
 test: ## Run core loop tests
-	pytest tests/ -v
+	python3 -m pytest tests/ -v
 
 lint: ## Ruff lint
-	ruff check agent api gbrain control_plane payments procurement tests
+	python3 -m ruff check agent api gbrain control_plane payments procurement ingestion analysis connectors verification scripts tests
 
 demo: ## Run the end-to-end demo dry-run on seed data
-	python -m fixtures.demo_runner
+	python3 -m fixtures.demo_runner
 
 reality: ## Print the live integration status matrix
 	python3 verification/reality_report.py
