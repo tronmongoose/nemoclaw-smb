@@ -183,7 +183,11 @@ def _do_escalation(
         )
 
     if "decision" not in {s["step"] for s in steps}:
-        detail = policy_reason or anomaly.reason
+        detail: str = (
+            policy_reason
+            or anomaly.reason
+            or "escalated: reason unavailable"
+        )
         steps.append({"step": "decision", "status": "escalated", "detail": detail})
 
     audit_entry = audit_log.append_action(

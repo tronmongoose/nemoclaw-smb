@@ -74,15 +74,29 @@ def is_matrix(path: Path) -> bool:
 
 
 def _infer_year(path: Path) -> int | None:
-    """Infer a 4-digit year from trailing digits in the filename stem.
+    """Infer a 4-digit year from the filename stem using priority ordering.
 
-    #COMPLETION_DRIVE: 2-digit suffix "25" -> 2025; 4-digit match takes priority.
-    #SUGGEST_VERIFY: confirm this heuristic against your filename conventions.
+    Priority:
+    1. 4-digit year (20NN) anywhere in the stem.
+    2. 2-digit year immediately following a "Cashflows" or "Cashflow" token
+       (case-insensitive), e.g. "Oside Cashflows 25" -> 2025.
+       Handles filenames with multiple unrelated 2-digit digit groups (dates,
+       version numbers) where only the Cashflows-adjacent number is the year.
+    3. Trailing 2-digit token at the end of the stem (legacy heuristic).
+
+    #COMPLETION_DRIVE: priority 2 was added for real-world filenames of the form
+    'huckle_finances_6.10.26.xlsx - Oside Cashflows 25 - final.csv' where neither
+    4-digit nor trailing-digit matches find the correct year.
+    #SUGGEST_VERIFY: confirm against all tenant filename conventions before
+    removing the trailing-digit fallback (priority 3).
     """
     stem = path.stem
     four = re.search(r"(20\d{2})", stem)
     if four:
         return int(four.group(1))
+    cashflows = re.search(r"[Cc]ashflows?\s+(\d{2})\b", stem)
+    if cashflows:
+        return 2000 + int(cashflows.group(1))
     two = re.search(r"(\d{2})$", stem)
     if two:
         suffix = int(two.group(1))

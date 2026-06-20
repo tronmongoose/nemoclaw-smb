@@ -50,11 +50,12 @@ def _plaid_env_url() -> str:
     return _PLAID_ENVS.get(env, _PLAID_ENVS["sandbox"])
 
 
-def _map_transaction(raw: Any) -> dict[str, Any]:
+def _map_transaction(raw: Any) -> dict[str, Any] | None:
     """Map a single Plaid transaction object to the normalized schema.
 
     Plaid sign: positive amount = debit (expense), negative = credit (income).
     We store amount as an absolute float and set direction accordingly.
+    Returns None for zero-amount transactions so the caller can skip them.
 
     #COMPLETION_DRIVE: Plaid personal_finance_category.primary used for category
     when available; falls back to raw category[0] then "Other".
@@ -62,7 +63,9 @@ def _map_transaction(raw: Any) -> dict[str, Any]:
     using in production to confirm the attribute path is correct for SDK v18+.
     """
     raw_amount = float(getattr(raw, "amount", 0.0))
-    direction = "expense" if raw_amount >= 0 else "income"
+    if raw_amount == 0.0:
+        return None
+    direction = "expense" if raw_amount > 0 else "income"
     amount = abs(raw_amount)
 
     date_val = getattr(raw, "date", None) or getattr(raw, "authorized_date", None)
@@ -189,7 +192,10 @@ class PlaidConnector:
 
         while has_more and pages < max_pages:
             added, cursor, has_more = _sync_page(client, access_token, cursor)
-            all_added.extend(_map_transaction(tx) for tx in added)
+            all_added.extend(
+                mapped for tx in added
+                if (mapped := _map_transaction(tx)) is not None
+            )
             pages += 1
 
         updated_state = {**state, "cursor": cursor}

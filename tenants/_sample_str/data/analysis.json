@@ -1,14 +1,86 @@
 {
   "tenant": "_sample_str",
-  "generated_at": "2026-06-20T01:38:42+00:00",
+  "generated_at": "2026-06-20T02:30:54+00:00",
   "pnl": {
     "totals": {
-      "income": 70150.0,
-      "expense": 20671.29,
-      "net": 49478.71,
-      "margin_pct": 70.53
+      "income": 125350.0,
+      "expense": 36789.43,
+      "net": 88560.57,
+      "margin_pct": 70.65
     },
     "by_month": [
+      {
+        "month": "2024-01",
+        "income": 3100.0,
+        "expense": 1194.97,
+        "net": 1905.03
+      },
+      {
+        "month": "2024-02",
+        "income": 3200.0,
+        "expense": 1209.47,
+        "net": 1990.53
+      },
+      {
+        "month": "2024-03",
+        "income": 3300.0,
+        "expense": 1235.97,
+        "net": 2064.03
+      },
+      {
+        "month": "2024-04",
+        "income": 4400.0,
+        "expense": 1304.97,
+        "net": 3095.03
+      },
+      {
+        "month": "2024-05",
+        "income": 5150.0,
+        "expense": 1452.97,
+        "net": 3697.03
+      },
+      {
+        "month": "2024-06",
+        "income": 5900.0,
+        "expense": 1500.97,
+        "net": 4399.03
+      },
+      {
+        "month": "2024-07",
+        "income": 6900.0,
+        "expense": 1563.97,
+        "net": 5336.03
+      },
+      {
+        "month": "2024-08",
+        "income": 6600.0,
+        "expense": 1549.97,
+        "net": 5050.03
+      },
+      {
+        "month": "2024-09",
+        "income": 5200.0,
+        "expense": 1385.97,
+        "net": 3814.03
+      },
+      {
+        "month": "2024-10",
+        "income": 4350.0,
+        "expense": 1274.97,
+        "net": 3075.03
+      },
+      {
+        "month": "2024-11",
+        "income": 3750.0,
+        "expense": 1233.97,
+        "net": 2516.03
+      },
+      {
+        "month": "2024-12",
+        "income": 3350.0,
+        "expense": 1209.97,
+        "net": 2140.03
+      },
       {
         "month": "2025-01",
         "income": 6950.0,
@@ -85,27 +157,31 @@
     "expense_by_category": [
       {
         "category": "maintenance",
-        "amount": 3880.37
+        "amount": 9560.37
+      },
+      {
+        "category": "management_fee",
+        "amount": 6390.0
+      },
+      {
+        "category": "platform_fee",
+        "amount": 3996.0
       },
       {
         "category": "Mgmt Fees",
         "amount": 3820.0
       },
       {
-        "category": "management_fee",
-        "amount": 2310.0
+        "category": "utilities",
+        "amount": 3528.42
       },
       {
         "category": "Electricity+ Gas (SDGE)",
         "amount": 2285.0
       },
       {
-        "category": "platform_fee",
-        "amount": 1360.0
-      },
-      {
-        "category": "utilities",
-        "amount": 1178.04
+        "category": "lawn",
+        "amount": 1504.0
       },
       {
         "category": "Yard care X2 a  month",
@@ -132,24 +208,20 @@
         "amount": 540.0
       },
       {
-        "category": "lawn",
-        "amount": 530.0
+        "category": "subscription",
+        "amount": 445.82
       },
       {
         "category": "City Waste (waste mgmt)",
         "amount": 420.0
       },
       {
-        "category": "subscription",
-        "amount": 167.94
+        "category": "security",
+        "amount": 179.82
       },
       {
         "category": "str_license",
         "amount": 150.0
-      },
-      {
-        "category": "security",
-        "amount": 59.94
       },
       {
         "category": "Parents/Friends Stay",
@@ -160,255 +232,2478 @@
         "amount": -2000.0
       },
       {
-        "category": "rental_income",
-        "amount": -29500.0
-      },
-      {
         "category": "Revenue",
         "amount": -38200.0
+      },
+      {
+        "category": "rental_income",
+        "amount": -84700.0
       }
     ]
   },
-  "findings": [
+  "headlines": [
+    {
+      "title": "Top recurring: Mgmt Fees",
+      "action": "Review Mgmt Fees: Mgmt Fees costs $4620/yr \u2014 confirm still needed or renegotiate.",
+      "annual_impact": 4620.0,
+      "monthly_impact": 385.0,
+      "severity": "low",
+      "category": "Mgmt Fees",
+      "series": [
+        {
+          "month": "2024-01",
+          "value": 0.0
+        },
+        {
+          "month": "2024-02",
+          "value": 0.0
+        },
+        {
+          "month": "2024-03",
+          "value": 0.0
+        },
+        {
+          "month": "2024-04",
+          "value": 0.0
+        },
+        {
+          "month": "2024-05",
+          "value": 0.0
+        },
+        {
+          "month": "2024-06",
+          "value": 0.0
+        },
+        {
+          "month": "2024-07",
+          "value": 0.0
+        },
+        {
+          "month": "2024-08",
+          "value": 0.0
+        },
+        {
+          "month": "2024-09",
+          "value": 0.0
+        },
+        {
+          "month": "2024-10",
+          "value": 0.0
+        },
+        {
+          "month": "2024-11",
+          "value": 0.0
+        },
+        {
+          "month": "2024-12",
+          "value": 0.0
+        },
+        {
+          "month": "2025-01",
+          "value": 280.0
+        },
+        {
+          "month": "2025-02",
+          "value": 265.0
+        },
+        {
+          "month": "2025-03",
+          "value": 310.0
+        },
+        {
+          "month": "2025-04",
+          "value": 295.0
+        },
+        {
+          "month": "2025-05",
+          "value": 320.0
+        },
+        {
+          "month": "2025-06",
+          "value": 380.0
+        },
+        {
+          "month": "2025-07",
+          "value": 410.0
+        },
+        {
+          "month": "2025-08",
+          "value": 400.0
+        },
+        {
+          "month": "2025-09",
+          "value": 350.0
+        },
+        {
+          "month": "2025-10",
+          "value": 290.0
+        },
+        {
+          "month": "2025-11",
+          "value": 270.0
+        },
+        {
+          "month": "2025-12",
+          "value": 250.0
+        }
+      ]
+    },
+    {
+      "title": "Top recurring: Property Manager Co",
+      "action": "Review management_fee: Property Manager Co costs $4104/yr \u2014 confirm still needed or renegotiate.",
+      "annual_impact": 4104.0,
+      "monthly_impact": 342.0,
+      "severity": "low",
+      "category": "management_fee",
+      "series": [
+        {
+          "month": "2024-01",
+          "value": 320.0
+        },
+        {
+          "month": "2024-02",
+          "value": 320.0
+        },
+        {
+          "month": "2024-03",
+          "value": 320.0
+        },
+        {
+          "month": "2024-04",
+          "value": 360.0
+        },
+        {
+          "month": "2024-05",
+          "value": 360.0
+        },
+        {
+          "month": "2024-06",
+          "value": 360.0
+        },
+        {
+          "month": "2024-07",
+          "value": 360.0
+        },
+        {
+          "month": "2024-08",
+          "value": 360.0
+        },
+        {
+          "month": "2024-09",
+          "value": 360.0
+        },
+        {
+          "month": "2024-10",
+          "value": 320.0
+        },
+        {
+          "month": "2024-11",
+          "value": 320.0
+        },
+        {
+          "month": "2024-12",
+          "value": 320.0
+        },
+        {
+          "month": "2025-01",
+          "value": 350.0
+        },
+        {
+          "month": "2025-02",
+          "value": 350.0
+        },
+        {
+          "month": "2025-03",
+          "value": 350.0
+        },
+        {
+          "month": "2025-04",
+          "value": 420.0
+        },
+        {
+          "month": "2025-05",
+          "value": 420.0
+        },
+        {
+          "month": "2025-06",
+          "value": 420.0
+        },
+        {
+          "month": "2025-07",
+          "value": 0.0
+        },
+        {
+          "month": "2025-08",
+          "value": 0.0
+        },
+        {
+          "month": "2025-09",
+          "value": 0.0
+        },
+        {
+          "month": "2025-10",
+          "value": 0.0
+        },
+        {
+          "month": "2025-11",
+          "value": 0.0
+        },
+        {
+          "month": "2025-12",
+          "value": 0.0
+        }
+      ]
+    },
     {
       "title": "Expense spike: Mgmt Fees",
-      "category": "Mgmt Fees",
-      "monthly_impact": 243.22,
+      "action": "Renegotiate Mgmt Fees: now 9.3% of revenue, up from 3.8%.",
       "annual_impact": 2918.67,
-      "confidence": "high",
-      "why": "Mgmt Fees cost/revenue ratio rose to 9.3% in 2025-07 vs prior avg 3.8% (+146% ratio increase; z=19.30)"
-    },
-    {
-      "title": "Expense spike: maintenance",
-      "category": "maintenance",
-      "monthly_impact": 186.65,
-      "annual_impact": 2239.77,
-      "confidence": "high",
-      "why": "maintenance cost/revenue ratio rose to 9.5% in 2025-03 vs prior avg 7.0% (+37% ratio increase; z=50.72)"
-    },
-    {
-      "title": "Expense spike: Water+water waste (COO)",
-      "category": "Water+water waste (COO)",
-      "monthly_impact": 23.0,
-      "annual_impact": 276.0,
-      "confidence": "high",
-      "why": "up 35% from $66 to $89 (z=3.94)"
-    },
-    {
-      "title": "Expense spike: Mgmt Fees",
+      "monthly_impact": 243.22,
+      "severity": "high",
       "category": "Mgmt Fees",
-      "monthly_impact": 21.75,
-      "annual_impact": 260.94,
-      "confidence": "high",
-      "why": "Mgmt Fees cost/revenue ratio rose to 4.2% in 2025-03 vs prior avg 3.9% (+8% ratio increase; z=3.72)"
-    },
-    {
-      "title": "Expense spike: City Waste (waste mgmt)",
-      "category": "City Waste (waste mgmt)",
-      "monthly_impact": 15.75,
-      "annual_impact": 189.01,
-      "confidence": "high",
-      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.8% in 2025-07 vs prior avg 0.4% (+82% ratio increase; z=5.30)"
-    },
-    {
-      "title": "Expense spike: Water+water waste (COO)",
-      "category": "Water+water waste (COO)",
-      "monthly_impact": 11.0,
-      "annual_impact": 132.0,
-      "confidence": "high",
-      "why": "up 18% from $60 to $71 (z=5.50)"
-    },
-    {
-      "title": "Expense spike: Electricity+ Gas (SDGE)",
-      "category": "Electricity+ Gas (SDGE)",
-      "monthly_impact": -27.5,
-      "annual_impact": -330.0,
-      "confidence": "high",
-      "why": "down 14% from $202 to $175 (z=-3.67)"
-    },
-    {
-      "title": "Expense spike: Mgmt Fees",
-      "category": "Mgmt Fees",
-      "monthly_impact": 205.35,
-      "annual_impact": 2464.16,
-      "confidence": "medium",
-      "why": "Mgmt Fees cost/revenue ratio rose to 9.4% in 2025-08 vs prior avg 4.6% (+105% ratio increase; z=2.47)"
-    },
-    {
-      "title": "Expense spike: Mgmt Fees",
-      "category": "Mgmt Fees",
-      "monthly_impact": 151.71,
-      "annual_impact": 1820.53,
-      "confidence": "medium",
-      "why": "Mgmt Fees cost/revenue ratio rose to 9.2% in 2025-09 vs prior avg 5.2% (+77% ratio increase; z=1.63)"
-    },
-    {
-      "title": "Expense spike: Mgmt Fees",
-      "category": "Mgmt Fees",
-      "monthly_impact": 121.26,
-      "annual_impact": 1455.1,
-      "confidence": "medium",
-      "why": "Mgmt Fees cost/revenue ratio rose to 9.7% in 2025-10 vs prior avg 5.6% (+72% ratio increase; z=1.55)"
-    },
-    {
-      "title": "Expense spike: Mgmt Fees",
-      "category": "Mgmt Fees",
-      "monthly_impact": 99.68,
-      "annual_impact": 1196.19,
-      "confidence": "medium",
-      "why": "Mgmt Fees cost/revenue ratio rose to 9.6% in 2025-11 vs prior avg 6.0% (+59% ratio increase; z=1.28)"
-    },
-    {
-      "title": "Expense spike: Mgmt Fees",
-      "category": "Mgmt Fees",
-      "monthly_impact": 86.5,
-      "annual_impact": 1037.94,
-      "confidence": "medium",
-      "why": "Mgmt Fees cost/revenue ratio rose to 9.7% in 2025-12 vs prior avg 6.3% (+53% ratio increase; z=1.19)"
-    },
-    {
-      "title": "Expense spike: Electricity+ Gas (SDGE)",
-      "category": "Electricity+ Gas (SDGE)",
-      "monthly_impact": 54.17,
-      "annual_impact": 650.04,
-      "confidence": "medium",
-      "why": "up 31% from $176 to $230 (z=2.32)"
-    },
-    {
-      "title": "Expense spike: Instacart+Amazon",
-      "category": "Instacart+Amazon",
-      "monthly_impact": 39.17,
-      "annual_impact": 470.04,
-      "confidence": "medium",
-      "why": "up 77% from $51 to $90 (z=2.69)"
-    },
-    {
-      "title": "Expense spike: Instacart+Amazon",
-      "category": "Instacart+Amazon",
-      "monthly_impact": 29.0,
-      "annual_impact": 348.0,
-      "confidence": "medium",
-      "why": "up 63% from $46 to $75 (z=2.72)"
-    },
-    {
-      "title": "Expense spike: Water+water waste (COO)",
-      "category": "Water+water waste (COO)",
-      "monthly_impact": 25.17,
-      "annual_impact": 302.04,
-      "confidence": "medium",
-      "why": "up 36% from $70 to $95 (z=2.49)"
-    },
-    {
-      "title": "Expense spike: City Waste (waste mgmt)",
-      "category": "City Waste (waste mgmt)",
-      "monthly_impact": 17.8,
-      "annual_impact": 213.64,
-      "confidence": "medium",
-      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.2% in 2025-10 vs prior avg 0.6% (+104% ratio increase; z=2.94)"
-    },
-    {
-      "title": "Expense spike: Instacart+Amazon",
-      "category": "Instacart+Amazon",
-      "monthly_impact": 17.5,
-      "annual_impact": 210.0,
-      "confidence": "medium",
-      "why": "up 47% from $38 to $55 (z=2.33)"
-    },
-    {
-      "title": "Expense spike: City Waste (waste mgmt)",
-      "category": "City Waste (waste mgmt)",
-      "monthly_impact": 17.29,
-      "annual_impact": 207.51,
-      "confidence": "medium",
-      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.4% in 2025-12 vs prior avg 0.7% (+98% ratio increase; z=2.21)"
-    },
-    {
-      "title": "Expense spike: City Waste (waste mgmt)",
-      "category": "City Waste (waste mgmt)",
-      "monthly_impact": 17.13,
-      "annual_impact": 205.56,
-      "confidence": "medium",
-      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.2% in 2025-11 vs prior avg 0.6% (+96% ratio increase; z=2.32)"
-    },
-    {
-      "title": "Recurring bill jump: Water+water waste (COO)",
-      "category": "Water+water waste (COO)",
-      "monthly_impact": 15.0,
-      "annual_impact": 180.0,
-      "confidence": "medium",
-      "why": "Water+water waste (COO) charged $89.00 in 2025-06 vs $74.00 in 2025-05 (+20%, threshold 20%)"
-    },
-    {
-      "title": "Expense spike: City Waste (waste mgmt)",
-      "category": "City Waste (waste mgmt)",
-      "monthly_impact": 14.71,
-      "annual_impact": 176.51,
-      "confidence": "medium",
-      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.9% in 2025-09 vs prior avg 0.5% (+72% ratio increase; z=2.24)"
-    },
-    {
-      "title": "Expense spike: City Waste (waste mgmt)",
-      "category": "City Waste (waste mgmt)",
-      "monthly_impact": 14.23,
-      "annual_impact": 170.8,
-      "confidence": "medium",
-      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.8% in 2025-08 vs prior avg 0.5% (+69% ratio increase; z=2.39)"
-    },
-    {
-      "title": "Recurring bill jump: Water+water waste (COO)",
-      "category": "Water+water waste (COO)",
-      "monthly_impact": 13.0,
-      "annual_impact": 156.0,
-      "confidence": "medium",
-      "why": "Water+water waste (COO) charged $71.00 in 2025-03 vs $58.00 in 2025-02 (+22%, threshold 20%)"
-    },
-    {
-      "title": "Expense spike: Water+water waste (COO)",
-      "category": "Water+water waste (COO)",
-      "monthly_impact": 10.0,
-      "annual_impact": 120.0,
-      "confidence": "medium",
-      "why": "up 16% from $64 to $74 (z=2.11)"
-    },
-    {
-      "title": "Expense spike: Electricity+ Gas (SDGE)",
-      "category": "Electricity+ Gas (SDGE)",
-      "monthly_impact": -38.33,
-      "annual_impact": -459.96,
-      "confidence": "medium",
-      "why": "down 20% from $193 to $155 (z=-2.67)"
-    },
-    {
-      "title": "Expense spike: Electricity+ Gas (SDGE)",
-      "category": "Electricity+ Gas (SDGE)",
-      "monthly_impact": -43.75,
-      "annual_impact": -525.0,
-      "confidence": "medium",
-      "why": "down 24% from $184 to $140 (z=-2.11)"
-    },
+      "series": [
+        {
+          "month": "2024-01",
+          "value": 0.0
+        },
+        {
+          "month": "2024-02",
+          "value": 0.0
+        },
+        {
+          "month": "2024-03",
+          "value": 0.0
+        },
+        {
+          "month": "2024-04",
+          "value": 0.0
+        },
+        {
+          "month": "2024-05",
+          "value": 0.0
+        },
+        {
+          "month": "2024-06",
+          "value": 0.0
+        },
+        {
+          "month": "2024-07",
+          "value": 0.0
+        },
+        {
+          "month": "2024-08",
+          "value": 0.0
+        },
+        {
+          "month": "2024-09",
+          "value": 0.0
+        },
+        {
+          "month": "2024-10",
+          "value": 0.0
+        },
+        {
+          "month": "2024-11",
+          "value": 0.0
+        },
+        {
+          "month": "2024-12",
+          "value": 0.0
+        },
+        {
+          "month": "2025-01",
+          "value": 280.0
+        },
+        {
+          "month": "2025-02",
+          "value": 265.0
+        },
+        {
+          "month": "2025-03",
+          "value": 310.0
+        },
+        {
+          "month": "2025-04",
+          "value": 295.0
+        },
+        {
+          "month": "2025-05",
+          "value": 320.0
+        },
+        {
+          "month": "2025-06",
+          "value": 380.0
+        },
+        {
+          "month": "2025-07",
+          "value": 410.0
+        },
+        {
+          "month": "2025-08",
+          "value": 400.0
+        },
+        {
+          "month": "2025-09",
+          "value": 350.0
+        },
+        {
+          "month": "2025-10",
+          "value": 290.0
+        },
+        {
+          "month": "2025-11",
+          "value": 270.0
+        },
+        {
+          "month": "2025-12",
+          "value": 250.0
+        }
+      ]
+    }
+  ],
+  "findings": [
     {
       "title": "Top recurring: Mgmt Fees",
       "category": "Mgmt Fees",
-      "monthly_impact": 385.0,
+      "action": "Review Mgmt Fees: Mgmt Fees costs $4620/yr \u2014 confirm still needed or renegotiate.",
       "annual_impact": 4620.0,
+      "monthly_impact": 385.0,
       "confidence": "low",
       "why": "Mgmt Fees is a monthly charge averaging $385.00 (4 occurrences, $4620/yr annualized)."
     },
     {
       "title": "Top recurring: Property Manager Co",
       "category": "management_fee",
-      "monthly_impact": 350.0,
-      "annual_impact": 4200.0,
+      "action": "Review management_fee: Property Manager Co costs $4104/yr \u2014 confirm still needed or renegotiate.",
+      "annual_impact": 4104.0,
+      "monthly_impact": 342.0,
       "confidence": "low",
-      "why": "Property Manager Co is a monthly charge averaging $350.00 (3 occurrences, $4200/yr annualized)."
+      "why": "Property Manager Co is a monthly charge averaging $342.00 (15 occurrences, $4104/yr annualized)."
     },
     {
-      "title": "Top recurring: Airbnb Host Fee",
-      "category": "platform_fee",
-      "monthly_impact": 182.5,
-      "annual_impact": 2190.0,
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "action": "Renegotiate Mgmt Fees: now 9.3% of revenue, up from 3.8%.",
+      "annual_impact": 2918.67,
+      "monthly_impact": 243.22,
+      "confidence": "high",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.3% in 2025-07 vs prior avg 3.8% (+146% ratio increase; z=19.30)"
+    },
+    {
+      "title": "Top recurring: Cleaning Crew LLC",
+      "category": "maintenance",
+      "action": "Review maintenance: Cleaning Crew LLC costs $2720/yr \u2014 confirm still needed or renegotiate.",
+      "annual_impact": 2720.04,
+      "monthly_impact": 226.67,
       "confidence": "low",
-      "why": "Airbnb Host Fee is a monthly charge averaging $182.50 (2 occurrences, $2190/yr annualized)."
+      "why": "Cleaning Crew LLC is a monthly charge averaging $226.67 (24 occurrences, $2720/yr annualized)."
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "action": "Renegotiate Mgmt Fees: now 9.4% of revenue, up from 4.6%.",
+      "annual_impact": 2464.16,
+      "monthly_impact": 205.35,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.4% in 2025-08 vs prior avg 4.6% (+105% ratio increase; z=2.47)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "action": "Renegotiate Mgmt Fees: now 9.2% of revenue, up from 5.2%.",
+      "annual_impact": 1820.53,
+      "monthly_impact": 151.71,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.2% in 2025-09 vs prior avg 5.2% (+77% ratio increase; z=1.63)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "action": "Renegotiate Mgmt Fees: now 9.7% of revenue, up from 5.6%.",
+      "annual_impact": 1455.1,
+      "monthly_impact": 121.26,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.7% in 2025-10 vs prior avg 5.6% (+72% ratio increase; z=1.55)"
+    },
+    {
+      "title": "Recurring bill jump: Cleaning Crew LLC",
+      "category": "maintenance",
+      "action": "Renegotiate or verify maintenance \u2014 up 25% month-over-month.",
+      "annual_impact": 1440.0,
+      "monthly_impact": 120.0,
+      "confidence": "medium",
+      "why": "Cleaning Crew LLC charged $600.00 in 2025-05 vs $480.00 in 2025-04 (+25%, threshold 20%)"
+    },
+    {
+      "title": "Recurring bill jump: Cleaning Crew LLC",
+      "category": "maintenance",
+      "action": "Renegotiate or verify maintenance \u2014 up 23% month-over-month.",
+      "annual_impact": 1200.0,
+      "monthly_impact": 100.0,
+      "confidence": "medium",
+      "why": "Cleaning Crew LLC charged $540.00 in 2024-05 vs $440.00 in 2024-04 (+23%, threshold 20%)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "action": "Renegotiate Mgmt Fees: now 9.6% of revenue, up from 6.0%.",
+      "annual_impact": 1196.19,
+      "monthly_impact": 99.68,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.6% in 2025-11 vs prior avg 6.0% (+59% ratio increase; z=1.28)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "action": "Renegotiate Mgmt Fees: now 9.7% of revenue, up from 6.3%.",
+      "annual_impact": 1037.94,
+      "monthly_impact": 86.5,
+      "confidence": "medium",
+      "why": "Mgmt Fees cost/revenue ratio rose to 9.7% in 2025-12 vs prior avg 6.3% (+53% ratio increase; z=1.19)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "action": "Review Electricity+ Gas (SDGE): up 31% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 650.04,
+      "monthly_impact": 54.17,
+      "confidence": "medium",
+      "why": "up 31% from $176 to $230 (z=2.32)"
+    },
+    {
+      "title": "Expense spike: Pacific Gas & Electric",
+      "category": "utilities",
+      "action": "Review utilities: up 42% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 579.0,
+      "monthly_impact": 48.25,
+      "confidence": "medium",
+      "why": "up 42% from $114 to $162 (z=2.86)"
+    },
+    {
+      "title": "Expense spike: Instacart+Amazon",
+      "category": "Instacart+Amazon",
+      "action": "Review Instacart+Amazon: up 77% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 470.04,
+      "monthly_impact": 39.17,
+      "confidence": "medium",
+      "why": "up 77% from $51 to $90 (z=2.69)"
+    },
+    {
+      "title": "Expense spike: Pacific Gas & Electric",
+      "category": "utilities",
+      "action": "Review utilities: up 33% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 421.2,
+      "monthly_impact": 35.1,
+      "confidence": "high",
+      "why": "up 33% from $108 to $143 (z=3.00)"
+    },
+    {
+      "title": "Expense spike: Instacart+Amazon",
+      "category": "Instacart+Amazon",
+      "action": "Review Instacart+Amazon: up 63% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 348.0,
+      "monthly_impact": 29.0,
+      "confidence": "medium",
+      "why": "up 63% from $46 to $75 (z=2.72)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "action": "Review Water+water waste (COO): up 36% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 302.04,
+      "monthly_impact": 25.17,
+      "confidence": "medium",
+      "why": "up 36% from $70 to $95 (z=2.49)"
+    },
+    {
+      "title": "Expense spike: Pacific Gas & Electric",
+      "category": "utilities",
+      "action": "Review utilities: up 24% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 301.44,
+      "monthly_impact": 25.12,
+      "confidence": "high",
+      "why": "up 24% from $103 to $128 (z=3.78)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "action": "Review Water+water waste (COO): up 35% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 276.0,
+      "monthly_impact": 23.0,
+      "confidence": "high",
+      "why": "up 35% from $66 to $89 (z=3.94)"
+    },
+    {
+      "title": "Expense spike: Mgmt Fees",
+      "category": "Mgmt Fees",
+      "action": "Renegotiate Mgmt Fees: now 4.2% of revenue, up from 3.9%.",
+      "annual_impact": 260.94,
+      "monthly_impact": 21.75,
+      "confidence": "high",
+      "why": "Mgmt Fees cost/revenue ratio rose to 4.2% in 2025-03 vs prior avg 3.9% (+8% ratio increase; z=3.72)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "action": "Renegotiate City Waste (waste mgmt): now 1.2% of revenue, up from 0.6%.",
+      "annual_impact": 213.64,
+      "monthly_impact": 17.8,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.2% in 2025-10 vs prior avg 0.6% (+104% ratio increase; z=2.94)"
+    },
+    {
+      "title": "Expense spike: Instacart+Amazon",
+      "category": "Instacart+Amazon",
+      "action": "Review Instacart+Amazon: up 47% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 210.0,
+      "monthly_impact": 17.5,
+      "confidence": "medium",
+      "why": "up 47% from $38 to $55 (z=2.33)"
+    },
+    {
+      "title": "Expense spike: platform_fee",
+      "category": "platform_fee",
+      "action": "Renegotiate platform_fee: now 5.6% of revenue, up from 5.1%.",
+      "annual_impact": 209.06,
+      "monthly_impact": 17.42,
+      "confidence": "high",
+      "why": "platform_fee cost/revenue ratio rose to 5.6% in 2024-03 vs prior avg 5.1% (+10% ratio increase; z=6.76)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "action": "Renegotiate City Waste (waste mgmt): now 1.4% of revenue, up from 0.7%.",
+      "annual_impact": 207.51,
+      "monthly_impact": 17.29,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.4% in 2025-12 vs prior avg 0.7% (+98% ratio increase; z=2.21)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "action": "Renegotiate City Waste (waste mgmt): now 1.2% of revenue, up from 0.6%.",
+      "annual_impact": 205.56,
+      "monthly_impact": 17.13,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 1.2% in 2025-11 vs prior avg 0.6% (+96% ratio increase; z=2.32)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "action": "Renegotiate City Waste (waste mgmt): now 0.8% of revenue, up from 0.4%.",
+      "annual_impact": 189.01,
+      "monthly_impact": 15.75,
+      "confidence": "high",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.8% in 2025-07 vs prior avg 0.4% (+82% ratio increase; z=5.30)"
+    },
+    {
+      "title": "Recurring bill jump: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "action": "Renegotiate or verify Water+water waste (COO) \u2014 up 20% month-over-month.",
+      "annual_impact": 180.0,
+      "monthly_impact": 15.0,
+      "confidence": "medium",
+      "why": "Water+water waste (COO) charged $89.00 in 2025-06 vs $74.00 in 2025-05 (+20%, threshold 20%)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "action": "Renegotiate City Waste (waste mgmt): now 0.9% of revenue, up from 0.5%.",
+      "annual_impact": 176.51,
+      "monthly_impact": 14.71,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.9% in 2025-09 vs prior avg 0.5% (+72% ratio increase; z=2.24)"
+    },
+    {
+      "title": "Expense spike: City Waste (waste mgmt)",
+      "category": "City Waste (waste mgmt)",
+      "action": "Renegotiate City Waste (waste mgmt): now 0.8% of revenue, up from 0.5%.",
+      "annual_impact": 170.8,
+      "monthly_impact": 14.23,
+      "confidence": "medium",
+      "why": "City Waste (waste mgmt) cost/revenue ratio rose to 0.8% in 2025-08 vs prior avg 0.5% (+69% ratio increase; z=2.39)"
+    },
+    {
+      "title": "Expense spike: Pacific Gas & Electric",
+      "category": "utilities",
+      "action": "Review utilities: up 14% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 162.0,
+      "monthly_impact": 13.5,
+      "confidence": "high",
+      "why": "up 14% from $100 to $113 (z=3.67)"
+    },
+    {
+      "title": "Recurring bill jump: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "action": "Renegotiate or verify Water+water waste (COO) \u2014 up 22% month-over-month.",
+      "annual_impact": 156.0,
+      "monthly_impact": 13.0,
+      "confidence": "medium",
+      "why": "Water+water waste (COO) charged $71.00 in 2025-03 vs $58.00 in 2025-02 (+22%, threshold 20%)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "action": "Review Water+water waste (COO): up 18% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 132.0,
+      "monthly_impact": 11.0,
+      "confidence": "high",
+      "why": "up 18% from $60 to $71 (z=5.50)"
+    },
+    {
+      "title": "Expense spike: Water+water waste (COO)",
+      "category": "Water+water waste (COO)",
+      "action": "Review Water+water waste (COO): up 16% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": 120.0,
+      "monthly_impact": 10.0,
+      "confidence": "medium",
+      "why": "up 16% from $64 to $74 (z=2.11)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "action": "Review Electricity+ Gas (SDGE): down 14% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": -330.0,
+      "monthly_impact": -27.5,
+      "confidence": "high",
+      "why": "down 14% from $202 to $175 (z=-3.67)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "action": "Review Electricity+ Gas (SDGE): down 20% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": -459.96,
+      "monthly_impact": -38.33,
+      "confidence": "medium",
+      "why": "down 20% from $193 to $155 (z=-2.67)"
+    },
+    {
+      "title": "Expense spike: Electricity+ Gas (SDGE)",
+      "category": "Electricity+ Gas (SDGE)",
+      "action": "Review Electricity+ Gas (SDGE): down 24% \u2014 check for a rate change, error, or one-off.",
+      "annual_impact": -525.0,
+      "monthly_impact": -43.75,
+      "confidence": "medium",
+      "why": "down 24% from $184 to $140 (z=-2.11)"
     }
-  ]
+  ],
+  "longitudinal": {
+    "net_by_month": [
+      {
+        "month": "2024-01",
+        "net": 1905.03
+      },
+      {
+        "month": "2024-02",
+        "net": 1990.53
+      },
+      {
+        "month": "2024-03",
+        "net": 2064.03
+      },
+      {
+        "month": "2024-04",
+        "net": 3095.03
+      },
+      {
+        "month": "2024-05",
+        "net": 3697.03
+      },
+      {
+        "month": "2024-06",
+        "net": 4399.03
+      },
+      {
+        "month": "2024-07",
+        "net": 5336.03
+      },
+      {
+        "month": "2024-08",
+        "net": 5050.03
+      },
+      {
+        "month": "2024-09",
+        "net": 3814.03
+      },
+      {
+        "month": "2024-10",
+        "net": 3075.03
+      },
+      {
+        "month": "2024-11",
+        "net": 2516.03
+      },
+      {
+        "month": "2024-12",
+        "net": 2140.03
+      },
+      {
+        "month": "2025-01",
+        "net": 4669.53
+      },
+      {
+        "month": "2025-02",
+        "net": 4644.83
+      },
+      {
+        "month": "2025-03",
+        "net": 4880.73
+      },
+      {
+        "month": "2025-04",
+        "net": 5837.31
+      },
+      {
+        "month": "2025-05",
+        "net": 6401.38
+      },
+      {
+        "month": "2025-06",
+        "net": 7835.93
+      },
+      {
+        "month": "2025-07",
+        "net": 3335.0
+      },
+      {
+        "month": "2025-08",
+        "net": 3062.0
+      },
+      {
+        "month": "2025-09",
+        "net": 2904.0
+      },
+      {
+        "month": "2025-10",
+        "net": 2207.0
+      },
+      {
+        "month": "2025-11",
+        "net": 1916.0
+      },
+      {
+        "month": "2025-12",
+        "net": 1785.0
+      }
+    ],
+    "by_category_monthly": [
+      {
+        "category": "City Waste (waste mgmt)",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 35.0
+          },
+          {
+            "month": "2025-02",
+            "value": 35.0
+          },
+          {
+            "month": "2025-03",
+            "value": 35.0
+          },
+          {
+            "month": "2025-04",
+            "value": 35.0
+          },
+          {
+            "month": "2025-05",
+            "value": 35.0
+          },
+          {
+            "month": "2025-06",
+            "value": 35.0
+          },
+          {
+            "month": "2025-07",
+            "value": 35.0
+          },
+          {
+            "month": "2025-08",
+            "value": 35.0
+          },
+          {
+            "month": "2025-09",
+            "value": 35.0
+          },
+          {
+            "month": "2025-10",
+            "value": 35.0
+          },
+          {
+            "month": "2025-11",
+            "value": 35.0
+          },
+          {
+            "month": "2025-12",
+            "value": 35.0
+          }
+        ]
+      },
+      {
+        "category": "Electricity+ Gas (SDGE)",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 210.0
+          },
+          {
+            "month": "2025-02",
+            "value": 195.0
+          },
+          {
+            "month": "2025-03",
+            "value": 175.0
+          },
+          {
+            "month": "2025-04",
+            "value": 155.0
+          },
+          {
+            "month": "2025-05",
+            "value": 140.0
+          },
+          {
+            "month": "2025-06",
+            "value": 180.0
+          },
+          {
+            "month": "2025-07",
+            "value": 230.0
+          },
+          {
+            "month": "2025-08",
+            "value": 225.0
+          },
+          {
+            "month": "2025-09",
+            "value": 190.0
+          },
+          {
+            "month": "2025-10",
+            "value": 165.0
+          },
+          {
+            "month": "2025-11",
+            "value": 200.0
+          },
+          {
+            "month": "2025-12",
+            "value": 220.0
+          }
+        ]
+      },
+      {
+        "category": "Instacart+Amazon",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 45.0
+          },
+          {
+            "month": "2025-02",
+            "value": 30.0
+          },
+          {
+            "month": "2025-03",
+            "value": 55.0
+          },
+          {
+            "month": "2025-04",
+            "value": 40.0
+          },
+          {
+            "month": "2025-05",
+            "value": 60.0
+          },
+          {
+            "month": "2025-06",
+            "value": 75.0
+          },
+          {
+            "month": "2025-07",
+            "value": 90.0
+          },
+          {
+            "month": "2025-08",
+            "value": 85.0
+          },
+          {
+            "month": "2025-09",
+            "value": 65.0
+          },
+          {
+            "month": "2025-10",
+            "value": 35.0
+          },
+          {
+            "month": "2025-11",
+            "value": 40.0
+          },
+          {
+            "month": "2025-12",
+            "value": 25.0
+          }
+        ]
+      },
+      {
+        "category": "Internet (7962)",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 80.0
+          },
+          {
+            "month": "2025-02",
+            "value": 80.0
+          },
+          {
+            "month": "2025-03",
+            "value": 80.0
+          },
+          {
+            "month": "2025-04",
+            "value": 80.0
+          },
+          {
+            "month": "2025-05",
+            "value": 80.0
+          },
+          {
+            "month": "2025-06",
+            "value": 80.0
+          },
+          {
+            "month": "2025-07",
+            "value": 80.0
+          },
+          {
+            "month": "2025-08",
+            "value": 80.0
+          },
+          {
+            "month": "2025-09",
+            "value": 80.0
+          },
+          {
+            "month": "2025-10",
+            "value": 80.0
+          },
+          {
+            "month": "2025-11",
+            "value": 80.0
+          },
+          {
+            "month": "2025-12",
+            "value": 80.0
+          }
+        ]
+      },
+      {
+        "category": "Mgmt Fees",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 280.0
+          },
+          {
+            "month": "2025-02",
+            "value": 265.0
+          },
+          {
+            "month": "2025-03",
+            "value": 310.0
+          },
+          {
+            "month": "2025-04",
+            "value": 295.0
+          },
+          {
+            "month": "2025-05",
+            "value": 320.0
+          },
+          {
+            "month": "2025-06",
+            "value": 380.0
+          },
+          {
+            "month": "2025-07",
+            "value": 410.0
+          },
+          {
+            "month": "2025-08",
+            "value": 400.0
+          },
+          {
+            "month": "2025-09",
+            "value": 350.0
+          },
+          {
+            "month": "2025-10",
+            "value": 290.0
+          },
+          {
+            "month": "2025-11",
+            "value": 270.0
+          },
+          {
+            "month": "2025-12",
+            "value": 250.0
+          }
+        ]
+      },
+      {
+        "category": "Oceanside Munirevs",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 45.0
+          },
+          {
+            "month": "2025-02",
+            "value": 45.0
+          },
+          {
+            "month": "2025-03",
+            "value": 45.0
+          },
+          {
+            "month": "2025-04",
+            "value": 45.0
+          },
+          {
+            "month": "2025-05",
+            "value": 45.0
+          },
+          {
+            "month": "2025-06",
+            "value": 45.0
+          },
+          {
+            "month": "2025-07",
+            "value": 45.0
+          },
+          {
+            "month": "2025-08",
+            "value": 45.0
+          },
+          {
+            "month": "2025-09",
+            "value": 45.0
+          },
+          {
+            "month": "2025-10",
+            "value": 45.0
+          },
+          {
+            "month": "2025-11",
+            "value": 45.0
+          },
+          {
+            "month": "2025-12",
+            "value": 45.0
+          }
+        ]
+      },
+      {
+        "category": "Owner Exp (extra)",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 0.0
+          },
+          {
+            "month": "2025-02",
+            "value": 100.0
+          },
+          {
+            "month": "2025-03",
+            "value": 0.0
+          },
+          {
+            "month": "2025-04",
+            "value": 0.0
+          },
+          {
+            "month": "2025-05",
+            "value": 200.0
+          },
+          {
+            "month": "2025-06",
+            "value": 0.0
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 150.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 100.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "Water+water waste (COO)",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 62.0
+          },
+          {
+            "month": "2025-02",
+            "value": 58.0
+          },
+          {
+            "month": "2025-03",
+            "value": 71.0
+          },
+          {
+            "month": "2025-04",
+            "value": 65.0
+          },
+          {
+            "month": "2025-05",
+            "value": 74.0
+          },
+          {
+            "month": "2025-06",
+            "value": 89.0
+          },
+          {
+            "month": "2025-07",
+            "value": 95.0
+          },
+          {
+            "month": "2025-08",
+            "value": 88.0
+          },
+          {
+            "month": "2025-09",
+            "value": 76.0
+          },
+          {
+            "month": "2025-10",
+            "value": 63.0
+          },
+          {
+            "month": "2025-11",
+            "value": 59.0
+          },
+          {
+            "month": "2025-12",
+            "value": 55.0
+          }
+        ]
+      },
+      {
+        "category": "Yard care X2 a  month",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 80.0
+          },
+          {
+            "month": "2025-02",
+            "value": 80.0
+          },
+          {
+            "month": "2025-03",
+            "value": 80.0
+          },
+          {
+            "month": "2025-04",
+            "value": 80.0
+          },
+          {
+            "month": "2025-05",
+            "value": 80.0
+          },
+          {
+            "month": "2025-06",
+            "value": 80.0
+          },
+          {
+            "month": "2025-07",
+            "value": 80.0
+          },
+          {
+            "month": "2025-08",
+            "value": 80.0
+          },
+          {
+            "month": "2025-09",
+            "value": 80.0
+          },
+          {
+            "month": "2025-10",
+            "value": 80.0
+          },
+          {
+            "month": "2025-11",
+            "value": 80.0
+          },
+          {
+            "month": "2025-12",
+            "value": 80.0
+          }
+        ]
+      },
+      {
+        "category": "lawn",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 80.0
+          },
+          {
+            "month": "2024-02",
+            "value": 80.0
+          },
+          {
+            "month": "2024-03",
+            "value": 82.0
+          },
+          {
+            "month": "2024-04",
+            "value": 82.0
+          },
+          {
+            "month": "2024-05",
+            "value": 82.0
+          },
+          {
+            "month": "2024-06",
+            "value": 82.0
+          },
+          {
+            "month": "2024-07",
+            "value": 82.0
+          },
+          {
+            "month": "2024-08",
+            "value": 82.0
+          },
+          {
+            "month": "2024-09",
+            "value": 82.0
+          },
+          {
+            "month": "2024-10",
+            "value": 80.0
+          },
+          {
+            "month": "2024-11",
+            "value": 80.0
+          },
+          {
+            "month": "2024-12",
+            "value": 80.0
+          },
+          {
+            "month": "2025-01",
+            "value": 85.0
+          },
+          {
+            "month": "2025-02",
+            "value": 85.0
+          },
+          {
+            "month": "2025-03",
+            "value": 90.0
+          },
+          {
+            "month": "2025-04",
+            "value": 90.0
+          },
+          {
+            "month": "2025-05",
+            "value": 90.0
+          },
+          {
+            "month": "2025-06",
+            "value": 90.0
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "maintenance",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 440.0
+          },
+          {
+            "month": "2024-02",
+            "value": 440.0
+          },
+          {
+            "month": "2024-03",
+            "value": 440.0
+          },
+          {
+            "month": "2024-04",
+            "value": 440.0
+          },
+          {
+            "month": "2024-05",
+            "value": 540.0
+          },
+          {
+            "month": "2024-06",
+            "value": 540.0
+          },
+          {
+            "month": "2024-07",
+            "value": 540.0
+          },
+          {
+            "month": "2024-08",
+            "value": 540.0
+          },
+          {
+            "month": "2024-09",
+            "value": 440.0
+          },
+          {
+            "month": "2024-10",
+            "value": 440.0
+          },
+          {
+            "month": "2024-11",
+            "value": 440.0
+          },
+          {
+            "month": "2024-12",
+            "value": 440.0
+          },
+          {
+            "month": "2025-01",
+            "value": 480.0
+          },
+          {
+            "month": "2025-02",
+            "value": 480.0
+          },
+          {
+            "month": "2025-03",
+            "value": 694.5
+          },
+          {
+            "month": "2025-04",
+            "value": 567.32
+          },
+          {
+            "month": "2025-05",
+            "value": 912.75
+          },
+          {
+            "month": "2025-06",
+            "value": 745.8
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "management_fee",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 320.0
+          },
+          {
+            "month": "2024-02",
+            "value": 320.0
+          },
+          {
+            "month": "2024-03",
+            "value": 320.0
+          },
+          {
+            "month": "2024-04",
+            "value": 360.0
+          },
+          {
+            "month": "2024-05",
+            "value": 360.0
+          },
+          {
+            "month": "2024-06",
+            "value": 360.0
+          },
+          {
+            "month": "2024-07",
+            "value": 360.0
+          },
+          {
+            "month": "2024-08",
+            "value": 360.0
+          },
+          {
+            "month": "2024-09",
+            "value": 360.0
+          },
+          {
+            "month": "2024-10",
+            "value": 320.0
+          },
+          {
+            "month": "2024-11",
+            "value": 320.0
+          },
+          {
+            "month": "2024-12",
+            "value": 320.0
+          },
+          {
+            "month": "2025-01",
+            "value": 350.0
+          },
+          {
+            "month": "2025-02",
+            "value": 350.0
+          },
+          {
+            "month": "2025-03",
+            "value": 350.0
+          },
+          {
+            "month": "2025-04",
+            "value": 420.0
+          },
+          {
+            "month": "2025-05",
+            "value": 420.0
+          },
+          {
+            "month": "2025-06",
+            "value": 420.0
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "platform_fee",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 155.0
+          },
+          {
+            "month": "2024-02",
+            "value": 165.0
+          },
+          {
+            "month": "2024-03",
+            "value": 185.0
+          },
+          {
+            "month": "2024-04",
+            "value": 205.0
+          },
+          {
+            "month": "2024-05",
+            "value": 235.0
+          },
+          {
+            "month": "2024-06",
+            "value": 265.0
+          },
+          {
+            "month": "2024-07",
+            "value": 305.0
+          },
+          {
+            "month": "2024-08",
+            "value": 295.0
+          },
+          {
+            "month": "2024-09",
+            "value": 255.0
+          },
+          {
+            "month": "2024-10",
+            "value": 215.0
+          },
+          {
+            "month": "2024-11",
+            "value": 188.0
+          },
+          {
+            "month": "2024-12",
+            "value": 168.0
+          },
+          {
+            "month": "2025-01",
+            "value": 175.0
+          },
+          {
+            "month": "2025-02",
+            "value": 190.0
+          },
+          {
+            "month": "2025-03",
+            "value": 210.0
+          },
+          {
+            "month": "2025-04",
+            "value": 230.0
+          },
+          {
+            "month": "2025-05",
+            "value": 260.0
+          },
+          {
+            "month": "2025-06",
+            "value": 295.0
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "security",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 9.99
+          },
+          {
+            "month": "2024-02",
+            "value": 9.99
+          },
+          {
+            "month": "2024-03",
+            "value": 9.99
+          },
+          {
+            "month": "2024-04",
+            "value": 9.99
+          },
+          {
+            "month": "2024-05",
+            "value": 9.99
+          },
+          {
+            "month": "2024-06",
+            "value": 9.99
+          },
+          {
+            "month": "2024-07",
+            "value": 9.99
+          },
+          {
+            "month": "2024-08",
+            "value": 9.99
+          },
+          {
+            "month": "2024-09",
+            "value": 9.99
+          },
+          {
+            "month": "2024-10",
+            "value": 9.99
+          },
+          {
+            "month": "2024-11",
+            "value": 9.99
+          },
+          {
+            "month": "2024-12",
+            "value": 9.99
+          },
+          {
+            "month": "2025-01",
+            "value": 9.99
+          },
+          {
+            "month": "2025-02",
+            "value": 9.99
+          },
+          {
+            "month": "2025-03",
+            "value": 9.99
+          },
+          {
+            "month": "2025-04",
+            "value": 9.99
+          },
+          {
+            "month": "2025-05",
+            "value": 9.99
+          },
+          {
+            "month": "2025-06",
+            "value": 9.99
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "str_license",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 0.0
+          },
+          {
+            "month": "2024-02",
+            "value": 0.0
+          },
+          {
+            "month": "2024-03",
+            "value": 0.0
+          },
+          {
+            "month": "2024-04",
+            "value": 0.0
+          },
+          {
+            "month": "2024-05",
+            "value": 0.0
+          },
+          {
+            "month": "2024-06",
+            "value": 0.0
+          },
+          {
+            "month": "2024-07",
+            "value": 0.0
+          },
+          {
+            "month": "2024-08",
+            "value": 0.0
+          },
+          {
+            "month": "2024-09",
+            "value": 0.0
+          },
+          {
+            "month": "2024-10",
+            "value": 0.0
+          },
+          {
+            "month": "2024-11",
+            "value": 0.0
+          },
+          {
+            "month": "2024-12",
+            "value": 0.0
+          },
+          {
+            "month": "2025-01",
+            "value": 150.0
+          },
+          {
+            "month": "2025-02",
+            "value": 0.0
+          },
+          {
+            "month": "2025-03",
+            "value": 0.0
+          },
+          {
+            "month": "2025-04",
+            "value": 0.0
+          },
+          {
+            "month": "2025-05",
+            "value": 0.0
+          },
+          {
+            "month": "2025-06",
+            "value": 0.0
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "subscription",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 19.99
+          },
+          {
+            "month": "2024-02",
+            "value": 19.99
+          },
+          {
+            "month": "2024-03",
+            "value": 19.99
+          },
+          {
+            "month": "2024-04",
+            "value": 19.99
+          },
+          {
+            "month": "2024-05",
+            "value": 22.99
+          },
+          {
+            "month": "2024-06",
+            "value": 25.99
+          },
+          {
+            "month": "2024-07",
+            "value": 29.99
+          },
+          {
+            "month": "2024-08",
+            "value": 29.99
+          },
+          {
+            "month": "2024-09",
+            "value": 25.99
+          },
+          {
+            "month": "2024-10",
+            "value": 22.99
+          },
+          {
+            "month": "2024-11",
+            "value": 19.99
+          },
+          {
+            "month": "2024-12",
+            "value": 19.99
+          },
+          {
+            "month": "2025-01",
+            "value": 19.99
+          },
+          {
+            "month": "2025-02",
+            "value": 22.99
+          },
+          {
+            "month": "2025-03",
+            "value": 25.99
+          },
+          {
+            "month": "2025-04",
+            "value": 28.99
+          },
+          {
+            "month": "2025-05",
+            "value": 32.99
+          },
+          {
+            "month": "2025-06",
+            "value": 36.99
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      },
+      {
+        "category": "utilities",
+        "series": [
+          {
+            "month": "2024-01",
+            "value": 169.99
+          },
+          {
+            "month": "2024-02",
+            "value": 174.49
+          },
+          {
+            "month": "2024-03",
+            "value": 178.99
+          },
+          {
+            "month": "2024-04",
+            "value": 187.99
+          },
+          {
+            "month": "2024-05",
+            "value": 202.99
+          },
+          {
+            "month": "2024-06",
+            "value": 217.99
+          },
+          {
+            "month": "2024-07",
+            "value": 236.99
+          },
+          {
+            "month": "2024-08",
+            "value": 232.99
+          },
+          {
+            "month": "2024-09",
+            "value": 212.99
+          },
+          {
+            "month": "2024-10",
+            "value": 186.99
+          },
+          {
+            "month": "2024-11",
+            "value": 175.99
+          },
+          {
+            "month": "2024-12",
+            "value": 171.99
+          },
+          {
+            "month": "2025-01",
+            "value": 173.49
+          },
+          {
+            "month": "2025-02",
+            "value": 179.19
+          },
+          {
+            "month": "2025-03",
+            "value": 187.79
+          },
+          {
+            "month": "2025-04",
+            "value": 196.39
+          },
+          {
+            "month": "2025-05",
+            "value": 213.89
+          },
+          {
+            "month": "2025-06",
+            "value": 227.29
+          },
+          {
+            "month": "2025-07",
+            "value": 0.0
+          },
+          {
+            "month": "2025-08",
+            "value": 0.0
+          },
+          {
+            "month": "2025-09",
+            "value": 0.0
+          },
+          {
+            "month": "2025-10",
+            "value": 0.0
+          },
+          {
+            "month": "2025-11",
+            "value": 0.0
+          },
+          {
+            "month": "2025-12",
+            "value": 0.0
+          }
+        ]
+      }
+    ]
+  }
 }

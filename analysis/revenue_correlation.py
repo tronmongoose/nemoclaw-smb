@@ -147,14 +147,18 @@ def ratio_findings_for_category(
     from analysis.findings import Finding  # local import avoids circular reference
 
     cost_by_month = category_monthly_costs(expenses, category)
-    shared = sorted(set(cost_by_month) & set(rev_by_month))
+    # Filter zero-revenue months before any ratio computation to guarantee
+    # the minimum-months guard counts only months where division is valid.
+    shared = sorted(
+        m for m in set(cost_by_month) & set(rev_by_month)
+        if rev_by_month[m] > 0
+    )
     if len(shared) < 2:
         return []
 
     ratios: list[tuple[str, float]] = [
         (m, cost_by_month[m] / rev_by_month[m])
         for m in shared
-        if rev_by_month[m] > 0
     ]
     if len(ratios) < 2:
         return []
