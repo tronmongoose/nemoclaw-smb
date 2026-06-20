@@ -10,10 +10,12 @@ so that enforce_spend, Stripe, and audit are a single chokepoint.
 
 Exports:
     handle_402(event, graph, *, threshold, audit_path) -> dict
+    effective_threshold(explicit) -> float
 """
 
 from __future__ import annotations
 
+import os
 from dataclasses import asdict
 from typing import TYPE_CHECKING
 
@@ -30,6 +32,20 @@ if TYPE_CHECKING:
 # without requiring approval on every routine renewal.
 #COMPLETION_DRIVE: 500 is a reasonable SMB default; production installs should configure explicitly
 _DEFAULT_THRESHOLD = 500.0
+
+
+def effective_threshold(explicit: float | None) -> float:
+    """Resolve spend-approval threshold in priority order.
+
+    Priority: explicit arg -> SPEND_APPROVAL_THRESHOLD env -> _DEFAULT_THRESHOLD.
+    Preserves the existing default for all callers that pass nothing.
+    """
+    if explicit is not None:
+        return explicit
+    env_val = os.environ.get("SPEND_APPROVAL_THRESHOLD")
+    if env_val is not None:
+        return float(env_val)
+    return _DEFAULT_THRESHOLD
 
 
 # ---------------------------------------------------------------------------
@@ -52,7 +68,7 @@ def handle_402(
     amount: float = float(event["amount"])
     date: str = event["date"]
     invoice_id: str = event["invoice_id"]
-    spend_threshold = threshold if threshold is not None else _DEFAULT_THRESHOLD
+    spend_threshold = effective_threshold(threshold)
 
     steps: list[dict] = []
 

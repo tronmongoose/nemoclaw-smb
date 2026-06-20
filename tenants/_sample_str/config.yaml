@@ -20,9 +20,13 @@ thresholds:
   monthly_opex_limit: 4000.0 # total monthly operating expense ceiling
   alert_delta_pct: 20.0      # alert when a vendor's charge changes > 20% month-over-month
 
-# Column mapping for spreadsheet adapter (used for the synthetic CSV below).
-# Chase CSV files are auto-detected by header and do not need this.
+# ingestion.include limits which files are loaded.
+# Using only the cashflow matrix avoids double-counting spend that also
+# appears in transactions.csv (e.g. management fees appear in both files).
+# Year is inferred from the filename suffix "str_pnl_25.csv" -> 2025.
 ingestion:
+  include:
+    - "str_pnl_*.csv"
   spreadsheet:
     columns:
       date: date

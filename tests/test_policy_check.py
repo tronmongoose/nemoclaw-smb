@@ -6,6 +6,7 @@ names fall through to the default_limit path.
 """
 
 import pytest
+import yaml
 
 from control_plane.policy_check import check_policy
 
@@ -97,3 +98,53 @@ def test_decision_has_reason_string():
 def test_decision_reason_references_vendor():
     decision = check_policy("Adobe", 500.0)
     assert "Adobe" in decision.reason
+
+
+# ---------------------------------------------------------------------------
+# Per-tenant policy path
+# ---------------------------------------------------------------------------
+
+def _write_custom_policy(tmp_path, vendor: str, limit: float) -> str:
+    """Write a minimal custom policy YAML and return its path string."""
+    policy = {
+        "vendors": {vendor: {"monthly_limit": limit}},
+        "default_limit": 9999,
+        "blocked_vendors": [],
+    }
+    p = tmp_path / "custom_policy.yaml"
+    p.write_text(yaml.dump(policy))
+    return str(p)
+
+
+def test_custom_policy_path_kwarg_changes_decision(tmp_path):
+    """A policy_path kwarg pointing to a custom file overrides the bundled mock."""
+    # Custom policy allows SpecialVendor up to $5000; bundled mock default is $1000.
+    path = _write_custom_policy(tmp_path, "SpecialVendor", 5000.0)
+    decision = check_policy("SpecialVendor", 3000.0, policy_path=path)
+    assert decision.allowed is True
+    assert decision.limit == pytest.approx(5000.0)
+
+
+def test_custom_policy_path_kwarg_blocks_above_custom_limit(tmp_path):
+    """Custom policy correctly denies amounts above its own limit."""
+    path = _write_custom_policy(tmp_path, "SpecialVendor", 200.0)
+    decision = check_policy("SpecialVendor", 500.0, policy_path=path)
+    assert decision.allowed is False
+
+
+def test_absent_policy_path_uses_bundled_mock(monkeypatch):
+    """When policy_path kwarg is absent and env is unset, bundled mock applies."""
+    monkeypatch.delenv("NEMOCLAW_POLICY_PATH", raising=False)
+    decision = check_policy("Adobe", 340.0)
+    # Bundled mock: Adobe limit 400
+    assert decision.allowed is True
+    assert decision.limit == pytest.approx(400.0)
+
+
+def test_policy_path_env_override(tmp_path, monkeypatch):
+    """NEMOCLAW_POLICY_PATH env is honored when no kwarg is passed."""
+    path = _write_custom_policy(tmp_path, "EnvVendor", 1500.0)
+    monkeypatch.setenv("NEMOCLAW_POLICY_PATH", path)
+    decision = check_policy("EnvVendor", 1200.0)
+    assert decision.allowed is True
+    assert decision.limit == pytest.approx(1500.0)

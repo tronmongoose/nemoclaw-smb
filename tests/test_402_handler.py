@@ -12,7 +12,7 @@ import pytest
 from agent.audit_log import verify_chain
 from fixtures.seed_data import adobe_anomaly_402, aws_renewal_402, seed_invoices
 from gbrain.knowledge_graph import build_graph_from_invoices
-from payments.payment_402_handler import handle_402
+from payments.payment_402_handler import _DEFAULT_THRESHOLD, effective_threshold, handle_402
 
 
 @pytest.fixture()
@@ -151,3 +151,25 @@ def test_adobe_anomaly_steps_include_escalation(graph, audit_path, approvals_dir
     result = handle_402(event, graph, threshold=500.0, audit_path=audit_path)
     step_names = {s["step"] for s in result["steps"]}
     assert "escalation" in step_names
+
+
+# ---------------------------------------------------------------------------
+# Per-tenant spend threshold resolution
+# ---------------------------------------------------------------------------
+
+def test_effective_threshold_explicit_takes_priority(monkeypatch):
+    """Explicit arg wins over env and default."""
+    monkeypatch.setenv("SPEND_APPROVAL_THRESHOLD", "999.0")
+    assert effective_threshold(123.0) == pytest.approx(123.0)
+
+
+def test_effective_threshold_env_override(monkeypatch):
+    """SPEND_APPROVAL_THRESHOLD env changes the gate when no explicit arg is passed."""
+    monkeypatch.setenv("SPEND_APPROVAL_THRESHOLD", "750.0")
+    assert effective_threshold(None) == pytest.approx(750.0)
+
+
+def test_effective_threshold_default_without_env(monkeypatch):
+    """Absence of explicit arg and env returns the hardcoded default."""
+    monkeypatch.delenv("SPEND_APPROVAL_THRESHOLD", raising=False)
+    assert effective_threshold(None) == pytest.approx(_DEFAULT_THRESHOLD)

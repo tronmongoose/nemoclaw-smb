@@ -1,4 +1,14 @@
-"""Vendor/amount authorization gate. Mock-backed by default; C1 backend gated on API key presence."""
+"""Vendor/amount authorization gate. Mock-backed by default; C1 backend gated on API key presence.
+
+Per-tenant policy source resolution order:
+  1. policy_path kwarg on check_policy (tenant runner passes tenant.policy_path)
+  2. NEMOCLAW_POLICY_PATH environment variable
+  3. Bundled policy_mock.yaml
+
+A tenant config may carry a `policy_path` key; load_tenant surfaces it as
+Tenant.policy_path.  The tenant runner is responsible for passing it through to
+check_policy — this module contains no global mutable state for policy paths.
+"""
 
 from __future__ import annotations
 
@@ -23,10 +33,14 @@ class PolicyDecision:
     limit: float | None
 
 
-def _load_policy() -> dict[str, Any]:
-    """Load policy config from NEMOCLAW_POLICY_PATH or the bundled mock."""
-    path = Path(os.environ.get("NEMOCLAW_POLICY_PATH", str(_DEFAULT_POLICY_PATH)))
-    with path.open() as fh:
+def _load_policy(policy_path: str | None = None) -> dict[str, Any]:
+    """Load policy config in priority order: kwarg -> env -> bundled mock."""
+    resolved = (
+        policy_path
+        or os.environ.get("NEMOCLAW_POLICY_PATH")
+        or str(_DEFAULT_POLICY_PATH)
+    )
+    with Path(resolved).open() as fh:
         return yaml.safe_load(fh)
 
 
@@ -52,7 +66,9 @@ def _mock_check(vendor: str, amount: float, policy: dict[str, Any]) -> PolicyDec
     return PolicyDecision(allowed=False, reason=f"Unknown vendor '{vendor}' denied: ${amount} exceeds default ${default_limit} limit", limit=default_limit)
 
 
-def _c1_check(vendor: str, amount: float, requester: str, policy: dict[str, Any]) -> PolicyDecision:
+def _c1_check(
+    vendor: str, amount: float, requester: str, policy: dict[str, Any]
+) -> PolicyDecision:
     """Attempt a ConductorOne policy check; fall back to local policy on any error."""
     from control_plane.c1_client import C1ClientError, check_policy_c1
     from control_plane.c1_client import PolicyDecision as _C1Decision
@@ -69,9 +85,19 @@ def _c1_check(vendor: str, amount: float, requester: str, policy: dict[str, Any]
         return _mock_check(vendor, amount, policy)
 
 
-def check_policy(vendor: str, amount: float, requester: str = "agent") -> PolicyDecision:
-    """Primary entry point. Delegates to C1 if C1_API_KEY is present, otherwise uses the mock."""
-    policy = _load_policy()
+def check_policy(
+    vendor: str,
+    amount: float,
+    requester: str = "agent",
+    *,
+    policy_path: str | None = None,
+) -> PolicyDecision:
+    """Primary entry point. Delegates to C1 if C1_API_KEY is present, otherwise uses the mock.
+
+    policy_path resolution order: kwarg -> NEMOCLAW_POLICY_PATH env -> bundled mock.
+    Tenant runners pass tenant.policy_path here; no global state is modified.
+    """
+    policy = _load_policy(policy_path)
     if os.environ.get("C1_API_KEY"):
         return _c1_check(vendor, amount, requester, policy)
     return _mock_check(vendor, amount, policy)
