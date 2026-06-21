@@ -18,7 +18,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import approvals, audit, graph, invoices, savings, str_acts, webhooks
+from api.routes import approvals, audit, graph, integrations, invoices, savings, str_acts, webhooks
 from api.routes import tenant as tenant_routes
 from api.seed import seed_demo
 from payments.mpp_server import app as mpp_app
@@ -86,6 +86,7 @@ app.include_router(savings.router)
 app.include_router(audit.router)
 app.include_router(str_acts.router)
 app.include_router(tenant_routes.router)
+app.include_router(integrations.router)
 
 # Fold the standalone MPP HTTP-402 earn server into the main API under /mpp.
 app.mount("/mpp", mpp_app)
