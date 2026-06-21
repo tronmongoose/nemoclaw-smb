@@ -5,9 +5,12 @@ import ForceGraph2D from "react-force-graph-2d";
 import { apiFetch } from "../../lib/api";
 import type { IntegrationStatusResponse, IntegrationVerify } from "../../types";
 import { SectionLabel, StatusPill, ElapsedCounter, EmptyState, Plate } from "./shared";
+import { graphPalette } from "./graphs/graphTheme";
 import { Button } from "@/components/ui/button";
 
-// Status -> fill color mapping. Light beach background: #eef4f4.
+const STACK_PALETTE = graphPalette("stack");
+
+// Status -> node fill. Canvas/label/link follow the dark tech-layer palette.
 const STATUS_COLORS: Record<string, string> = {
   REAL: "#2f9e7e",           // deep sea-green
   "LIVE-OK": "#2f9e7e",      // deep sea-green
@@ -101,11 +104,11 @@ export function StackGraph({ width = 480, height = 380 }: Props) {
           width={width}
           height={height}
           graphData={graphData}
-          backgroundColor="#eef4f4"
+          backgroundColor={STACK_PALETTE.canvas}
           nodeLabel="label"
           nodeColor={(n) => statusColor((n as GraphNode).status)}
           nodeRelSize={7}
-          linkColor={() => "#c2d2d2"}
+          linkColor={() => STACK_PALETTE.link}
           linkWidth={1.5}
           nodeCanvasObjectMode={() => "after"}
           nodeCanvasObject={(node, ctx, globalScale) => {
@@ -113,7 +116,7 @@ export function StackGraph({ width = 480, height = 380 }: Props) {
             const label = n.label;
             const fontSize = Math.max(9, 12 / globalScale);
             ctx.font = `${fontSize}px monospace`;
-            ctx.fillStyle = "#2c4a4a";
+            ctx.fillStyle = STACK_PALETTE.label;
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillText(label, n.x, n.y + 10);
@@ -166,7 +169,7 @@ export function StackGraph({ width = 480, height = 380 }: Props) {
               )}
               {verifyResult && !vs?.pending && (
                 <span className="font-mono text-xs text-verified">
-                  {verifyResult.status} {verifyResult.latency_ms}ms &mdash; {verifyResult.detail}
+                  {verifyResult.status} {verifyResult.latency_ms}ms, {verifyResult.detail}
                 </span>
               )}
 

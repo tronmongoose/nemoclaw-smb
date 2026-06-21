@@ -38,13 +38,14 @@ export function Act3View() {
     <div className="flex flex-col gap-8">
       <div>
         <h2 className="font-serif text-2xl font-semibold text-foreground mb-1">
-          Act III - The Platform
+          Act III - The Swarm
         </h2>
         <p className="font-mono text-xs text-muted-foreground max-w-prose leading-relaxed">
-          Agent Engine Optimization (AEO): AI booking agents parse listings
-          before humans do. AEO ensures every structured field, pet policy, and
-          description is machine-readable and conflict-free so agents recommend
-          and book your property correctly.
+          Agent-to-agent commerce. Other AI agents pay this agent per call over
+          HTTP-402 for two products: a dynamic price and a machine-readability
+          audit. ConductorOne governs each call, Nemotron reasons, the agent
+          earns. The audit grades how cleanly a listing's structured fields parse
+          for another machine. The audit is the product.
         </p>
       </div>
 

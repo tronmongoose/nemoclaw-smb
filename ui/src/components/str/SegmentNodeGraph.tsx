@@ -13,23 +13,7 @@ import buildOwner from "./graphs/ownerGraph";
 import buildFirm from "./graphs/firmGraph";
 import buildAgent from "./graphs/agentGraph";
 import type { GraphData, GraphNode } from "./graphs/ownerGraph";
-
-// Calm beachy palette, no rainbow.
-const KIND_COLORS: Record<string, string> = {
-  root: "#2f9e7e",      // sea-foam focal
-  property: "#46b89a",  // lighter sea-foam
-  owner: "#7fa6ad",     // muted slate-blue
-  firm: "#7fa6ad",      // muted slate-blue
-  crew: "#c9b890",      // sand
-  booking: "#c9b890",   // sand
-  fee: "#c9b890",       // sand
-  sub: "#c9b890",       // sand
-  earn: "#c9b890",      // sand
-};
-
-function statusColor(kind: string): string {
-  return KIND_COLORS[kind] ?? "#c9b890";
-}
+import { graphPalette } from "./graphs/graphTheme";
 
 function builderFor(segment: StrSegment): () => GraphData {
   if (segment === "owner") return buildOwner;
@@ -68,6 +52,7 @@ export function SegmentNodeGraph({ segment }: Props) {
   }, []);
 
   const graphData: GraphData = builderFor(segment)();
+  const pal = graphPalette(segment);
 
   // Group nodes by kind for the accessible text list.
   const byKind: Record<string, GraphNode[]> = {};
@@ -90,11 +75,11 @@ export function SegmentNodeGraph({ segment }: Props) {
           width={dims.width}
           height={dims.height}
           graphData={graphData as unknown as Parameters<typeof ForceGraph2D>[0]["graphData"]}
-          backgroundColor="#eef4f4"
+          backgroundColor={pal.canvas}
           nodeLabel="label"
-          nodeColor={(n) => statusColor((n as GraphNode).kind)}
+          nodeColor={(n) => pal.kinds[(n as GraphNode).kind] ?? pal.fallback}
           nodeRelSize={7}
-          linkColor={() => "#c2d2d2"}
+          linkColor={() => pal.link}
           linkWidth={1.5}
           nodeCanvasObjectMode={() => "after"}
           nodeCanvasObject={(node, ctx, globalScale) => {
@@ -102,7 +87,7 @@ export function SegmentNodeGraph({ segment }: Props) {
             const label = n.label;
             const fontSize = Math.max(9, 12 / globalScale);
             ctx.font = `${fontSize}px monospace`;
-            ctx.fillStyle = "#2c4a4a";
+            ctx.fillStyle = pal.label;
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillText(label, n.x, n.y + 10);

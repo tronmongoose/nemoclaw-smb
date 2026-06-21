@@ -12,6 +12,8 @@ import { AtmosphereBackground } from "./AtmosphereBackground";
 import { SegmentSwitch } from "./SegmentSwitch";
 import { SegmentNodeGraph } from "./SegmentNodeGraph";
 import { InteractionsPanel } from "./InteractionsPanel";
+import { AgentsAtWorkPanel } from "./AgentsAtWorkPanel";
+import { LicensedAssetsPanel } from "./LicensedAssetsPanel";
 import { StackGraph } from "./StackGraph";
 import { Act1View } from "./Act1View";
 import { Act2View } from "./Act2View";
@@ -101,6 +103,22 @@ export function SegmentView({ onLegacy }: { onLegacy?: () => void }) {
                   <InteractionsPanel segment={segment} />
                 </ErrorBoundary>
               </div>
+
+              {segment === "firm" && (
+                <div className="rounded-[var(--radius)] border border-border bg-card/90 p-6">
+                  <ErrorBoundary label="agents at work">
+                    <AgentsAtWorkPanel />
+                  </ErrorBoundary>
+                </div>
+              )}
+
+              {segment === "agent" && (
+                <div className="rounded-[var(--radius)] border border-border bg-card/90 p-6">
+                  <ErrorBoundary label="licensed assets">
+                    <LicensedAssetsPanel />
+                  </ErrorBoundary>
+                </div>
+              )}
 
               <div className="rounded-[var(--radius)] border border-border bg-card/90 p-6">
                 <ErrorBoundary label={segment}>
