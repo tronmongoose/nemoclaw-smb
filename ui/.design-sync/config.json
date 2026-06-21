@@ -1,0 +1,36 @@
+{
+  "projectId": "d5781075-a064-4751-82ab-fef75c456255",
+  "shape": "package",
+  "pkg": "nemoclaw-smb-ui",
+  "globalName": "NemoClawDS",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": ".design-sync/styles.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "extraFonts": [
+    "node_modules/@fontsource-variable/fraunces/index.css",
+    "node_modules/@fontsource-variable/jetbrains-mono/index.css"
+  ],
+  "componentSrcMap": {
+    "Button": "src/components/ui/button.tsx",
+    "Card": "src/components/ui/card.tsx",
+    "Badge": "src/components/ui/badge.tsx",
+    "Table": "src/components/ui/table.tsx",
+    "Tabs": "src/components/ui/tabs.tsx",
+    "Separator": "src/components/ui/separator.tsx",
+    "Tooltip": "src/components/ui/tooltip.tsx",
+    "Skeleton": "src/components/ui/skeleton.tsx",
+    "Dialog": "src/components/ui/dialog.tsx",
+    "Progress": "src/components/ui/progress.tsx",
+    "Accordion": "src/components/ui/accordion.tsx",
+    "Stat": "src/components/str/shared.tsx",
+    "Plate": "src/components/str/shared.tsx",
+    "StatusPill": "src/components/str/shared.tsx",
+    "KV": "src/components/str/shared.tsx",
+    "Rule": "src/components/str/shared.tsx",
+    "SectionLabel": "src/components/str/shared.tsx",
+    "EmptyState": "src/components/str/shared.tsx",
+    "ElapsedCounter": "src/components/str/shared.tsx",
+    "ProvenanceBadge": "src/components/str/ProvenanceBadge.tsx",
+    "LiveToggle": "src/components/str/LiveToggle.tsx"
+  }
+}
