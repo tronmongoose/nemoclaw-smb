@@ -2,34 +2,139 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
+/* Dark editorial system. One accent (amber). Warm near-black, not pure.
+   Tokens are HSL triplets consumed via hsl(var(--token)) in tailwind.config.js. */
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    --background: 35 25% 7%;
+    --foreground: 38 33% 90%;
+
+    --card: 34 22% 10%;
+    --card-foreground: 38 33% 90%;
+    --popover: 34 26% 8%;
+    --popover-foreground: 38 33% 90%;
+
+    --primary: 36 66% 60%;
+    --primary-foreground: 35 40% 8%;
+
+    --secondary: 34 16% 16%;
+    --secondary-foreground: 38 28% 87%;
+    --muted: 34 14% 14%;
+    --muted-foreground: 38 13% 58%;
+    --accent: 34 20% 18%;
+    --accent-foreground: 38 30% 90%;
+
+    --destructive: 6 62% 52%;
+    --destructive-foreground: 38 40% 95%;
+    --verified: 152 40% 44%;
+    --verified-foreground: 150 40% 96%;
+
+    --border: 36 13% 18%;
+    --input: 36 13% 20%;
+    --ring: 36 66% 54%;
+
+    --chart-1: 36 66% 60%;
+    --chart-2: 152 40% 44%;
+    --chart-3: 38 13% 58%;
+    --chart-4: 34 20% 30%;
+    --chart-5: 6 62% 52%;
+
+    --radius: 0.125rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Editorial type: serif body, mono for data. Set on the element so it wins
+   regardless of utility ordering. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Fraunces Variable", Fraunces, Georgia, serif;
+  font-feature-settings: "ss01";
+  /* one warm radial wash from the top: candlelight, not a gradient mesh */
+  background-image: radial-gradient(
+    115% 75% at 50% -12%,
+    hsl(36 48% 15% / 0.35),
+    transparent 62%
+  );
+  background-attachment: fixed;
 }
 
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+/* paper grain, felt not seen (<=4%) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Scrollbar styling for the dark theme */
+::selection {
+  background: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+/* Drop cap for act intros (editorial) */
+.drop-cap::first-letter {
+  font-family: "Fraunces Variable", Fraunces, serif;
+  font-weight: 600;
+  float: left;
+  font-size: 3.1em;
+  line-height: 0.78;
+  padding: 0.04em 0.1em 0 0;
+  color: hsl(var(--primary));
+}
+
+/* The one signature motion: a slow heartbeat on the live indicator,
+   tied to real calls flowing. Everything else is static. */
+@keyframes heartbeat {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.88);
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-heartbeat {
+    animation: none;
+  }
+}
+
+/* Scrollbar, warmed to the palette */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: hsl(var(--background));
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: hsl(var(--border));
+  border-radius: 2px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: hsl(var(--muted-foreground) / 0.5);
 }
