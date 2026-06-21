@@ -14,7 +14,8 @@ import { SegmentNodeGraph } from "./SegmentNodeGraph";
 import { InteractionsPanel } from "./InteractionsPanel";
 import { AgentsAtWorkPanel } from "./AgentsAtWorkPanel";
 import { LicensedAssetsPanel } from "./LicensedAssetsPanel";
-import { StackGraph } from "./StackGraph";
+import { TechLayerView } from "./techlayer/TechLayerView";
+import { StackOverlay } from "./techlayer/StackOverlay";
 import { Act1View } from "./Act1View";
 import { Act2View } from "./Act2View";
 import { Act3View } from "./Act3View";
@@ -78,21 +79,22 @@ export function SegmentView({ onLegacy }: { onLegacy?: () => void }) {
                   problem set. Live calls light up as they happen.
                 </p>
               </div>
-              <div className="rounded-[var(--radius)] border border-border bg-card/90 p-6">
-                <ErrorBoundary label="tech layer">
-                  <StackGraph />
-                </ErrorBoundary>
-              </div>
+              <ErrorBoundary label="tech layer">
+                <TechLayerView />
+              </ErrorBoundary>
             </section>
           ) : (
             <>
-              <div className="flex flex-col gap-1">
-                <h2 className="font-serif text-2xl font-semibold text-foreground">
-                  {TITLE[segment]}
-                </h2>
-                <p className="max-w-prose font-mono text-xs leading-relaxed text-muted-foreground">
-                  {DEK[segment]}
-                </p>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <h2 className="font-serif text-2xl font-semibold text-foreground">
+                    {TITLE[segment]}
+                  </h2>
+                  <p className="max-w-prose font-mono text-xs leading-relaxed text-muted-foreground">
+                    {DEK[segment]}
+                  </p>
+                </div>
+                <StackOverlay segment={segment} />
               </div>
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

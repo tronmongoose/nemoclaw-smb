@@ -5,8 +5,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePoll } from "../../hooks/usePoll";
-import { useFetch } from "../../hooks/useFetch";
-import { StrInteractionsResponse, StrMetrics } from "../../types";
+import { StrInteractionsResponse } from "../../types";
 import {
   SectionLabel,
   StatusPill,
@@ -139,18 +138,24 @@ function AssetRow({ asset, totalCalls }: { asset: AssetMatch; totalCalls: number
   );
 }
 
-function FleetTotals({ metrics }: { metrics: StrMetrics }) {
+function FleetTotals({
+  earningsCents,
+  callsServed,
+}: {
+  earningsCents: number;
+  callsServed: number;
+}) {
   /** Top-of-panel headline stats: total fleet earnings and total calls. */
   return (
     <div className="mb-4 flex flex-wrap gap-6">
       <Stat
         label="Fleet earnings"
-        value={centsToUSD(metrics.revenue_earned_cents)}
+        value={centsToUSD(earningsCents)}
         sub="HTTP-402 metered revenue"
       />
       <Stat
         label="Calls served"
-        value={<span className="tabular-nums">{metrics.calls_served}</span>}
+        value={<span className="tabular-nums">{callsServed}</span>}
         sub="across all licensed assets"
       />
     </div>
@@ -167,8 +172,6 @@ export function LicensedAssetsPanel(): JSX.Element {
     "/str/interactions?segment=agent",
     2500,
   );
-  const { data: metrics } = useFetch<StrMetrics>("/str/act3/metrics");
-
   const entries = interData?.entries ?? [];
   const maxSeq = entries.reduce((m, e) => Math.max(m, e.seq ?? -1), -1);
   const prevMaxRef = useRef<number | null>(null);
@@ -203,6 +206,12 @@ export function LicensedAssetsPanel(): JSX.Element {
 
   const totalCalls = assetMatches.reduce((s, a) => s + a.callCount, 0);
 
+  // Earnings come from the same stream as the asset counts, so the headline stays
+  // consistent with the rows (HTTP-402 amounts are logged on each earn).
+  const earningsCents = entries.reduce(
+    (s, e) => s + Number(e.metadata?.amount_cents ?? 0),
+    0,
+  );
   const verify = interData?.verify;
 
   return (
@@ -226,7 +235,7 @@ export function LicensedAssetsPanel(): JSX.Element {
         )}
       </div>
 
-      {metrics && <FleetTotals metrics={metrics} />}
+      <FleetTotals earningsCents={earningsCents} callsServed={entries.length} />
 
       {entries.length === 0 ? (
         <EmptyState hint="Waiting for agent interactions on GET /str/interactions?segment=agent" />

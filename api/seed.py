@@ -32,6 +32,8 @@ _DEMO_INTERACTIONS = [
     ("NVIDIA", "dynamic pricing", "agent", "cached", "nvidia/nemotron-3-ultra-550b-a55b[demo-cached]", 0.0, "demo", {}),
     ("Stripe", "MPP earn: aeo-audit", "agent", "ok", None, None, None, {"amount_cents": 100}),
     ("Stripe", "MPP earn: price", "agent", "ok", None, None, None, {"amount_cents": 25}),
+    ("ConductorOne", "authorize NHI (scoped cleaner)", "firm", "ok", None, 3.1, None, {"source": "baton-carryall"}),
+    ("ConductorOne", "authorize NHI (platform gating)", "agent", "ok", None, 2.9, None, {"source": "baton-carryall"}),
 ]
 
 # Module-level guard: True after first successful seed run.
