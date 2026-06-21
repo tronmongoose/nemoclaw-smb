@@ -29,6 +29,12 @@ guardrails = [
 plaid = [
     "plaid-python>=18.0",
 ]
+# Baton-backed control plane: route authorize() through a real Baton .c1z
+# entitlement graph via Erik's carryall-baton-backend. Optional: authorize()
+# falls back to a synthetic decision when this is absent.
+baton = [
+    "carryall-baton-backend>=0.1.0",
+]
 
 [tool.ruff]
 line-length = 100
