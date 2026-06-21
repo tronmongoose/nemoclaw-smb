@@ -7,18 +7,18 @@ import type { IntegrationStatusResponse, IntegrationVerify } from "../../types";
 import { SectionLabel, StatusPill, ElapsedCounter, EmptyState, Plate } from "./shared";
 import { Button } from "@/components/ui/button";
 
-// Status -> fill color mapping. Warm dark background: #14110d.
+// Status -> fill color mapping. Light beach background: #eef4f4.
 const STATUS_COLORS: Record<string, string> = {
-  REAL: "#5fae8c",           // emerald
-  "LIVE-OK": "#5fae8c",      // emerald
-  "LIVE-CAPABLE": "#e0a955", // amber
-  DEMO: "#8a8378",           // muted warm
-  "LIVE-FAIL": "#c4574d",    // red
-  "NOT-CONFIGURED": "#5f574b", // dim
+  REAL: "#2f9e7e",           // deep sea-green
+  "LIVE-OK": "#2f9e7e",      // deep sea-green
+  "LIVE-CAPABLE": "#46b89a", // sea-foam
+  DEMO: "#9bb0b2",           // muted slate-blue
+  "LIVE-FAIL": "#e0664f",    // coral
+  "NOT-CONFIGURED": "#bcc8c8", // dim
 };
 
 function statusColor(status: string): string {
-  return STATUS_COLORS[status] ?? "#8a8378";
+  return STATUS_COLORS[status] ?? "#9bb0b2";
 }
 
 function statusOk(status: string): boolean {
@@ -101,11 +101,11 @@ export function StackGraph({ width = 480, height = 380 }: Props) {
           width={width}
           height={height}
           graphData={graphData}
-          backgroundColor="#14110d"
+          backgroundColor="#eef4f4"
           nodeLabel="label"
           nodeColor={(n) => statusColor((n as GraphNode).status)}
           nodeRelSize={7}
-          linkColor={() => "#4a4540"}
+          linkColor={() => "#c2d2d2"}
           linkWidth={1.5}
           nodeCanvasObjectMode={() => "after"}
           nodeCanvasObject={(node, ctx, globalScale) => {
@@ -113,7 +113,7 @@ export function StackGraph({ width = 480, height = 380 }: Props) {
             const label = n.label;
             const fontSize = Math.max(9, 12 / globalScale);
             ctx.font = `${fontSize}px monospace`;
-            ctx.fillStyle = "#d6cfc4";
+            ctx.fillStyle = "#2c4a4a";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillText(label, n.x, n.y + 10);

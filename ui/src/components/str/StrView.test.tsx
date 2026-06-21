@@ -15,7 +15,7 @@ vi.mock("react-force-graph-2d", () => ({ default: () => null }));
 describe("StrView", () => {
   it("opens on the explorer with the act tabs by default", async () => {
     const { findByText } = render(<StrView />);
-    expect(await findByText("Short-term rental operations, governed.")).toBeInTheDocument();
+    expect(await findByText("Short-term rental operations, calm and governed.")).toBeInTheDocument();
     expect(await findByText("Owner")).toBeInTheDocument();
     expect(await findByText("Stack")).toBeInTheDocument();
   });
@@ -23,7 +23,7 @@ describe("StrView", () => {
   it("reveals the story when Story is selected", async () => {
     const { findByText, getByText } = render(<StrView />);
     await userEvent.click(getByText("Story"));
-    expect(await findByText("Sweet Clementine by the Sea")).toBeInTheDocument();
+    expect(await findByText(/One beach cottage in Oceanside/)).toBeInTheDocument();
   });
 
   it("shows the legacy link when onLegacy is provided", async () => {

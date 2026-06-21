@@ -2,46 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark editorial system. One accent (amber). Warm near-black, not pure.
+/* Light beach system. One accent (sea-foam green). Soft sky + warm sand, never pure white.
    Tokens are HSL triplets consumed via hsl(var(--token)) in tailwind.config.js. */
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
 
-    --background: 35 25% 7%;
-    --foreground: 38 33% 90%;
+    --background: 200 40% 96%;
+    --foreground: 200 28% 24%;
 
-    --card: 34 22% 10%;
-    --card-foreground: 38 33% 90%;
-    --popover: 34 26% 8%;
-    --popover-foreground: 38 33% 90%;
+    --card: 195 38% 99%;
+    --card-foreground: 200 28% 24%;
+    --popover: 195 38% 99%;
+    --popover-foreground: 200 28% 24%;
 
-    --primary: 36 66% 60%;
-    --primary-foreground: 35 40% 8%;
+    --primary: 162 46% 44%;
+    --primary-foreground: 160 40% 98%;
 
-    --secondary: 34 16% 16%;
-    --secondary-foreground: 38 28% 87%;
-    --muted: 34 14% 14%;
-    --muted-foreground: 38 13% 58%;
-    --accent: 34 20% 18%;
-    --accent-foreground: 38 30% 90%;
+    --secondary: 40 38% 91%;
+    --secondary-foreground: 200 28% 28%;
+    --muted: 200 26% 91%;
+    --muted-foreground: 200 14% 42%;
+    --accent: 162 40% 89%;
+    --accent-foreground: 162 48% 22%;
 
-    --destructive: 6 62% 52%;
-    --destructive-foreground: 38 40% 95%;
-    --verified: 152 40% 44%;
-    --verified-foreground: 150 40% 96%;
+    --destructive: 6 74% 58%;
+    --destructive-foreground: 8 50% 98%;
+    --verified: 162 50% 38%;
+    --verified-foreground: 160 40% 98%;
 
-    --border: 36 13% 18%;
-    --input: 36 13% 20%;
-    --ring: 36 66% 54%;
+    --border: 200 24% 85%;
+    --input: 200 24% 83%;
+    --ring: 162 46% 44%;
 
-    --chart-1: 36 66% 60%;
-    --chart-2: 152 40% 44%;
-    --chart-3: 38 13% 58%;
-    --chart-4: 34 20% 30%;
-    --chart-5: 6 62% 52%;
+    --chart-1: 162 46% 44%;
+    --chart-2: 196 55% 52%;
+    --chart-3: 40 55% 60%;
+    --chart-4: 200 20% 60%;
+    --chart-5: 6 74% 58%;
 
-    --radius: 0.125rem;
+    --radius: 0.25rem;
   }
 
   * {
@@ -60,11 +60,12 @@ body {
   min-height: 100vh;
   font-family: "Fraunces Variable", Fraunces, Georgia, serif;
   font-feature-settings: "ss01";
-  /* one warm radial wash from the top: candlelight, not a gradient mesh */
-  background-image: radial-gradient(
-    115% 75% at 50% -12%,
-    hsl(36 48% 15% / 0.35),
-    transparent 62%
+  /* one soft sky-to-sand wash: a calm beach morning, not a gradient mesh */
+  background-image: linear-gradient(
+    180deg,
+    hsl(200 48% 95%) 0%,
+    hsl(190 38% 96%) 45%,
+    hsl(40 42% 95%) 100%
   );
   background-attachment: fixed;
 }
@@ -73,23 +74,23 @@ body {
   box-sizing: border-box;
 }
 
-/* paper grain, felt not seen (<=4%) */
+/* faint sand grain, felt not seen */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
-  background: hsl(var(--primary) / 0.3);
+  background: hsl(var(--primary) / 0.22);
   color: hsl(var(--foreground));
 }
 
-/* Drop cap for act intros (editorial) */
+/* Drop cap for segment intros (editorial) */
 .drop-cap::first-letter {
   font-family: "Fraunces Variable", Fraunces, serif;
   font-weight: 600;
@@ -100,16 +101,30 @@ body::before {
   color: hsl(var(--primary));
 }
 
-/* The one signature motion: a slow heartbeat on the live indicator,
-   tied to real calls flowing. Everything else is static. */
+/* The signature motion: a palm frond swaying lightly in the sea breeze. */
+@keyframes palm-sway {
+  0%, 100% {
+    transform: rotate(-1.6deg);
+  }
+  50% {
+    transform: rotate(1.6deg);
+  }
+}
+
+.animate-palm-sway {
+  transform-origin: 52% 86%;
+  animation: palm-sway 7s ease-in-out infinite;
+}
+
+/* A gentle pulse on the live indicator, tied to real calls flowing. */
 @keyframes heartbeat {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.4;
-    transform: scale(0.88);
+    opacity: 0.45;
+    transform: scale(0.85);
   }
 }
 
@@ -117,10 +132,10 @@ body::before {
   animation: heartbeat 2.4s ease-in-out infinite;
 }
 
-/* A one-shot amber flash as a new audit entry lands. */
+/* A one-shot sea-foam flash as a new entry lands. */
 @keyframes flash {
   0% {
-    background-color: hsl(var(--primary) / 0.2);
+    background-color: hsl(var(--primary) / 0.18);
   }
   100% {
     background-color: transparent;
@@ -133,22 +148,23 @@ body::before {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-heartbeat,
-  .animate-flash {
+  .animate-flash,
+  .animate-palm-sway {
     animation: none;
   }
 }
 
-/* Scrollbar, warmed to the palette */
+/* Scrollbar, tuned to the light palette */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(var(--background));
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
-  border-radius: 2px;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);

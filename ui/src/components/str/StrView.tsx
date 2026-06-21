@@ -10,6 +10,7 @@ import { ErrorBoundary } from "../ErrorBoundary";
 import { cn } from "../../lib/utils";
 import { LiveProvider } from "./LiveContext";
 import { LiveToggle } from "./LiveToggle";
+import { PalmBackground } from "./PalmBackground";
 import { StrNav, StrTab } from "./StrNav";
 import { StrStory } from "./StrStory";
 import { StackGraph } from "./StackGraph";
@@ -26,15 +27,16 @@ export function StrView({ onLegacy }: { onLegacy?: () => void }) {
 
   return (
     <LiveProvider>
+      <PalmBackground />
       <div className="min-h-screen">
         <header className="border-b border-border">
           <div className="mx-auto flex max-w-5xl flex-wrap items-end justify-between gap-4 px-6 py-5">
             <div className="flex flex-col">
               <span className="font-mono text-[0.7rem] uppercase tracking-[0.28em] text-muted-foreground">
-                NemoClaw
+                Sweet Clementine by the Sea
               </span>
               <span className="font-serif text-xl font-semibold leading-tight text-foreground">
-                Short-term rental operations, governed.
+                Short-term rental operations, calm and governed.
               </span>
             </div>
             <div className="flex items-center gap-4">
