@@ -187,3 +187,208 @@ export interface TenantAnalysis {
   findings: AnalysisFinding[];
   longitudinal: AnalysisLongitudinal;
 }
+
+// --- STR three-act web view ---
+
+/** Reasoning provenance attached to every model-backed STR result.
+ * mode demo => deterministic cached trace; mode live => real Nemotron call. */
+export interface ReasoningProvenance {
+  mode: "demo" | "live";
+  model: string;
+  latency_ms: number;
+  source: "nemotron" | "cached";
+}
+
+// Act I: owner-fee reconciliation
+
+export interface StrLedgerSummary {
+  property_id: string;
+  month: string;
+  revenue_cents: number;
+  contract_pct: number;
+  charged_pct: number;
+  line_items: {
+    contracted_fee_cents?: number;
+    charged_fee_cents?: number;
+    fee_delta_cents?: number;
+  };
+}
+
+export interface StrAnomalyResult {
+  is_anomaly: boolean;
+  expected_fee_cents: number;
+  charged_fee_cents: number;
+  overcharge_cents: number;
+  reason: string;
+  model_used: string;
+  reasoning_trace: string;
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrPaymentResult {
+  payment_id: string;
+  amount_cents: number;
+  status: string;
+  audit_hash: string;
+  held_for_approval: boolean;
+  request_id: string;
+}
+
+export interface StrReconciliationReport {
+  property_id: string;
+  month: string;
+  summary: StrLedgerSummary;
+  anomaly: StrAnomalyResult;
+  payment: StrPaymentResult | null;
+  audit_ok: boolean;
+  audit_detail: string;
+  nhi_id: string;
+}
+
+// Act II: property-management orchestration
+
+export interface StrCleanerCard {
+  card_token: string;
+  card_id: string;
+  job_id: string;
+  property_id: string;
+  cleaner_id: string;
+  amount_cap_cents: number;
+  mcc_list: string[];
+  expiry_utc: string;
+  backend: string;
+}
+
+export interface StrPayoutRecord {
+  crew_id: string;
+  crew_name: string;
+  amount_cents: number;
+  month: string;
+  transfer_id: string;
+  status: string;
+  backend: string;
+}
+
+export interface StrPayoutBatch {
+  month: string;
+  records: StrPayoutRecord[];
+  total_cents: number;
+}
+
+export interface StrInvoiceLine {
+  property_id: string;
+  property_name: string;
+  revenue_cents: number;
+  fee_pct: number;
+  fee_cents: number;
+  description: string;
+}
+
+export interface StrOwnerInvoice {
+  owner_id: string;
+  month: string;
+  invoice_id: string;
+  line_items: StrInvoiceLine[];
+  total_revenue_cents: number;
+  total_fee_cents: number;
+  backend: string;
+}
+
+export interface StrInvoicesResponse {
+  month: string;
+  invoices: StrOwnerInvoice[];
+}
+
+export interface StrPortfolioSummary {
+  property_count: number;
+  owner_count: number;
+  total_monthly_revenue_cents: number;
+  property_ids: string[];
+  owner_ids: string[];
+  properties_by_owner: Record<string, string[]>;
+}
+
+// Act III: platform earn server
+
+export interface StrEarnEvent {
+  chain_hash: string;
+  seq: number;
+  timestamp: string;
+}
+
+export interface StrPricingRecommendation {
+  recommended_rate: number;
+  confidence: string;
+  reasoning: string;
+  suggested_title_tweak: string;
+  valid_for_hours: number;
+}
+
+export interface StrPriceResponse {
+  service: string;
+  property_id: string;
+  amount_cents: number;
+  recommendation: StrPricingRecommendation;
+  earn_event: StrEarnEvent;
+  c1_authorized: boolean;
+}
+
+export interface StrDimensionScores {
+  structure_completeness: number;
+  agent_parseability: number;
+  description_quality: number;
+  conflict_free: number;
+}
+
+export interface StrAeoResult {
+  overall_score: number;
+  dimension_scores: StrDimensionScores;
+  optimized_opening: string;
+  reasoning_trace: string;
+}
+
+export interface StrAeoResponse {
+  service: string;
+  amount_cents: number;
+  result: StrAeoResult;
+  earn_event: StrEarnEvent;
+  c1_authorized: boolean;
+}
+
+/** The 402 body returned by /str/act3/aeo-audit when no MPP token is presented. */
+export interface StrPaymentRequired {
+  error: string;
+  amount_cents: number;
+}
+
+export interface StrMetrics {
+  calls_served: number;
+  revenue_earned_cents: number;
+  revenue_earned_dollars: number;
+  properties_optimized: number;
+  property_ids: string[];
+}
+
+// Audit
+
+export interface StrAuditEntry {
+  ts?: string;
+  seq?: number;
+  event?: string;
+  service?: string;
+  amount_cents?: number;
+  token_id?: string;
+  action?: string;
+  vendor?: string;
+  actor?: string;
+  decision?: string;
+  prev_hash?: string;
+  entry_hash?: string;
+  [key: string]: unknown;
+}
+
+export interface StrAuditResponse {
+  count: number;
+  entries: StrAuditEntry[];
+  verify: AuditVerify;
+}

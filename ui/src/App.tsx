@@ -10,10 +10,11 @@ import { ApprovalQueue } from "./components/ApprovalQueue";
 import { SavingsPanel } from "./components/SavingsPanel";
 import { TenantDashboard } from "./components/tenant/TenantDashboard";
 import { OpsHeadlineBand } from "./components/OpsHeadlineBand";
+import { StrView } from "./components/str/StrView";
 import { usePoll } from "./hooks/usePoll";
 import { AuditResponse } from "./types";
 
-type View = "ops" | "tenant";
+type View = "ops" | "tenant" | "str";
 
 function NavToggle({ view, onChange }: { view: View; onChange: (v: View) => void }) {
   const btn = (v: View, label: string) => (
@@ -34,6 +35,7 @@ function NavToggle({ view, onChange }: { view: View; onChange: (v: View) => void
     <div className="flex items-center gap-2">
       {btn("ops", "Ops Dashboard")}
       {btn("tenant", "Tenant P&L")}
+      {btn("str", "STR Agent")}
     </div>
   );
 }
@@ -47,7 +49,7 @@ export function App() {
       <Header audit={audit} navSlot={<NavToggle view={view} onChange={setView} />} />
 
       <main className="flex-1 p-4">
-        {view === "ops" ? (
+        {view === "ops" && (
           <ErrorBoundary label="Ops Dashboard">
             <OpsHeadlineBand />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-[minmax(360px,auto)]">
@@ -70,9 +72,17 @@ export function App() {
               </PanelCard>
             </div>
           </ErrorBoundary>
-        ) : (
+        )}
+
+        {view === "tenant" && (
           <ErrorBoundary label="Tenant P&L">
             <TenantDashboard />
+          </ErrorBoundary>
+        )}
+
+        {view === "str" && (
+          <ErrorBoundary label="STR Agent">
+            <StrView />
           </ErrorBoundary>
         )}
       </main>
