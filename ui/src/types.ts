@@ -433,6 +433,9 @@ export interface IntegrationVerify {
 
 export type StrSegment = "owner" | "firm" | "agent";
 
+/** The four top-nav destinations: the three portals plus the cross-cutting tech layer. */
+export type PortalView = StrSegment | "stack";
+
 /** One logged sponsor interaction (a model call or a Stripe/payment op). */
 export interface StrInteraction {
   ts?: string;

@@ -2,46 +2,159 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light beach system. One accent (sea-foam green). Soft sky + warm sand, never pure white.
-   Tokens are HSL triplets consumed via hsl(var(--token)) in tailwind.config.js. */
+/* Three portal temperatures on one token system. The page carries data-portal on
+   its root; switching it retunes every HSL triplet, and the transition below tweens
+   the whole page warm -> cool -> electric. Tokens are consumed via hsl(var(--token)).
+   :root is the Owner (warm sand) default, also used by the demoted legacy views. */
 @layer base {
   :root {
     color-scheme: light;
 
-    --background: 200 40% 96%;
-    --foreground: 200 28% 24%;
+    --background: 40 36% 95%;
+    --foreground: 30 20% 22%;
 
-    --card: 195 38% 99%;
-    --card-foreground: 200 28% 24%;
-    --popover: 195 38% 99%;
-    --popover-foreground: 200 28% 24%;
+    --card: 42 42% 98%;
+    --card-foreground: 30 20% 22%;
+    --popover: 42 42% 98%;
+    --popover-foreground: 30 20% 22%;
 
     --primary: 162 46% 44%;
     --primary-foreground: 160 40% 98%;
 
-    --secondary: 40 38% 91%;
-    --secondary-foreground: 200 28% 28%;
-    --muted: 200 26% 91%;
-    --muted-foreground: 200 14% 42%;
-    --accent: 162 40% 89%;
+    --secondary: 38 36% 90%;
+    --secondary-foreground: 30 20% 26%;
+    --muted: 38 24% 90%;
+    --muted-foreground: 34 12% 42%;
+    --accent: 162 38% 88%;
     --accent-foreground: 162 48% 22%;
 
-    --destructive: 6 74% 58%;
+    --destructive: 8 74% 58%;
     --destructive-foreground: 8 50% 98%;
     --verified: 162 50% 38%;
     --verified-foreground: 160 40% 98%;
 
-    --border: 200 24% 85%;
-    --input: 200 24% 83%;
+    --border: 38 24% 85%;
+    --input: 38 24% 83%;
     --ring: 162 46% 44%;
 
     --chart-1: 162 46% 44%;
     --chart-2: 196 55% 52%;
     --chart-3: 40 55% 60%;
-    --chart-4: 200 20% 60%;
-    --chart-5: 6 74% 58%;
+    --chart-4: 30 20% 60%;
+    --chart-5: 8 74% 58%;
 
     --radius: 0.25rem;
+  }
+
+  /* Company: a cool operations floor in daylight. */
+  [data-portal="firm"] {
+    color-scheme: light;
+
+    --background: 202 40% 95%;
+    --foreground: 210 28% 22%;
+    --card: 200 40% 98%;
+    --card-foreground: 210 28% 22%;
+    --popover: 200 40% 98%;
+    --popover-foreground: 210 28% 22%;
+
+    --primary: 192 64% 40%;
+    --primary-foreground: 195 50% 98%;
+
+    --secondary: 202 30% 89%;
+    --secondary-foreground: 210 28% 26%;
+    --muted: 202 24% 89%;
+    --muted-foreground: 208 14% 42%;
+    --accent: 192 46% 87%;
+    --accent-foreground: 192 60% 22%;
+
+    --destructive: 8 74% 58%;
+    --destructive-foreground: 8 50% 98%;
+    --verified: 162 50% 38%;
+    --verified-foreground: 160 40% 98%;
+
+    --border: 202 24% 83%;
+    --input: 202 24% 81%;
+    --ring: 192 64% 40%;
+
+    --chart-1: 192 64% 40%;
+    --chart-2: 205 55% 52%;
+    --chart-3: 178 45% 46%;
+    --chart-4: 210 20% 58%;
+    --chart-5: 8 74% 58%;
+  }
+
+  /* Swarm: dark electric command center. Warm-black, not pure #000. */
+  [data-portal="agent"] {
+    color-scheme: dark;
+
+    --background: 215 32% 9%;
+    --foreground: 200 18% 90%;
+    --card: 215 28% 13%;
+    --card-foreground: 200 18% 92%;
+    --popover: 215 28% 13%;
+    --popover-foreground: 200 18% 92%;
+
+    --primary: 186 88% 52%;
+    --primary-foreground: 215 45% 8%;
+
+    --secondary: 215 22% 18%;
+    --secondary-foreground: 200 16% 86%;
+    --muted: 215 18% 18%;
+    --muted-foreground: 205 12% 62%;
+    --accent: 186 50% 20%;
+    --accent-foreground: 186 88% 72%;
+
+    --destructive: 6 78% 62%;
+    --destructive-foreground: 8 40% 98%;
+    --verified: 162 58% 50%;
+    --verified-foreground: 215 45% 8%;
+
+    --border: 215 20% 24%;
+    --input: 215 20% 24%;
+    --ring: 186 88% 52%;
+
+    --chart-1: 186 88% 52%;
+    --chart-2: 210 70% 58%;
+    --chart-3: 162 58% 50%;
+    --chart-4: 205 14% 55%;
+    --chart-5: 6 78% 62%;
+  }
+
+  /* Tech layer: the machine room. Neutral technical dark, cyan as the live signal. */
+  [data-portal="stack"] {
+    color-scheme: dark;
+
+    --background: 220 16% 11%;
+    --foreground: 210 14% 88%;
+    --card: 220 15% 15%;
+    --card-foreground: 210 14% 90%;
+    --popover: 220 15% 15%;
+    --popover-foreground: 210 14% 90%;
+
+    --primary: 186 80% 52%;
+    --primary-foreground: 220 30% 8%;
+
+    --secondary: 220 12% 20%;
+    --secondary-foreground: 210 14% 85%;
+    --muted: 220 10% 20%;
+    --muted-foreground: 215 10% 60%;
+    --accent: 186 46% 20%;
+    --accent-foreground: 186 80% 70%;
+
+    --destructive: 6 78% 62%;
+    --destructive-foreground: 8 40% 98%;
+    --verified: 162 58% 50%;
+    --verified-foreground: 220 30% 8%;
+
+    --border: 220 12% 24%;
+    --input: 220 12% 24%;
+    --ring: 186 80% 52%;
+
+    --chart-1: 186 80% 52%;
+    --chart-2: 210 70% 58%;
+    --chart-3: 162 58% 50%;
+    --chart-4: 215 10% 55%;
+    --chart-5: 6 78% 62%;
   }
 
   * {
@@ -50,6 +163,16 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* The temperature transition. Surfaces without their own transition utility tween
+     over 700ms when data-portal changes; buttons keep their faster hover transitions
+     (utility layer wins on equal specificity). */
+  [data-portal],
+  [data-portal] *:not(canvas) {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 700ms;
+    transition-timing-function: ease-out;
   }
 }
 
@@ -60,29 +183,10 @@ body {
   min-height: 100vh;
   font-family: "Fraunces Variable", Fraunces, Georgia, serif;
   font-feature-settings: "ss01";
-  /* one soft sky-to-sand wash: a calm beach morning, not a gradient mesh */
-  background-image: linear-gradient(
-    180deg,
-    hsl(200 48% 95%) 0%,
-    hsl(190 38% 96%) 45%,
-    hsl(40 42% 95%) 100%
-  );
-  background-attachment: fixed;
 }
 
 * {
   box-sizing: border-box;
-}
-
-/* faint sand grain, felt not seen */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
@@ -90,7 +194,7 @@ body::before {
   color: hsl(var(--foreground));
 }
 
-/* Drop cap for segment intros (editorial) */
+/* Drop cap for portal intros (editorial) */
 .drop-cap::first-letter {
   font-family: "Fraunces Variable", Fraunces, serif;
   font-weight: 600;
@@ -101,8 +205,7 @@ body::before {
   color: hsl(var(--primary));
 }
 
-/* The signature motion: a slow, subtle drift across the Oceanside pier scene,
-   like watching the light shift at golden hour. Calm, not a zoom. */
+/* The signature motion: a slow drift across the Oceanside pier scene at golden hour. */
 @keyframes drift {
   0% {
     transform: scale(1.02) translate3d(0, 0, 0);
@@ -133,7 +236,7 @@ body::before {
   animation: heartbeat 2.4s ease-in-out infinite;
 }
 
-/* A one-shot sea-foam flash as a new entry lands. */
+/* A one-shot accent flash as a new entry lands. */
 @keyframes flash {
   0% {
     background-color: hsl(var(--primary) / 0.18);
@@ -153,9 +256,13 @@ body::before {
   .animate-drift {
     animation: none;
   }
+  [data-portal],
+  [data-portal] * {
+    transition: none;
+  }
 }
 
-/* Scrollbar, tuned to the light palette */
+/* Scrollbar, tuned to whichever portal token set is active */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
