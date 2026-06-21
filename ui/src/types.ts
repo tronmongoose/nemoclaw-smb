@@ -322,6 +322,7 @@ export interface StrPricingRecommendation {
   reasoning: string;
   suggested_title_tweak: string;
   valid_for_hours: number;
+  reasoning_provenance: ReasoningProvenance;
 }
 
 export interface StrPriceResponse {
@@ -345,6 +346,7 @@ export interface StrAeoResult {
   dimension_scores: StrDimensionScores;
   optimized_opening: string;
   reasoning_trace: string;
+  reasoning_provenance: ReasoningProvenance;
 }
 
 export interface StrAeoResponse {

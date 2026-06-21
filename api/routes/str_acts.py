@@ -151,13 +151,13 @@ def act2_portfolio() -> dict:
 def act3_price(
     body: PriceBody,
     live: bool = Query(default=False),
-    authorization: Optional[str] = Header(default=None),  # noqa: UP007 (3.9 route sig)
+    authorization: Optional[str] = Header(default=None),  # noqa: UP045 (3.9 route sig)
 ) -> dict:
     """Serve a pricing call through Act III and log the earn event.
 
     An optional Authorization bearer token selects the demo token; absent or
-    malformed headers fall back to the platform default. `live` is accepted for
-    UI parity and threaded into the pricing serve call.
+    malformed headers fall back to the platform default. `live` threads to the
+    pricing reasoning so a real Nemotron call fires when a key is present.
     """
     token = _extract_token(authorization) or "mpp_tok_demo"
     return serve_pricing_call(
@@ -170,6 +170,7 @@ def act3_price(
         day_of_week=body.day_of_week,
         demo_token=token,
         audit_path=_AUDIT_PATH_STR,
+        live=live,
     )
 
 
@@ -177,13 +178,14 @@ def act3_price(
 def act3_aeo_audit(
     body: AEOBody,
     live: bool = Query(default=False),
-    authorization: Optional[str] = Header(default=None),  # noqa: UP007 (3.9 route sig)
+    authorization: Optional[str] = Header(default=None),  # noqa: UP045 (3.9 route sig)
 ):
     """The real 402-then-200 earn loop: no token -> 402, mpp_tok_ token -> 200.
 
     Returns a JSONResponse with status 402 (and the Stripe-MPP WWW-Authenticate
     header) when no valid token is present, else serves the AEO audit and logs
-    the earn event. `live` is accepted for UI parity.
+    the earn event. `live` threads to the AEO reasoning so a real Nemotron call
+    fires when a key is present.
     """
     token = _extract_token(authorization)
     if not token or not validate_mpp_token(token):
@@ -202,6 +204,7 @@ def act3_aeo_audit(
         listing_url=body.listing_url,
         demo_token=token,
         audit_path=_AUDIT_PATH_STR,
+        live=live,
     )
 
 

@@ -95,11 +95,14 @@ def serve_pricing_call(
     day_of_week: str = "sat",
     demo_token: str = "mpp_tok_demo",
     audit_path: str | None = None,
+    live: bool = False,  # noqa: FBT001, FBT002
 ) -> dict:
     """Execute a pricing call through Act 3, log the earn event, update metrics.
 
     Returns a result dict with recommendation fields and earn event metadata.
     C1 governance gates the call via authorize(nhi, "price", "str-platform").
+    live threads to recommend_price so the reasoning trace is a real Nemotron call
+    when a key is present; otherwise it is the deterministic cached trace.
     #COMPLETION_DRIVE: demo_token default is valid in DEMO_MODE per mpp_server convention.
     """
     allowed, reason = _authorize_platform("price")
@@ -115,7 +118,7 @@ def serve_pricing_call(
         season=season,
         day_of_week=day_of_week,
     )
-    recommendation = recommend_price(req)
+    recommendation = recommend_price(req, live=live)
 
     earn_entry = _write_earn_event(
         service="price",
@@ -138,6 +141,7 @@ def serve_pricing_call(
             "reasoning": recommendation.reasoning,
             "suggested_title_tweak": recommendation.suggested_title_tweak,
             "valid_for_hours": recommendation.valid_for_hours,
+            "reasoning_provenance": recommendation.reasoning_provenance,
         },
         "earn_event": {
             "chain_hash": earn_entry["chain_hash"],
@@ -155,11 +159,14 @@ def serve_aeo_call(
     listing_url: str = "",
     demo_token: str = "mpp_tok_demo",
     audit_path: str | None = None,
+    live: bool = False,  # noqa: FBT001, FBT002
 ) -> dict:
     """Execute an AEO audit call through Act 3, log the earn event, update metrics.
 
     Returns a result dict with audit fields and earn event metadata.
     C1 governance gates the call via authorize(nhi, "aeo-audit", "str-platform").
+    live threads to audit_listing so the reasoning trace is a real Nemotron call
+    when a key is present; otherwise it is the deterministic cached trace.
     """
     allowed, reason = _authorize_platform("aeo-audit")
     if not allowed:
@@ -171,7 +178,7 @@ def serve_aeo_call(
         existing_schema=existing_schema or {},
         listing_url=listing_url,
     )
-    result = audit_listing(req)
+    result = audit_listing(req, live=live)
 
     earn_entry = _write_earn_event(
         service="aeo-audit",
@@ -196,6 +203,7 @@ def serve_aeo_call(
             },
             "optimized_opening": result.optimized_opening,
             "reasoning_trace": result.reasoning_trace,
+            "reasoning_provenance": result.reasoning_provenance,
         },
         "earn_event": {
             "chain_hash": earn_entry["chain_hash"],

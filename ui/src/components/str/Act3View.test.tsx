@@ -35,6 +35,12 @@ const AEO: StrAeoResponse = {
     optimized_opening:
       "2BR/1BA beach cottage, Oceanside CA. 6 guests max. Pet-friendly (dogs only, max 2, $30/night/pet).",
     reasoning_trace: "Score 48/100.",
+    reasoning_provenance: {
+      mode: "live",
+      model: "nvidia/nemotron-3-ultra-550b-a55b",
+      latency_ms: 41000,
+      source: "nemotron",
+    },
   },
   earn_event: { chain_hash: "cd22b3", seq: 6, timestamp: "2026-06-20T23:47:36+00:00" },
   c1_authorized: true,
@@ -50,6 +56,12 @@ const PRICE: StrPriceResponse = {
     reasoning: "Base $200. Season=peak. Recommended $345.",
     suggested_title_tweak: "Book now",
     valid_for_hours: 12,
+    reasoning_provenance: {
+      mode: "demo",
+      model: "nvidia/nemotron-3-ultra-550b-a55b[demo-cached]",
+      latency_ms: 0,
+      source: "cached",
+    },
   },
   earn_event: { chain_hash: "0d4fa8", seq: 5, timestamp: "2026-06-20T23:47:31+00:00" },
   c1_authorized: true,
@@ -91,6 +103,14 @@ describe("Act3View", () => {
     expect(await findByText(/dogs only/)).toBeInTheDocument();
     // JSON-LD pre block carries the schema.org type
     expect(await findByText(/LodgingBusiness/)).toBeInTheDocument();
+  });
+
+  it("AEO audit surfaces the LIVE provenance badge with model and latency", async () => {
+    mockApiFetch.mockResolvedValue(METRICS);
+    mockPostAeo.mockResolvedValue(AEO);
+    const { findByText, getByText } = renderAct3();
+    await userEvent.click(getByText(/Run AEO audit/));
+    expect(await findByText(/LIVE nemotron 41s/)).toBeInTheDocument();
   });
 
   it("pricing button renders the recommended rate", async () => {

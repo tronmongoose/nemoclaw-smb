@@ -11,7 +11,9 @@ Mounts route groups:
     /mpp        - MPP HTTP-402 earn server folded in (payments/mpp_server.app)
 """
 
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,6 +22,43 @@ from api.routes import approvals, audit, graph, invoices, savings, str_acts, web
 from api.routes import tenant as tenant_routes
 from api.seed import seed_demo
 from payments.mpp_server import app as mpp_app
+
+# Only the reasoning keys the LIVE toggle needs are loaded at startup. Operational
+# config (spend threshold, C1 / Stripe / Intuit creds, sandbox) is deliberately NOT
+# pulled in so a running server matches test behavior and nothing finance-adjacent or
+# external changes by side effect.
+_LIVE_ENV_KEYS = (
+    "NOUS_PORTAL_API_KEY",
+    "NOUS_PORTAL_BASE_URL",
+    "NVIDIA_NIM_API_KEY",
+    "NVIDIA_NIM_BASE_URL",
+    "HERMES_MODEL",
+    "NEMOTRON_MODEL",
+)
+
+
+def _load_dotenv() -> None:
+    """Load only the LIVE-toggle reasoning keys from .env into os.environ.
+
+    setdefault, never overwrite a real env var. Mirrors the plain parser in
+    verification/reality_report.py. Scoped to _LIVE_ENV_KEYS so a plain `make dev`
+    enables the Nous / NVIDIA LIVE path without injecting finance / policy / Stripe
+    config that would change unrelated subsystems. No-op when .env is absent.
+    """
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if not env_path.exists():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, _, value = stripped.partition("=")
+        key = key.strip()
+        if key in _LIVE_ENV_KEYS:
+            os.environ.setdefault(key, value.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
 
 
 @asynccontextmanager

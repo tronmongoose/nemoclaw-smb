@@ -22,7 +22,7 @@ os.environ.setdefault("DEMO_MODE", "true")
 # writes and Act III earn events land in the same file /str/audit verifies.
 os.environ["NEMOCLAW_AUDIT_PATH"] = "audit/demo_audit.jsonl"
 
-import pytest  # noqa: E402 -- env must be set before app import
+import pytest  # noqa: E402 (env must be set before app import)
 from fastapi.testclient import TestClient  # noqa: E402
 
 from acts import platform_agent  # noqa: E402
@@ -182,6 +182,73 @@ def test_act3_aeo_audit_200_with_token(client):
     assert body["service"] == "aeo-audit"
     assert body["amount_cents"] == 100
     assert "overall_score" in body["result"]
+
+
+def test_act3_aeo_audit_live_true_calls_nemotron(client, monkeypatch):
+    """live=true threads through Act III to a real Nemotron call (provenance=nemotron)."""
+    import skills.aeo_skill as aeo
+    calls = {"n": 0}
+
+    def fake_call(prompt, **kwargs):
+        calls["n"] += 1
+        return "live nemotron aeo verdict"
+
+    monkeypatch.setattr(aeo, "nemotron_available", lambda: True)
+    monkeypatch.setattr(aeo, "call_nemotron", fake_call)
+
+    resp = client.post(
+        "/str/act3/aeo-audit",
+        params={"live": "true"},
+        json=_AEO_BODY,
+        headers={"Authorization": f"Bearer {_VALID_TOKEN}"},
+    )
+    assert resp.status_code == 200
+    prov = resp.json()["result"]["reasoning_provenance"]
+    assert calls["n"] == 1
+    assert prov["mode"] == "live"
+    assert prov["source"] == "nemotron"
+
+
+def test_act3_aeo_audit_live_false_stays_cached(client, monkeypatch):
+    """live=false (default) must not call Nemotron even when a key is present."""
+    import skills.aeo_skill as aeo
+    calls = {"n": 0}
+
+    def fake_call(prompt, **kwargs):
+        calls["n"] += 1
+        return "should not appear"
+
+    monkeypatch.setattr(aeo, "nemotron_available", lambda: True)
+    monkeypatch.setattr(aeo, "call_nemotron", fake_call)
+
+    resp = client.post(
+        "/str/act3/aeo-audit",
+        json=_AEO_BODY,
+        headers={"Authorization": f"Bearer {_VALID_TOKEN}"},
+    )
+    assert resp.status_code == 200
+    prov = resp.json()["result"]["reasoning_provenance"]
+    assert calls["n"] == 0
+    assert prov["source"] == "cached"
+
+
+def test_act3_price_live_true_calls_nemotron(client, monkeypatch):
+    """live=true threads through Act III pricing to a real Nemotron call."""
+    import skills.dynamic_pricing_skill as dp
+    calls = {"n": 0}
+
+    def fake_call(prompt, **kwargs):
+        calls["n"] += 1
+        return "live nemotron pricing verdict"
+
+    monkeypatch.setattr(dp, "nemotron_available", lambda: True)
+    monkeypatch.setattr(dp, "call_nemotron", fake_call)
+
+    resp = client.post("/str/act3/price", params={"live": "true"}, json=_PRICE_BODY)
+    assert resp.status_code == 200
+    prov = resp.json()["recommendation"]["reasoning_provenance"]
+    assert calls["n"] == 1
+    assert prov["source"] == "nemotron"
 
 
 def test_act3_metrics_returns_counts(client):

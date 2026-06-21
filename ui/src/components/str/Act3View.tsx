@@ -19,6 +19,7 @@ import { StrAeoResponse, StrMetrics, StrPriceResponse } from "../../types";
 import { liveParam, useLive } from "./LiveContext";
 import { centsToUSD, EmptyState, KV, SectionLabel } from "./shared";
 import { MppEarnCall } from "./MppEarnCall";
+import { ProvenanceBadge } from "./ProvenanceBadge";
 import { postAeoAudit } from "./strApi";
 import { CLEMENTINE_JSON_LD, DOG_ONLY_CRITICAL } from "./aeoCanonical";
 
@@ -86,6 +87,16 @@ function AeoBlock() {
             <KV label="conflict-free" value={`${d.conflict_free}/25`} />
           </div>
 
+          <div className="border border-slate-800 rounded p-4">
+            <div className="flex items-center justify-between mb-2">
+              <SectionLabel>Reasoning</SectionLabel>
+              <ProvenanceBadge prov={r.reasoning_provenance} />
+            </div>
+            <p className="font-mono text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
+              {r.reasoning_trace}
+            </p>
+          </div>
+
           <div className="border border-red-900 bg-red-950/20 rounded p-4 font-mono text-xs flex flex-col gap-2">
             <span className="self-start px-2 py-1 rounded border border-red-700 bg-red-950 text-red-400">
               {DOG_ONLY_CRITICAL.severity} {DOG_ONLY_CRITICAL.code}
@@ -147,9 +158,15 @@ function PricingBlock() {
           </div>
           <KV label="confidence" value={rec.confidence} />
           <KV label="valid for" value={`${rec.valid_for_hours}h`} />
-          <p className="font-mono text-xs text-slate-400 mt-3 pt-3 border-t border-slate-800 leading-relaxed">
-            {rec.reasoning}
-          </p>
+          <div className="mt-3 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-between mb-2">
+              <SectionLabel>Reasoning</SectionLabel>
+              <ProvenanceBadge prov={rec.reasoning_provenance} />
+            </div>
+            <p className="font-mono text-xs text-slate-400 leading-relaxed whitespace-pre-wrap">
+              {rec.reasoning}
+            </p>
+          </div>
         </div>
       )}
     </section>
