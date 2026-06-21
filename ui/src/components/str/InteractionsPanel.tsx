@@ -1,6 +1,5 @@
-/** InteractionsPanel: live + historical feed of sponsor interactions.
- * Polls GET /str/interactions every 2500ms; new entries flash on arrival.
- * Sponsors: Nous Research, NVIDIA, Stripe, ConductorOne.
+/** InteractionsPanel: calm editorial live activity feed of sponsor interactions.
+ * Polls GET /str/interactions every 2500ms; newest 8 entries, newest first.
  */
 
 import { useEffect, useRef } from "react";
@@ -9,25 +8,17 @@ import { StrSegment, StrInteraction, StrInteractionsResponse } from "../../types
 import { EmptyState, SectionLabel, StatusPill } from "./shared";
 import { cn } from "../../lib/utils";
 
-function fmtTs(ts: string | undefined): string {
-  if (!ts) return "";
-  try {
-    const d = new Date(ts);
-    return d.toISOString().slice(11, 19);
-  } catch {
-    return ts;
-  }
-}
-
 function fmtLatency(latency_ms: number): string {
+  /** Format milliseconds to a compact human label. */
   if (latency_ms < 1000) return `${latency_ms}ms`;
   return `${(latency_ms / 1000).toFixed(1)}s`;
 }
 
 function ModeBadge({ mode }: { mode: string | null | undefined }) {
+  /** Inline live/demo provenance badge. */
   if (mode === "live") {
     return (
-      <span className="inline-flex items-center gap-1 rounded border border-primary bg-[hsl(var(--primary)/0.1)] px-1.5 py-0.5 font-mono text-[0.65rem] text-primary">
+      <span className="inline-flex items-center gap-1 rounded-[var(--radius)] border border-primary bg-[hsl(var(--primary)/0.08)] px-1.5 py-0.5 font-mono text-[0.65rem] text-primary">
         <span className="h-1.5 w-1.5 rounded-full bg-primary animate-heartbeat" />
         LIVE
       </span>
@@ -41,13 +32,8 @@ function ModeBadge({ mode }: { mode: string | null | undefined }) {
   return null;
 }
 
-function InteractionRow({
-  entry,
-  isNew,
-}: {
-  entry: StrInteraction;
-  isNew: boolean;
-}) {
+function InteractionRow({ entry, isNew }: { entry: StrInteraction; isNew: boolean }) {
+  /** One editorial feed row: sponsor + op label, right-aligned meta. */
   const latency =
     entry.model != null && entry.latency_ms != null
       ? fmtLatency(entry.latency_ms)
@@ -56,22 +42,24 @@ function InteractionRow({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-x-3 gap-y-0.5 border-b border-border/50 py-2 font-mono text-xs",
+        "flex items-center gap-3 border-b border-border py-3",
         isNew && "animate-flash",
       )}
     >
-      <span className="text-foreground">{entry.sponsor}</span>
-      <span className="text-muted-foreground">{entry.op}</span>
-      {entry.mode != null && <ModeBadge mode={entry.mode} />}
-      {latency && (
-        <span className="text-muted-foreground tabular-nums">{latency}</span>
-      )}
-      {entry.status && (
-        <span className="text-muted-foreground">{entry.status}</span>
-      )}
-      <span className="ml-auto text-muted-foreground/60 tabular-nums">
-        {fmtTs(entry.ts)}
+      <span className="w-28 shrink-0 font-mono text-[0.7rem] text-muted-foreground">
+        {entry.sponsor}
       </span>
+      <span className="flex-1 font-mono text-xs text-foreground truncate">
+        {entry.op}
+      </span>
+      <div className="flex shrink-0 items-center gap-2">
+        {latency && (
+          <span className="font-mono text-[0.65rem] text-muted-foreground tabular-nums">
+            {latency}
+          </span>
+        )}
+        {entry.mode != null && <ModeBadge mode={entry.mode} />}
+      </div>
     </div>
   );
 }
@@ -81,6 +69,7 @@ interface InteractionsPanelProps {
 }
 
 export function InteractionsPanel({ segment }: InteractionsPanelProps) {
+  /** Polled feed card: header with heartbeat + chain pill, then the 8 most-recent rows. */
   const path =
     `/str/interactions?limit=80` +
     (segment ? `&segment=${encodeURIComponent(segment)}` : "");
@@ -88,8 +77,7 @@ export function InteractionsPanel({ segment }: InteractionsPanelProps) {
   const { data } = usePoll<StrInteractionsResponse>(path, 2500);
 
   const entries = data?.entries ?? [];
-  // Entries arrive newest-last; render newest-first.
-  const reversed = [...entries].reverse();
+  const reversed = [...entries].reverse().slice(0, 8);
 
   const maxSeq = entries.reduce((m, e) => Math.max(m, e.seq ?? -1), -1);
   const prevMaxRef = useRef<number | null>(null);
@@ -104,7 +92,6 @@ export function InteractionsPanel({ segment }: InteractionsPanelProps) {
     }
   }, [maxSeq, entries.length]);
 
-  // On first load prevMaxRef is null => no flash. After that, flash entries > prevMax.
   const threshold = prevMaxRef.current;
 
   const isNew = (entry: StrInteraction): boolean => {
@@ -114,9 +101,9 @@ export function InteractionsPanel({ segment }: InteractionsPanelProps) {
 
   if (!data || entries.length === 0) {
     return (
-      <div className="bg-card border border-border rounded-[var(--radius)] p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <SectionLabel>Live and historical interactions</SectionLabel>
+      <div className="bg-card border border-border rounded-[var(--radius)] p-6">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <SectionLabel>Live interactions</SectionLabel>
         </div>
         <EmptyState hint="GET /str/interactions" />
       </div>
@@ -126,10 +113,10 @@ export function InteractionsPanel({ segment }: InteractionsPanelProps) {
   const verify = data.verify;
 
   return (
-    <div className="bg-card border border-border rounded-[var(--radius)] p-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
+    <div className="bg-card border border-border rounded-[var(--radius)] p-6">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <SectionLabel>Live and historical interactions</SectionLabel>
+          <SectionLabel>Live interactions</SectionLabel>
           <span
             className="h-1.5 w-1.5 rounded-full bg-primary animate-heartbeat"
             aria-label="live polling"
@@ -140,8 +127,7 @@ export function InteractionsPanel({ segment }: InteractionsPanelProps) {
           label={verify.ok ? "CHAIN VERIFIED" : "CHAIN FAULT"}
         />
       </div>
-
-      <div className="max-h-[440px] overflow-auto">
+      <div>
         {reversed.map((entry, i) => (
           <InteractionRow
             key={entry.seq != null ? entry.seq : `${entry.ts}-${i}`}

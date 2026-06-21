@@ -11,6 +11,7 @@ import { LiveProvider } from "./LiveContext";
 import { AtmosphereBackground } from "./AtmosphereBackground";
 import { PortalNav } from "./PortalNav";
 import { HeroSection } from "./HeroSection";
+import { TechLayerStrip } from "./techlayer/TechLayerStrip";
 import { SegmentNodeGraph } from "./SegmentNodeGraph";
 import { InteractionsPanel } from "./InteractionsPanel";
 import { AgentsAtWorkPanel } from "./AgentsAtWorkPanel";
@@ -75,6 +76,12 @@ export function SegmentView({ onLegacy }: { onLegacy?: () => void }) {
 
         <main className="flex-1">
           <HeroSection portal={view} />
+
+          {tech && (
+            <ErrorBoundary label="tech layer">
+              <TechLayerStrip portal={view} />
+            </ErrorBoundary>
+          )}
 
           <section id="console" className="mx-auto w-full max-w-6xl scroll-mt-6 px-6 pb-20 pt-2">
             <div className="mb-6 flex items-center gap-3">
