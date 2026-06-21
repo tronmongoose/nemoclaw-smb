@@ -101,19 +101,20 @@ body::before {
   color: hsl(var(--primary));
 }
 
-/* The signature motion: a palm frond swaying lightly in the sea breeze. */
-@keyframes palm-sway {
-  0%, 100% {
-    transform: rotate(-1.6deg);
+/* The signature motion: a slow, subtle drift across the Oceanside pier scene,
+   like watching the light shift at golden hour. Calm, not a zoom. */
+@keyframes drift {
+  0% {
+    transform: scale(1.02) translate3d(0, 0, 0);
   }
-  50% {
-    transform: rotate(1.6deg);
+  100% {
+    transform: scale(1.08) translate3d(-1.6%, -1.2%, 0);
   }
 }
 
-.animate-palm-sway {
-  transform-origin: 52% 86%;
-  animation: palm-sway 7s ease-in-out infinite;
+.animate-drift {
+  animation: drift 44s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 /* A gentle pulse on the live indicator, tied to real calls flowing. */
@@ -149,7 +150,7 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .animate-heartbeat,
   .animate-flash,
-  .animate-palm-sway {
+  .animate-drift {
     animation: none;
   }
 }
