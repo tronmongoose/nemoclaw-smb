@@ -1,34 +1,36 @@
-/** Portal atmosphere. Three stacked fixed layers cross-fade as the portal changes,
- *  so the page temperature shifts warm -> cool -> electric. The beach (one rental)
- *  gives way to a cool operations floor, then to the dark technical swarm: the
- *  transition itself communicates scale. Owner photo: Mark Neal on Unsplash.
- *  prefers-reduced-motion disables the fades and the drift (handled in index.css). */
+/** Portal atmosphere. Three stacked fixed layers cross-fade as the portal changes, so
+ *  the page temperature shifts warm-light -> cool-dark -> electric-dark. Owner keeps the
+ *  Oceanside pier (the one beach house); Company is a cool operations console; Swarm is a
+ *  dark command center. The photo receding into abstraction tells the scale story.
+ *  Owner photo: Mark Neal on Unsplash. prefers-reduced-motion disables the drift (index.css). */
 
 import type { PortalView } from "../../types";
 
 export function AtmosphereBackground({ portal }: { portal: PortalView }) {
   const isOwner = portal === "owner";
   const isFirm = portal === "firm";
-  const isDark = portal === "agent" || portal === "stack";
+  const isSwarm = portal === "agent" || portal === "stack";
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Owner: the Oceanside pier at golden hour, a slow drift. The single rental. */}
+      {/* Owner: the Oceanside pier at golden hour, subtle behind a warm scrim, slow drift. */}
       <div
         className={`absolute inset-0 transition-opacity duration-700 ${isOwner ? "opacity-100" : "opacity-0"}`}
       >
         <div
-          className="animate-drift absolute inset-0 bg-cover bg-center opacity-40"
-          style={{ backgroundImage: "url(/oceanside.jpg)" }}
+          className="animate-drift absolute inset-0 bg-cover bg-center opacity-[0.34]"
+          style={{
+            backgroundImage: "url(/oceanside.jpg)",
+            filter: "saturate(0.62) brightness(1.02) contrast(0.92)",
+          }}
         />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, hsl(40 48% 96% / 0.20) 0%, hsl(40 42% 95% / 0.55) 42%, hsl(40 42% 94% / 0.86) 100%)",
+              "linear-gradient(to bottom, hsl(38 44% 93% / 0.30) 0%, hsl(36 38% 92% / 0.62) 44%, hsl(35 33% 91% / 0.90) 100%)",
           }}
         />
-        {/* faint sand grain, felt not seen */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -38,31 +40,43 @@ export function AtmosphereBackground({ portal }: { portal: PortalView }) {
         />
       </div>
 
-      {/* Company: a cool operations floor. No photo, just cool light. */}
+      {/* Company: a cool, dark operations console. Faint blue grid, no photo. */}
       <div
         className={`absolute inset-0 transition-opacity duration-700 ${isFirm ? "opacity-100" : "opacity-0"}`}
-        style={{
-          background:
-            "linear-gradient(160deg, hsl(205 44% 95%) 0%, hsl(195 40% 94%) 55%, hsl(205 30% 92%) 100%)",
-        }}
-      />
-
-      {/* Swarm + tech layer: dark command center, faint technical grid + electric vignette. */}
-      <div
-        className={`absolute inset-0 transition-opacity duration-700 ${isDark ? "opacity-100" : "opacity-0"}`}
       >
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(120% 80% at 50% -10%, hsl(205 40% 16%) 0%, hsl(215 32% 9%) 58%, hsl(220 34% 6%) 100%)",
+              "radial-gradient(120% 90% at 50% -8%, hsl(212 30% 18%) 0%, hsl(214 28% 13%) 56%, hsl(216 30% 10%) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "linear-gradient(hsl(202 82% 66% / 0.5) 1px, transparent 1px), linear-gradient(90deg, hsl(202 82% 66% / 0.5) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+      </div>
+
+      {/* Swarm + tech layer: dark command center, electric vignette + cyan grid. */}
+      <div
+        className={`absolute inset-0 transition-opacity duration-700 ${isSwarm ? "opacity-100" : "opacity-0"}`}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(120% 85% at 50% -10%, hsl(220 45% 14%) 0%, hsl(230 35% 6%) 58%, hsl(232 40% 4%) 100%)",
           }}
         />
         <div
           className="absolute inset-0 opacity-[0.10]"
           style={{
             backgroundImage:
-              "linear-gradient(hsl(186 80% 60% / 0.5) 1px, transparent 1px), linear-gradient(90deg, hsl(186 80% 60% / 0.5) 1px, transparent 1px)",
+              "linear-gradient(hsl(188 95% 60% / 0.5) 1px, transparent 1px), linear-gradient(90deg, hsl(188 95% 60% / 0.5) 1px, transparent 1px)",
             backgroundSize: "44px 44px",
           }}
         />

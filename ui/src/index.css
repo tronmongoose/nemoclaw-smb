@@ -2,158 +2,158 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Three portal temperatures on one token system. The page carries data-portal on
-   its root; switching it retunes every HSL triplet, and the transition below tweens
-   the whole page warm -> cool -> electric. Tokens are consumed via hsl(var(--token)).
-   :root is the Owner (warm sand) default, also used by the demoted legacy views. */
+/* Three portal temperatures on one token system. The page carries data-portal on its
+   root; switching it retunes every HSL triplet and the transition below tweens the whole
+   page warm-light -> cool-dark -> electric-dark, the accent shifting orange -> blue -> cyan.
+   Tokens are consumed via hsl(var(--token)). :root is the Owner (warm) default. */
 @layer base {
   :root {
     color-scheme: light;
 
-    --background: 40 36% 95%;
-    --foreground: 30 20% 22%;
+    --background: 35 33% 91%;
+    --foreground: 28 26% 15%;
 
-    --card: 42 42% 98%;
-    --card-foreground: 30 20% 22%;
-    --popover: 42 42% 98%;
-    --popover-foreground: 30 20% 22%;
+    --card: 36 36% 96%;
+    --card-foreground: 28 26% 15%;
+    --popover: 36 36% 96%;
+    --popover-foreground: 28 26% 15%;
 
-    --primary: 162 46% 44%;
-    --primary-foreground: 160 40% 98%;
+    --primary: 26 74% 45%;
+    --primary-foreground: 36 40% 97%;
 
-    --secondary: 38 36% 90%;
-    --secondary-foreground: 30 20% 26%;
-    --muted: 38 24% 90%;
-    --muted-foreground: 34 12% 42%;
-    --accent: 162 38% 88%;
-    --accent-foreground: 162 48% 22%;
+    --secondary: 35 26% 86%;
+    --secondary-foreground: 28 26% 20%;
+    --muted: 35 26% 86%;
+    --muted-foreground: 32 12% 42%;
+    --accent: 26 58% 90%;
+    --accent-foreground: 26 74% 28%;
 
-    --destructive: 8 74% 58%;
-    --destructive-foreground: 8 50% 98%;
-    --verified: 162 50% 38%;
-    --verified-foreground: 160 40% 98%;
+    --destructive: 8 74% 52%;
+    --destructive-foreground: 36 40% 97%;
+    --verified: 150 45% 38%;
+    --verified-foreground: 36 40% 97%;
 
-    --border: 38 24% 85%;
-    --input: 38 24% 83%;
-    --ring: 162 46% 44%;
+    --border: 33 20% 79%;
+    --input: 33 20% 79%;
+    --ring: 26 74% 45%;
 
-    --chart-1: 162 46% 44%;
-    --chart-2: 196 55% 52%;
-    --chart-3: 40 55% 60%;
-    --chart-4: 30 20% 60%;
-    --chart-5: 8 74% 58%;
+    --chart-1: 26 74% 45%;
+    --chart-2: 202 60% 50%;
+    --chart-3: 35 50% 60%;
+    --chart-4: 28 14% 55%;
+    --chart-5: 8 74% 52%;
 
-    --radius: 0.25rem;
+    --radius: 0.2rem;
   }
 
-  /* Company: a cool operations floor in daylight. */
+  /* Company: a cool, dark operations console. */
   [data-portal="firm"] {
-    color-scheme: light;
+    color-scheme: dark;
 
-    --background: 202 40% 95%;
-    --foreground: 210 28% 22%;
-    --card: 200 40% 98%;
-    --card-foreground: 210 28% 22%;
-    --popover: 200 40% 98%;
-    --popover-foreground: 210 28% 22%;
+    --background: 214 28% 13%;
+    --foreground: 210 25% 91%;
+    --card: 214 24% 17%;
+    --card-foreground: 210 25% 91%;
+    --popover: 214 24% 17%;
+    --popover-foreground: 210 25% 91%;
 
-    --primary: 192 64% 40%;
-    --primary-foreground: 195 50% 98%;
+    --primary: 202 82% 62%;
+    --primary-foreground: 214 45% 9%;
 
-    --secondary: 202 30% 89%;
-    --secondary-foreground: 210 28% 26%;
-    --muted: 202 24% 89%;
-    --muted-foreground: 208 14% 42%;
-    --accent: 192 46% 87%;
-    --accent-foreground: 192 60% 22%;
+    --secondary: 214 22% 21%;
+    --secondary-foreground: 210 25% 88%;
+    --muted: 214 22% 21%;
+    --muted-foreground: 212 14% 62%;
+    --accent: 202 50% 26%;
+    --accent-foreground: 202 82% 78%;
 
-    --destructive: 8 74% 58%;
-    --destructive-foreground: 8 50% 98%;
-    --verified: 162 50% 38%;
-    --verified-foreground: 160 40% 98%;
+    --destructive: 6 78% 62%;
+    --destructive-foreground: 214 45% 9%;
+    --verified: 160 60% 50%;
+    --verified-foreground: 214 45% 9%;
 
-    --border: 202 24% 83%;
-    --input: 202 24% 81%;
-    --ring: 192 64% 40%;
+    --border: 212 18% 28%;
+    --input: 212 18% 28%;
+    --ring: 202 82% 62%;
 
-    --chart-1: 192 64% 40%;
-    --chart-2: 205 55% 52%;
-    --chart-3: 178 45% 46%;
-    --chart-4: 210 20% 58%;
-    --chart-5: 8 74% 58%;
+    --chart-1: 202 82% 62%;
+    --chart-2: 210 70% 58%;
+    --chart-3: 188 55% 52%;
+    --chart-4: 212 14% 58%;
+    --chart-5: 6 78% 62%;
   }
 
-  /* Swarm: dark electric command center. Warm-black, not pure #000. */
+  /* Swarm: dark electric command center. Near-black, cyan as the live signal. */
   [data-portal="agent"] {
     color-scheme: dark;
 
-    --background: 215 32% 9%;
-    --foreground: 200 18% 90%;
-    --card: 215 28% 13%;
-    --card-foreground: 200 18% 92%;
-    --popover: 215 28% 13%;
-    --popover-foreground: 200 18% 92%;
+    --background: 230 35% 6%;
+    --foreground: 200 30% 92%;
+    --card: 229 32% 9%;
+    --card-foreground: 200 30% 92%;
+    --popover: 229 32% 9%;
+    --popover-foreground: 200 30% 92%;
 
-    --primary: 186 88% 52%;
-    --primary-foreground: 215 45% 8%;
+    --primary: 188 95% 55%;
+    --primary-foreground: 229 45% 6%;
 
-    --secondary: 215 22% 18%;
-    --secondary-foreground: 200 16% 86%;
-    --muted: 215 18% 18%;
-    --muted-foreground: 205 12% 62%;
-    --accent: 186 50% 20%;
-    --accent-foreground: 186 88% 72%;
+    --secondary: 228 30% 13%;
+    --secondary-foreground: 200 30% 88%;
+    --muted: 228 30% 13%;
+    --muted-foreground: 214 18% 58%;
+    --accent: 188 60% 20%;
+    --accent-foreground: 188 95% 74%;
 
-    --destructive: 6 78% 62%;
-    --destructive-foreground: 8 40% 98%;
-    --verified: 162 58% 50%;
-    --verified-foreground: 215 45% 8%;
+    --destructive: 6 80% 62%;
+    --destructive-foreground: 229 45% 6%;
+    --verified: 160 65% 52%;
+    --verified-foreground: 229 45% 6%;
 
-    --border: 215 20% 24%;
-    --input: 215 20% 24%;
-    --ring: 186 88% 52%;
+    --border: 220 30% 18%;
+    --input: 220 30% 18%;
+    --ring: 188 95% 55%;
 
-    --chart-1: 186 88% 52%;
-    --chart-2: 210 70% 58%;
-    --chart-3: 162 58% 50%;
-    --chart-4: 205 14% 55%;
-    --chart-5: 6 78% 62%;
+    --chart-1: 188 95% 55%;
+    --chart-2: 210 70% 60%;
+    --chart-3: 160 65% 52%;
+    --chart-4: 214 18% 56%;
+    --chart-5: 6 80% 62%;
   }
 
   /* Tech layer: the machine room. Neutral technical dark, cyan as the live signal. */
   [data-portal="stack"] {
     color-scheme: dark;
 
-    --background: 220 16% 11%;
-    --foreground: 210 14% 88%;
-    --card: 220 15% 15%;
-    --card-foreground: 210 14% 90%;
-    --popover: 220 15% 15%;
-    --popover-foreground: 210 14% 90%;
+    --background: 224 22% 8%;
+    --foreground: 210 16% 88%;
+    --card: 223 20% 12%;
+    --card-foreground: 210 16% 90%;
+    --popover: 223 20% 12%;
+    --popover-foreground: 210 16% 90%;
 
-    --primary: 186 80% 52%;
-    --primary-foreground: 220 30% 8%;
+    --primary: 188 90% 54%;
+    --primary-foreground: 224 30% 7%;
 
-    --secondary: 220 12% 20%;
-    --secondary-foreground: 210 14% 85%;
-    --muted: 220 10% 20%;
-    --muted-foreground: 215 10% 60%;
-    --accent: 186 46% 20%;
-    --accent-foreground: 186 80% 70%;
+    --secondary: 223 16% 18%;
+    --secondary-foreground: 210 16% 85%;
+    --muted: 223 14% 18%;
+    --muted-foreground: 216 12% 60%;
+    --accent: 188 50% 20%;
+    --accent-foreground: 188 90% 72%;
 
     --destructive: 6 78% 62%;
-    --destructive-foreground: 8 40% 98%;
-    --verified: 162 58% 50%;
-    --verified-foreground: 220 30% 8%;
+    --destructive-foreground: 224 30% 7%;
+    --verified: 160 62% 52%;
+    --verified-foreground: 224 30% 7%;
 
-    --border: 220 12% 24%;
-    --input: 220 12% 24%;
-    --ring: 186 80% 52%;
+    --border: 223 14% 22%;
+    --input: 223 14% 22%;
+    --ring: 188 90% 54%;
 
-    --chart-1: 186 80% 52%;
+    --chart-1: 188 90% 54%;
     --chart-2: 210 70% 58%;
-    --chart-3: 162 58% 50%;
-    --chart-4: 215 10% 55%;
+    --chart-3: 160 62% 52%;
+    --chart-4: 216 12% 56%;
     --chart-5: 6 78% 62%;
   }
 

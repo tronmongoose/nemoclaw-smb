@@ -1,6 +1,7 @@
-/** Per-portal graph palettes. The force-graph canvas is painted via props (not CSS),
- *  so it can't inherit the data-portal tokens; these palettes keep each graph in step
- *  with its portal temperature (warm sand / cool / dark electric / dark technical). */
+/** Per-portal graph palettes. The force-graph canvas is painted via props (not CSS), so
+ *  it can't inherit the data-portal tokens; these palettes keep each graph in step with its
+ *  portal temperature: Owner warm-light/orange, Company cool-dark/blue, Swarm + tech layer
+ *  electric-dark/cyan. */
 
 import type { PortalView } from "../../../types";
 
@@ -13,55 +14,55 @@ export interface GraphPalette {
 }
 
 const OWNER: GraphPalette = {
-  canvas: "#f3efe6",
-  label: "#3a322a",
-  link: "#d8cdb8",
+  canvas: "#f6f1e8",
+  label: "#2e2419",
+  link: "#d3c8b6",
   kinds: {
-    root: "#2f9e7e",
-    property: "#46b89a",
-    owner: "#b69a6f",
-    firm: "#b69a6f",
-    crew: "#cdbb95",
-    booking: "#cdbb95",
-    fee: "#cdbb95",
-    sub: "#cdbb95",
-    earn: "#cdbb95",
+    root: "#c8772a",
+    property: "#d98f43",
+    owner: "#b39a78",
+    firm: "#b39a78",
+    crew: "#cbb78f",
+    booking: "#cbb78f",
+    fee: "#cbb78f",
+    sub: "#cbb78f",
+    earn: "#cbb78f",
   },
-  fallback: "#cdbb95",
+  fallback: "#cbb78f",
 };
 
 const FIRM: GraphPalette = {
-  canvas: "#e9f1f4",
-  label: "#27333a",
-  link: "#bcd2d8",
+  canvas: "#202c39",
+  label: "#d8e2ec",
+  link: "#34414f",
   kinds: {
-    root: "#1f93a8",
-    firm: "#1f93a8",
-    property: "#3aa6b5",
-    owner: "#7fa6ad",
-    crew: "#9bb6bd",
-    booking: "#9bb6bd",
-    fee: "#9bb6bd",
-    sub: "#9bb6bd",
-    earn: "#9bb6bd",
+    root: "#50a6ea",
+    firm: "#50a6ea",
+    property: "#74bbef",
+    owner: "#8098ad",
+    crew: "#8ea4b4",
+    booking: "#8ea4b4",
+    fee: "#8ea4b4",
+    sub: "#8ea4b4",
+    earn: "#8ea4b4",
   },
-  fallback: "#9bb6bd",
+  fallback: "#8ea4b4",
 };
 
 const SWARM: GraphPalette = {
-  canvas: "#0f1620",
-  label: "#cfe7ee",
-  link: "#27313d",
+  canvas: "#0e111b",
+  label: "#d6ecf5",
+  link: "#232f44",
   kinds: {
-    root: "#22d3ee",
-    property: "#3aa6c9",
+    root: "#1fd8ee",
+    property: "#3bb3d4",
     owner: "#6f9bb5",
-    firm: "#5b8aa6",
+    firm: "#5d89a6",
     crew: "#88a3b5",
     booking: "#88a3b5",
     fee: "#88a3b5",
     sub: "#88a3b5",
-    earn: "#7fd8c2",
+    earn: "#79d8c0",
   },
   fallback: "#88a3b5",
 };
