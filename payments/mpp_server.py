@@ -23,20 +23,18 @@ Public API:
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import os
-import time
-from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Any, Optional
 
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from agent.audit_log import _hash_entry, _read_head  # noqa: PLC2701
 from agent.audit_log import _resolve as _resolve_audit_path  # noqa: PLC2701
-from agent.audit_log import GENESIS_HASH, _hash_entry, _read_head  # noqa: PLC2701
+from agent.interactions_log import append_interaction
 from config.demo_mode import demo_mode
 from control_plane.c1_governance import authorize, issue_nhi
 from skills.aeo_skill import AEOAuditRequest, audit_listing
@@ -100,7 +98,7 @@ def validate_mpp_token(token: str) -> bool:
     return token.startswith(_DEMO_TOKEN_PREFIX)
 
 
-def _extract_token(authorization: Optional[str]) -> Optional[str]:
+def _extract_token(authorization: Optional[str]) -> Optional[str]:  # noqa: UP045
     """Parse Bearer token from Authorization header. Returns None if absent/malformed."""
     if not authorization:
         return None
@@ -119,7 +117,7 @@ def _write_earn_event(
     service: str,
     amount_cents: int,
     token_id: str,
-    audit_path_env: Optional[str] = None,
+    audit_path_env: Optional[str] = None,  # noqa: UP045
 ) -> dict:
     """Append an MPP earn event to the hash-chained audit log.
 
@@ -153,6 +151,14 @@ def _write_earn_event(
 
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+
+    try:
+        append_interaction(
+            sponsor="Stripe", op=f"MPP earn: {service}",
+            segment="agent", status="ok", metadata={"amount_cents": amount_cents},
+        )
+    except Exception:
+        pass
 
     # Expose chain_hash in return value only (not persisted as a separate field)
     result = dict(payload)
@@ -204,7 +210,7 @@ def _c1_authorize(action: str) -> tuple[bool, str]:
 @app.post("/price")
 async def price_endpoint(
     body: PriceRequestBody,
-    authorization: Optional[str] = Header(default=None),
+    authorization: Optional[str] = Header(default=None),  # noqa: UP045
 ) -> JSONResponse:
     """POST /price: $0.25 per call.
 
@@ -260,7 +266,7 @@ async def price_endpoint(
 @app.post("/aeo-audit")
 async def aeo_audit_endpoint(
     body: AEORequestBody,
-    authorization: Optional[str] = Header(default=None),
+    authorization: Optional[str] = Header(default=None),  # noqa: UP045
 ) -> JSONResponse:
     """POST /aeo-audit: $1.00 per call.
 

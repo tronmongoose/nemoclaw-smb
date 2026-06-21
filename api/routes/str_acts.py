@@ -39,7 +39,9 @@ from acts.property_mgmt_agent import (
 )
 from acts.str_owner_agent import reconcile_month
 from agent.audit_log import verify_chain
-from api.seed import DEMO_AUDIT_PATH
+from agent.interactions_log import read_interactions
+from agent.interactions_log import verify_chain as verify_interactions
+from api.seed import DEMO_AUDIT_PATH, DEMO_INTERACTIONS_PATH
 from payments.mpp_server import (
     AEO_AUDIT_ENDPOINT_CENTS,
     _extract_token,
@@ -251,6 +253,31 @@ def str_audit(limit: int = Query(default=100, ge=1, le=1000)) -> dict:
 
     entries = entries[-limit:]
     ok, message = verify_chain(path=_AUDIT_PATH_STR)
+    return {
+        "count": len(entries),
+        "entries": entries,
+        "verify": {"ok": ok, "message": message},
+    }
+
+
+_INTERACTIONS_PATH_STR: str = str(DEMO_INTERACTIONS_PATH)
+
+
+@router.get("/interactions")
+def str_interactions(
+    limit: int = Query(default=100, ge=1, le=1000),
+    sponsor: Optional[str] = Query(default=None),  # noqa: UP045 (3.9 route sig)
+    segment: Optional[str] = Query(default=None),  # noqa: UP045 (3.9 route sig)
+) -> dict:
+    """Return recent sponsor interactions (Hermes/Nemotron/Stripe), newest last, plus verify.
+
+    Live and historical: the UI polls this; entries appended by acts appear on the next
+    poll. Optional sponsor/segment filters power the per-segment interaction panels.
+    """
+    entries = read_interactions(
+        limit=limit, sponsor=sponsor, segment=segment, path=_INTERACTIONS_PATH_STR
+    )
+    ok, message = verify_interactions(path=_INTERACTIONS_PATH_STR)
     return {
         "count": len(entries),
         "entries": entries,

@@ -22,17 +22,17 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any
 
-from config.demo_mode import demo_mode
-from config.model_routing import route_for
+from agent.interactions_log import append_interaction
 from agent.nvidia_client import call_nemotron, nemotron_available
+from config.model_routing import route_for
 
 # ---------------------------------------------------------------------------
 # Mock comp-set: three Oceanside comps used when caller supplies an empty comp set.
 # ---------------------------------------------------------------------------
 
-OCEANSIDE_COMPS: List[dict] = [
+OCEANSIDE_COMPS: list[dict] = [
     {
         "name": "Surf Shack Oceanside",
         "bedrooms": 2,
@@ -60,7 +60,7 @@ OCEANSIDE_COMPS: List[dict] = [
 # Mock local events that drive rate uplift when present.
 # ---------------------------------------------------------------------------
 
-LOCAL_EVENTS: List[dict] = [
+LOCAL_EVENTS: list[dict] = [
     {
         "name": "Comic-Con International",
         "city": "San Diego",
@@ -96,8 +96,8 @@ class PricingRequest:
     property_id: str
     current_rate: float            # current nightly rate in USD
     occupancy_rate: float          # trailing 30-day occupancy (0.0 to 1.0)
-    local_events: List[str]        # names of upcoming local events
-    comp_set_rates: List[float]    # current nightly rates from comparable listings
+    local_events: list[str]        # names of upcoming local events
+    comp_set_rates: list[float]    # current nightly rates from comparable listings
     season: str                    # "peak", "shoulder", or "off"
     day_of_week: str               # "mon", "tue", "wed", "thu", "fri", "sat", "sun"
 
@@ -144,7 +144,7 @@ def _occupancy_multiplier(rate: float) -> float:
     return 0.80
 
 
-def _event_multiplier(event_names: List[str]) -> float:
+def _event_multiplier(event_names: list[str]) -> float:
     """Return the maximum uplift multiplier from the active event list."""
     upper_names = {e.upper() for e in event_names}
     best = 1.0
@@ -154,7 +154,7 @@ def _event_multiplier(event_names: List[str]) -> float:
     return best
 
 
-def _comp_anchor(comp_rates: List[float]) -> float:
+def _comp_anchor(comp_rates: list[float]) -> float:
     """Return the comp-set median rate, or 0 if no comps provided."""
     if not comp_rates:
         return 0.0
@@ -200,8 +200,9 @@ def _build_reasoning(req: PricingRequest, raw_rate: float, final_rate: float) ->
     season_mult = _SEASON_MULTIPLIERS.get(req.season, 1.0)
     event_mult = _event_multiplier(req.local_events)
     weekend_note = "weekend uplift applied" if req.day_of_week in _WEEKEND_DAYS else "weekday base"
+    _anchor = _comp_anchor(req.comp_set_rates)
     comp_note = (
-        f"comp-set anchor ${_comp_anchor(req.comp_set_rates):.0f} from {len(req.comp_set_rates)} comps"
+        f"comp-set anchor ${_anchor:.0f} from {len(req.comp_set_rates)} comps"
         if req.comp_set_rates
         else "no comp-set provided; signal-only pricing"
     )
@@ -265,10 +266,34 @@ def _demo_reasoning_trace(
         start = time.perf_counter()
         trace = call_nemotron(prompt, max_tokens=256, temperature=0.0)
         latency_ms = (time.perf_counter() - start) * 1000.0
-        provenance = {"mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron"}
+        provenance = {
+            "mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron",
+        }
+        try:
+            _sponsor = "Nous Research" if provenance["source"] == "hermes" else "NVIDIA"
+            _status = "ok" if provenance["mode"] == "live" else "cached"
+            append_interaction(
+                sponsor=_sponsor, op="dynamic pricing", segment="agent",
+                status=_status, model=provenance["model"],
+                latency_ms=provenance["latency_ms"], mode=provenance["mode"],
+            )
+        except Exception:
+            pass
         return trace, provenance
     trace = f"[{model}/demo-cached] " + _build_reasoning(req, final_rate, final_rate)
-    provenance = {"mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached"}
+    provenance = {
+        "mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached",
+    }
+    try:
+        _sponsor = "Nous Research" if provenance["source"] == "hermes" else "NVIDIA"
+        _status = "ok" if provenance["mode"] == "live" else "cached"
+        append_interaction(
+            sponsor=_sponsor, op="dynamic pricing", segment="agent",
+            status=_status, model=provenance["model"],
+            latency_ms=provenance["latency_ms"], mode=provenance["mode"],
+        )
+    except Exception:
+        pass
     return trace, provenance
 
 
@@ -288,7 +313,7 @@ def recommend_price(
     deterministic cached trace. live defaults False.
     #COMPLETION_DRIVE: comp_set_rates may be empty; falls back to OCEANSIDE_COMPS rates.
     """
-    comps = req.comp_set_rates if req.comp_set_rates else [c["current_rate"] for c in OCEANSIDE_COMPS]
+    comps = req.comp_set_rates or [c["current_rate"] for c in OCEANSIDE_COMPS]
     season_mult = _SEASON_MULTIPLIERS.get(req.season, 1.0)
     occ_mult = _occupancy_multiplier(req.occupancy_rate)
     event_mult = _event_multiplier(req.local_events)

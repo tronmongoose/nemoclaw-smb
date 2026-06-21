@@ -21,18 +21,18 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass, field
-from typing import List
 
+from agent.interactions_log import append_interaction
 from agent.nvidia_client import call_nemotron, nemotron_available
-from data.mock_listings import CLEMENTINE_AEO, LISTINGS  # noqa: F401 (canonical data anchor)
 from config.demo_mode import demo_mode  # noqa: F401 (demo-mode policy anchor)
 from config.model_routing import route_for
+from data.mock_listings import CLEMENTINE_AEO, LISTINGS  # noqa: F401 (canonical data anchor)
 
 # ---------------------------------------------------------------------------
 # The 10 standard booking questions an AI agent must answer from STRUCTURED data.
 # Each is worth 2.5 pts in Dimension 2 (Agent Parseability).
 # ---------------------------------------------------------------------------
-BOOKING_QUESTIONS: List[str] = [
+BOOKING_QUESTIONS: list[str] = [
     "can_bring_dog",
     "checkin_time",
     "checkout_time",
@@ -48,7 +48,7 @@ BOOKING_QUESTIONS: List[str] = [
 POINTS_PER_QUESTION: float = 2.5
 
 # Fields checked for Dimension 1 (Structure Completeness), each worth ~2.27 pts
-STRUCTURE_FIELDS: List[str] = [
+STRUCTURE_FIELDS: list[str] = [
     "checkin_time", "checkout_time", "max_guests", "pet_allowed",
     "pet_species", "pet_fee", "smoking_policy", "cancellation_tier",
     "min_stay", "parking_available", "parking_type", "quiet_hours",
@@ -85,7 +85,7 @@ class AEOAuditRequest:
     """Input to the AEO audit skill."""
 
     listing_text: str             # Full prose description
-    amenities_list: List[str]     # Structured amenities already present
+    amenities_list: list[str]     # Structured amenities already present
     existing_schema: dict         # Any existing JSON-LD/schema.org data (may be empty)
     listing_url: str              # For reference only (not fetched at runtime)
 
@@ -96,7 +96,7 @@ class AEOAuditResult:
 
     overall_score: int
     dimension_scores: DimensionScores
-    critical_flags: List[AEOFlag]
+    critical_flags: list[AEOFlag]
     optimized_opening: str
     json_ld_schema: dict
     reasoning_trace: str
@@ -169,7 +169,7 @@ _CLEMENTINE_JSON_LD: dict = {
     },
 }
 
-_CLEMENTINE_FLAGS: List[AEOFlag] = [
+_CLEMENTINE_FLAGS: list[AEOFlag] = [
     AEOFlag(
         severity="CRITICAL",
         code="pet_species_conflict",
@@ -205,7 +205,9 @@ _CLEMENTINE_FLAGS: List[AEOFlag] = [
     AEOFlag(
         severity="HIGH",
         code="min_stay_missing",
-        message="Minimum stay is not stated. Pricing queries for single-night stays will be incomplete.",
+        message=(
+            "Minimum stay is not stated. Pricing queries for single-night stays will be incomplete."
+        ),
         plain_english=(
             "Travelers asking an AI agent about availability may see this property "
             "surface for stays shorter than the host actually accepts."
@@ -232,8 +234,13 @@ _CLEMENTINE_FLAGS: List[AEOFlag] = [
     AEOFlag(
         severity="LOW",
         code="fire_pit_wood_unstructured",
-        message="Fire pit wood availability is mentioned in amenities text but not as a structured attribute.",
-        plain_english="Guests may arrive expecting wood provided and find they must source it themselves.",
+        message=(
+            "Fire pit wood availability is mentioned in amenities text"
+            " but not as a structured attribute."
+        ),
+        plain_english=(
+            "Guests may arrive expecting wood provided and find they must source it themselves."
+        ),
     ),
 ]
 
@@ -259,7 +266,7 @@ _CLEMENTINE_DEGRADED_SCHEMA: dict = {
     "x-str-parking": {"available": True},
 }
 
-_CLEMENTINE_DEGRADED_AMENITIES: List[str] = [
+_CLEMENTINE_DEGRADED_AMENITIES: list[str] = [
     "wifi", "kitchen", "fire_pit", "fenced_backyard", "smart_tv", "parking",
 ]
 
@@ -276,7 +283,6 @@ def _score_structure(req: AEOAuditRequest) -> int:
     """
     schema = req.existing_schema
     text = req.listing_text.lower()
-    amenities = [a.lower() for a in req.amenities_list]
 
     pts = 0
     # Check-in and checkout times: 5 pts each, only if structured
@@ -422,7 +428,6 @@ def _score_conflict_free(req: AEOAuditRequest) -> int:
     """
     schema = req.existing_schema
     text = req.listing_text.lower()
-    amenities = [a.lower() for a in req.amenities_list]
     pts = 25
 
     # Material policy contradiction: pets structured vs prose
@@ -463,39 +468,46 @@ def _score_conflict_free(req: AEOAuditRequest) -> int:
     return max(pts, 0)
 
 
-def _build_flags(req: AEOAuditRequest, scores: DimensionScores) -> List[AEOFlag]:
+def _build_flags(req: AEOAuditRequest, scores: DimensionScores) -> list[AEOFlag]:
     """Build the AEOFlag list from scoring observations."""
     schema = req.existing_schema
-    text = req.listing_text.lower()
-    flags: List[AEOFlag] = []
+    flags: list[AEOFlag] = []
 
     if not schema.get("checkinTime"):
         flags.append(AEOFlag(
             severity="CRITICAL",
             code="checkin_time_missing",
             message="Check-in time is absent from structured schema.",
-            plain_english="AI booking agents cannot answer 'What time is check-in?' without calling the host.",
+            plain_english=(
+                "AI booking agents cannot answer 'What time is check-in?' without calling the host."
+            ),
         ))
     if not schema.get("checkoutTime"):
         flags.append(AEOFlag(
             severity="CRITICAL",
             code="checkout_time_missing",
             message="Checkout time is absent from structured schema.",
-            plain_english="AI booking agents cannot answer 'What time is checkout?' without calling the host.",
+            plain_english=(
+                "AI booking agents cannot answer 'What time is checkout?' without calling the host."
+            ),
         ))
     if scores.conflict_free <= 0:
         flags.append(AEOFlag(
             severity="CRITICAL",
             code="material_policy_conflict",
             message="Structured data contradicts prose on a material policy field.",
-            plain_english="Guests will receive incorrect policy information from AI booking agents.",
+            plain_english=(
+                "Guests will receive incorrect policy information from AI booking agents."
+            ),
         ))
     if not schema.get("x-str-cancellation-policy", {}).get("tier"):
         flags.append(AEOFlag(
             severity="HIGH",
             code="cancellation_prose_only",
             message="Cancellation policy not machine-readable.",
-            plain_english="AI agents must parse unstructured text, risking incorrect cancellation terms.",
+            plain_english=(
+                "AI agents must parse unstructured text, risking incorrect cancellation terms."
+            ),
         ))
     if not schema.get("x-str-min-stay"):
         flags.append(AEOFlag(
@@ -596,8 +608,32 @@ def _aeo_reasoning(
         start = time.perf_counter()
         trace = call_nemotron(detail_prompt, max_tokens=384, temperature=0.0)
         latency_ms = (time.perf_counter() - start) * 1000.0
-        return trace, {"mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron"}
-    return summary, {"mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached"}
+        _prov = {"mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron"}
+        try:
+            _sponsor = "Nous Research" if _prov["source"] == "hermes" else "NVIDIA"
+            _status = "ok" if _prov["mode"] == "live" else "cached"
+            append_interaction(
+                sponsor=_sponsor, op="AEO scoring", segment="agent",
+                status=_status, model=_prov["model"],
+                latency_ms=_prov["latency_ms"], mode=_prov["mode"],
+            )
+        except Exception:
+            pass
+        return trace, _prov
+    _prov = {
+        "mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached",
+    }
+    try:
+        _sponsor = "Nous Research" if _prov["source"] == "hermes" else "NVIDIA"
+        _status = "ok" if _prov["mode"] == "live" else "cached"
+        append_interaction(
+            sponsor=_sponsor, op="AEO scoring", segment="agent",
+            status=_status, model=_prov["model"],
+            latency_ms=_prov["latency_ms"], mode=_prov["mode"],
+        )
+    except Exception:
+        pass
+    return summary, _prov
 
 
 def audit_listing(

@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from datetime import datetime, time, timezone
 
 from agent.audit_log import append_action
+from agent.interactions_log import append_interaction
 from config.demo_mode import demo_mode
 from payments.envelopes import sign_stripe_envelope
 
@@ -132,7 +133,7 @@ def issue_cleaner_card(
         },
     )
 
-    return CleanerCardResult(
+    result = CleanerCardResult(
         card_token=card_token,
         card_id=card_id,
         job_id=job_id,
@@ -143,6 +144,14 @@ def issue_cleaner_card(
         expiry_utc=expiry_str,
         backend=backend,
     )
+    try:
+        append_interaction(
+            sponsor="Stripe", op="card issue (Issuing for Agents)",
+            segment="firm", status="ok", metadata={"amount_cents": result.amount_cap_cents},
+        )
+    except Exception:
+        pass
+    return result
 
 
 def revoke_card(card_id: str, reason: str) -> RevokeResult:

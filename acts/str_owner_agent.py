@@ -21,14 +21,14 @@ mode (live|demo), model, latency_ms, source (nemotron|cached).
 """
 from __future__ import annotations
 
-import os
 import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from agent.audit_log import append_action, verify_chain
+from agent.interactions_log import append_interaction
 from agent.nvidia_client import call_nemotron, nemotron_available
-from agent.require_approval import ApprovalRequired, decide, enforce_spend, is_approved
+from agent.require_approval import ApprovalRequired, decide, enforce_spend
 from config.demo_mode import demo_mode
 from config.model_routing import route_for
 from control_plane.c1_governance import authorize, issue_nhi
@@ -157,10 +157,34 @@ def _reasoning_trace(
         start = time.perf_counter()
         trace = call_nemotron(prompt, max_tokens=256, temperature=0.0)
         latency_ms = (time.perf_counter() - start) * 1000.0
-        provenance = {"mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron"}
+        provenance = {
+            "mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron",
+        }
+        try:
+            _sponsor = "Nous Research" if provenance["source"] == "hermes" else "NVIDIA"
+            _status = "ok" if provenance["mode"] == "live" else "cached"
+            append_interaction(
+                sponsor=_sponsor, op="anomaly reasoning", segment="owner",
+                status=_status, model=provenance["model"],
+                latency_ms=provenance["latency_ms"], mode=provenance["mode"],
+            )
+        except Exception:
+            pass
         return trace, provenance
     trace = _demo_anomaly_trace(summary, expected, charged)
-    provenance = {"mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached"}
+    provenance = {
+        "mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached",
+    }
+    try:
+        _sponsor = "Nous Research" if provenance["source"] == "hermes" else "NVIDIA"
+        _status = "ok" if provenance["mode"] == "live" else "cached"
+        append_interaction(
+            sponsor=_sponsor, op="anomaly reasoning", segment="owner",
+            status=_status, model=provenance["model"],
+            latency_ms=provenance["latency_ms"], mode=provenance["mode"],
+        )
+    except Exception:
+        pass
     return trace, provenance
 
 
@@ -220,7 +244,9 @@ def _audit_envelope_and_pay(amount_cents: int, vendor_id: str) -> PaymentResult:
         scopes=_NHI["scopes"],
     )
     # Audit envelope is written inside sign_stripe_envelope before this returns.
-    stripe_result = pay(vendor_id, amount_dollars, idempotency_key=envelope.get("signature", "")[:32])
+    stripe_result = pay(
+        vendor_id, amount_dollars, idempotency_key=envelope.get("signature", "")[:32]
+    )
     entry = append_action(
         action="payment",
         vendor=vendor_id,
@@ -250,7 +276,7 @@ def trigger_payment(
     """
     threshold_dollars = REQUIRE_APPROVAL_THRESHOLD_CENTS / 100.0
     amount_dollars = amount_cents / 100.0
-    # #COMPLETION_DRIVE: requires_approval param lets test harness bypass gate after simulated approve
+    # #COMPLETION_DRIVE: requires_approval lets test harness bypass gate after simulated approve
     if requires_approval:
         enforce_spend(
             action="transfer",

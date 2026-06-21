@@ -16,6 +16,7 @@ import logging
 from dataclasses import dataclass, field
 
 from agent.audit_log import append_action
+from agent.interactions_log import append_interaction
 from payments.envelopes import sign_stripe_envelope
 
 _logger = logging.getLogger(__name__)
@@ -84,6 +85,14 @@ def _pay_one(member: dict, month: str) -> PayoutRecord:
             "backend": "mock",
         },
     )
+
+    try:
+        append_interaction(
+            sponsor="Stripe", op="crew payout (Connect + Global Payouts)",
+            segment="firm", status="ok", metadata={"amount_cents": amount_cents},
+        )
+    except Exception:
+        pass
 
     _logger.info(
         "payout: crew=%s amount=%d month=%s transfer=%s",
