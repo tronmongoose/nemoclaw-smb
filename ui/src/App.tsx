@@ -1,4 +1,5 @@
-/** Root layout: nav toggle between ops dashboard and tenant P&L view. */
+/** Root: the STR experience is primary. Legacy Ops + Tenant demos are demoted
+ *  behind a secondary surface, reachable from the STR footer. */
 
 import { useState } from "react";
 import { Header } from "./components/Header";
@@ -13,46 +14,65 @@ import { OpsHeadlineBand } from "./components/OpsHeadlineBand";
 import { StrView } from "./components/str/StrView";
 import { usePoll } from "./hooks/usePoll";
 import { AuditResponse } from "./types";
+import { cn } from "./lib/utils";
 
-type View = "ops" | "tenant" | "str";
+export function App() {
+  const [legacy, setLegacy] = useState(false);
+  if (!legacy) return <StrView onLegacy={() => setLegacy(true)} />;
+  return <LegacyApp onHome={() => setLegacy(false)} />;
+}
 
-function NavToggle({ view, onChange }: { view: View; onChange: (v: View) => void }) {
-  const btn = (v: View, label: string) => (
+type LegacyView = "ops" | "tenant";
+
+function LegacyNav({
+  view,
+  onChange,
+  onHome,
+}: {
+  view: LegacyView;
+  onChange: (v: LegacyView) => void;
+  onHome: () => void;
+}) {
+  const btn = (v: LegacyView, label: string) => (
     <button
       onClick={() => onChange(v)}
-      className={[
-        "px-3 py-1 text-xs font-mono rounded border transition-colors",
+      className={cn(
+        "rounded-[var(--radius)] border px-3 py-1 font-mono text-xs transition-colors",
         view === v
-          ? "bg-cyan-900 border-cyan-700 text-cyan-300"
-          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200",
-      ].join(" ")}
+          ? "border-primary text-foreground"
+          : "border-border text-muted-foreground hover:text-foreground",
+      )}
     >
       {label}
     </button>
   );
-
   return (
     <div className="flex items-center gap-2">
-      {btn("ops", "Ops Dashboard")}
+      <button
+        onClick={onHome}
+        className="rounded-[var(--radius)] px-3 py-1 font-mono text-xs uppercase tracking-widest text-primary transition-colors hover:opacity-80"
+      >
+        Sweet Clementine
+      </button>
+      {btn("ops", "Ops")}
       {btn("tenant", "Tenant P&L")}
-      {btn("str", "STR Agent")}
     </div>
   );
 }
 
-export function App() {
-  const [view, setView] = useState<View>("ops");
+function LegacyApp({ onHome }: { onHome: () => void }) {
+  const [view, setView] = useState<LegacyView>("ops");
   const { data: audit } = usePoll<AuditResponse>("/audit?limit=100", 5_000);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <Header audit={audit} navSlot={<NavToggle view={view} onChange={setView} />} />
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <Header audit={audit} navSlot={<LegacyNav view={view} onChange={setView} onHome={onHome} />} />
 
       <main className="flex-1 p-4">
         {view === "ops" && (
           <ErrorBoundary label="Ops Dashboard">
             <OpsHeadlineBand />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-[minmax(360px,auto)]">
+            <div className="grid grid-cols-1 gap-4 auto-rows-[minmax(360px,auto)] lg:grid-cols-2">
               <PanelCard title="Knowledge Graph" className="lg:row-span-2">
                 <ErrorBoundary label="Knowledge Graph">
                   <GraphPanel />
@@ -77,12 +97,6 @@ export function App() {
         {view === "tenant" && (
           <ErrorBoundary label="Tenant P&L">
             <TenantDashboard />
-          </ErrorBoundary>
-        )}
-
-        {view === "str" && (
-          <ErrorBoundary label="STR Agent">
-            <StrView />
           </ErrorBoundary>
         )}
       </main>
