@@ -2,9 +2,10 @@
 
 import { cn } from "../../lib/utils";
 
-export type StrTab = "owner" | "management" | "platform" | "audit";
+export type StrTab = "stack" | "owner" | "management" | "platform" | "audit";
 
 const TABS: Array<{ id: StrTab; label: string }> = [
+  { id: "stack", label: "Stack" },
   { id: "owner", label: "Owner" },
   { id: "management", label: "Management" },
   { id: "platform", label: "Platform" },

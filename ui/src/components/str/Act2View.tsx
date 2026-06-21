@@ -75,7 +75,7 @@ function CheckoutBlock() {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <SectionLabel>Guest checkout: issue cleaner card</SectionLabel>
+        <SectionLabel>Stripe Issuing for Agents: single-use cleaner card</SectionLabel>
         <Button
           variant="outline"
           size="sm"
@@ -127,7 +127,7 @@ function PayoutsTable() {
 
   return (
     <section className="flex flex-col gap-3">
-      <SectionLabel>Month-end crew payouts ({MONTH})</SectionLabel>
+      <SectionLabel>Stripe Connect + Global Payouts ({MONTH})</SectionLabel>
       {records.length === 0 ? (
         <EmptyState hint={`GET /str/act2/payouts/${MONTH}`} />
       ) : (
@@ -177,7 +177,7 @@ function InvoicesBlock() {
 
   return (
     <section className="flex flex-col gap-3">
-      <SectionLabel>Owner UBP invoices ({MONTH})</SectionLabel>
+      <SectionLabel>Metronome UBP: owner invoices ({MONTH})</SectionLabel>
       {invoices.length === 0 ? (
         <EmptyState hint={`GET /str/act2/invoices/${MONTH}`} />
       ) : (

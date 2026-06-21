@@ -394,3 +394,37 @@ export interface StrAuditResponse {
   entries: StrAuditEntry[];
   verify: AuditVerify;
 }
+
+// Integrations / sponsor stack graph
+
+export type IntegrationStatusKind =
+  | "REAL"
+  | "LIVE-CAPABLE"
+  | "LIVE-OK"
+  | "LIVE-FAIL"
+  | "DEMO"
+  | "NOT-CONFIGURED";
+
+/** One node in the sponsor stack graph: the agent core or a sponsor pillar. */
+export interface IntegrationNode {
+  id: string;
+  label: string;
+  vendor?: string;
+  kind: string; // core | reasoning | orchestration | payments | governance
+  status: IntegrationStatusKind;
+  detail: string;
+  source?: string;
+  skills?: string[];
+}
+
+export interface IntegrationStatusResponse {
+  agent: IntegrationNode;
+  pillars: IntegrationNode[];
+}
+
+export interface IntegrationVerify {
+  id: string;
+  status: IntegrationStatusKind;
+  detail: string;
+  latency_ms: number;
+}

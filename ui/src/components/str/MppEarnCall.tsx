@@ -58,7 +58,7 @@ export function MppEarnCall() {
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <SectionLabel>MPP earn loop (402 then 200)</SectionLabel>
+        <SectionLabel>Stripe MPP: agent-to-agent earn loop (402 then 200)</SectionLabel>
         <Button
           variant="outline"
           disabled={busy}

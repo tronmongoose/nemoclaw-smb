@@ -117,8 +117,23 @@ body::before {
   animation: heartbeat 2.4s ease-in-out infinite;
 }
 
+/* A one-shot amber flash as a new audit entry lands. */
+@keyframes flash {
+  0% {
+    background-color: hsl(var(--primary) / 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.animate-flash {
+  animation: flash 1.6s ease-out 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-heartbeat {
+  .animate-heartbeat,
+  .animate-flash {
     animation: none;
   }
 }

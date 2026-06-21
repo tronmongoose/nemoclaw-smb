@@ -12,6 +12,7 @@ import { LiveProvider } from "./LiveContext";
 import { LiveToggle } from "./LiveToggle";
 import { StrNav, StrTab } from "./StrNav";
 import { StrStory } from "./StrStory";
+import { StackGraph } from "./StackGraph";
 import { Act1View } from "./Act1View";
 import { Act2View } from "./Act2View";
 import { Act3View } from "./Act3View";
@@ -20,8 +21,8 @@ import { AuditPanel } from "./AuditPanel";
 type Mode = "story" | "explore";
 
 export function StrView({ onLegacy }: { onLegacy?: () => void }) {
-  const [mode, setMode] = useState<Mode>("story");
-  const [tab, setTab] = useState<StrTab>("owner");
+  const [mode, setMode] = useState<Mode>("explore");
+  const [tab, setTab] = useState<StrTab>("stack");
 
   return (
     <LiveProvider>
@@ -47,9 +48,10 @@ export function StrView({ onLegacy }: { onLegacy?: () => void }) {
           {mode === "story" ? (
             <StrStory />
           ) : (
-            <div className="mx-auto flex max-w-4xl flex-col gap-8">
+            <div className="mx-auto flex max-w-5xl flex-col gap-8">
               <StrNav tab={tab} onChange={setTab} />
               <ErrorBoundary label={tab}>
+                {tab === "stack" && <StackGraph />}
                 {tab === "owner" && <Act1View />}
                 {tab === "management" && <Act2View />}
                 {tab === "platform" && <Act3View />}

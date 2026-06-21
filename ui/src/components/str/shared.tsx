@@ -11,12 +11,43 @@
  *   Plate               the rare boxed element (use sparingly, <=3 per view)
  */
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { formatUSD } from "../../lib/format";
 import { cn } from "../../lib/utils";
 
 export function centsToUSD(cents: number): string {
   return formatUSD(cents / 100);
+}
+
+/** Live-call indicator: an elapsed-seconds counter so a slow real model call
+ *  reads as work in flight, not a hang. Renders nothing when not running. */
+export function ElapsedCounter({
+  running,
+  label = "Calling Nemotron Ultra",
+}: {
+  running: boolean;
+  label?: string;
+}) {
+  const [secs, setSecs] = useState(0);
+  const ref = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    if (running) {
+      setSecs(0);
+      ref.current = setInterval(() => setSecs((s) => s + 1), 1000);
+    } else if (ref.current) {
+      clearInterval(ref.current);
+    }
+    return () => {
+      if (ref.current) clearInterval(ref.current);
+    };
+  }, [running]);
+  if (!running) return null;
+  return (
+    <span className="inline-flex items-center gap-1.5 font-mono text-xs text-primary">
+      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-heartbeat" />
+      {label} ({secs}s)
+    </span>
+  );
 }
 
 export function EmptyState({ hint }: { hint?: string }) {

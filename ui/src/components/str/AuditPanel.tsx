@@ -1,5 +1,6 @@
-/** Audit: hash-chain proof. Polls /str/audit every 5s. Richer chain table with ts, actor, decision, hash linkage tooltip. */
+/** Audit: hash-chain proof. Polls /str/audit; new entries flash in as they land. */
 
+import { useEffect, useRef } from "react";
 import { usePoll } from "../../hooks/usePoll";
 import { StrAuditEntry, StrAuditResponse } from "../../types";
 import { useLive, liveParam } from "./LiveContext";
@@ -48,7 +49,7 @@ function HashChain({ prev, entry }: { prev: string | undefined; entry: string | 
   );
 }
 
-function AuditRow({ entry }: { entry: StrAuditEntry }) {
+function AuditRow({ entry, isNew }: { entry: StrAuditEntry; isNew: boolean }) {
   const label =
     entry.event === "mpp_earn"
       ? `earn / ${entry.service ?? ""}`
@@ -58,7 +59,7 @@ function AuditRow({ entry }: { entry: StrAuditEntry }) {
   const decision = typeof entry.decision === "string" ? entry.decision : "";
 
   return (
-    <TableRow className="border-b border-border/50">
+    <TableRow className={cn("border-b border-border/50", isNew && "animate-flash")}>
       <TableCell className="w-10 font-mono text-xs text-muted-foreground/60 pr-1">
         {entry.seq ?? ""}
       </TableCell>
@@ -81,9 +82,19 @@ function AuditRow({ entry }: { entry: StrAuditEntry }) {
 export function AuditPanel() {
   const { live } = useLive();
   const url = `/str/audit?limit=50${liveParam(live).replace("?", "&")}`;
-  const { data } = usePoll<StrAuditResponse>(url, 5_000);
+  const { data } = usePoll<StrAuditResponse>(url, 2_000);
 
   const entries = data?.entries ?? [];
+  const prevMaxSeq = useRef(-1);
+  const firstLoad = useRef(true);
+  const maxSeq = entries.reduce((m, e) => Math.max(m, e.seq ?? -1), -1);
+  const threshold = firstLoad.current ? Infinity : prevMaxSeq.current;
+  useEffect(() => {
+    if (entries.length > 0) {
+      firstLoad.current = false;
+      prevMaxSeq.current = maxSeq;
+    }
+  }, [maxSeq, entries.length]);
   const verifyOk = data?.verify?.ok ?? null;
   const verifyMsg = data?.verify?.message;
 
@@ -150,7 +161,11 @@ export function AuditPanel() {
             </TableHeader>
             <TableBody>
               {entries.map((e, i) => (
-                <AuditRow key={`${e.entry_hash ?? i}`} entry={e} />
+                <AuditRow
+                  key={`${e.entry_hash ?? i}`}
+                  entry={e}
+                  isNew={(e.seq ?? -1) > threshold}
+                />
               ))}
             </TableBody>
           </Table>

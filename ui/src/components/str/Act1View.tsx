@@ -8,6 +8,7 @@ import { useLive, liveParam } from "./LiveContext";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 import {
   centsToUSD,
+  ElapsedCounter,
   EmptyState,
   Rule,
   SectionLabel,
@@ -38,6 +39,11 @@ export function Act1View() {
   if (loading) {
     return (
       <div className="flex flex-col gap-6 p-2">
+        {live && (
+          <div className="flex items-center gap-3 rounded-[var(--radius)] border border-primary bg-[hsl(var(--primary)/0.06)] px-4 py-3">
+            <ElapsedCounter running label="Reconciling live, calling Nemotron Ultra" />
+          </div>
+        )}
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-24 w-full" />

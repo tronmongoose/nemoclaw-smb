@@ -1,12 +1,13 @@
 /** Act III (Platform): AEO as centerpiece, MPP earn loop, pricing, metrics. */
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useFetch } from "../../hooks/useFetch";
 import { apiPost } from "../../lib/api";
 import { StrAeoResponse, StrMetrics, StrPriceResponse } from "../../types";
 import { liveParam, useLive } from "./LiveContext";
 import {
   centsToUSD,
+  ElapsedCounter,
   EmptyState,
   KV,
   Plate,
@@ -31,28 +32,6 @@ const PRICE_BODY = {
   season: "peak",
   day_of_week: "sat",
 };
-
-function ElapsedCounter({ running }: { running: boolean }) {
-  const [secs, setSecs] = useState(0);
-  const ref = useRef<ReturnType<typeof setInterval> | null>(null);
-  useEffect(() => {
-    if (running) {
-      setSecs(0);
-      ref.current = setInterval(() => setSecs((s) => s + 1), 1000);
-    } else {
-      if (ref.current) clearInterval(ref.current);
-    }
-    return () => {
-      if (ref.current) clearInterval(ref.current);
-    };
-  }, [running]);
-  if (!running) return null;
-  return (
-    <span className="font-mono text-xs text-muted-foreground">
-      Calling Nemotron Ultra ({secs}s)
-    </span>
-  );
-}
 
 export function Act3View() {
   return (

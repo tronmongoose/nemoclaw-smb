@@ -1,4 +1,4 @@
-/** Render-smoke for the STR shell: chrome renders, Explore reveals the act tabs. */
+/** Render-smoke for the STR shell: opens on Explore, Story is secondary. */
 
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -10,19 +10,20 @@ vi.mock("../../lib/api", () => ({
   apiPost: vi.fn().mockResolvedValue(null),
 }));
 vi.mock("./strApi", () => ({ postAeoAudit: vi.fn().mockResolvedValue(null) }));
+vi.mock("react-force-graph-2d", () => ({ default: () => null }));
 
 describe("StrView", () => {
-  it("renders the editorial chrome and the story by default", async () => {
+  it("opens on the explorer with the act tabs by default", async () => {
     const { findByText } = render(<StrView />);
     expect(await findByText("Short-term rental operations, governed.")).toBeInTheDocument();
-    expect(await findByText("Sweet Clementine by the Sea")).toBeInTheDocument();
+    expect(await findByText("Owner")).toBeInTheDocument();
+    expect(await findByText("Stack")).toBeInTheDocument();
   });
 
-  it("switches to the explorer and shows the act tabs", async () => {
+  it("reveals the story when Story is selected", async () => {
     const { findByText, getByText } = render(<StrView />);
-    await userEvent.click(getByText("Explore"));
-    expect(await findByText("Owner")).toBeInTheDocument();
-    expect(await findByText("Platform")).toBeInTheDocument();
+    await userEvent.click(getByText("Story"));
+    expect(await findByText("Sweet Clementine by the Sea")).toBeInTheDocument();
   });
 
   it("shows the legacy link when onLegacy is provided", async () => {
