@@ -428,3 +428,28 @@ export interface IntegrationVerify {
   detail: string;
   latency_ms: number;
 }
+
+// Sponsor interactions feed (live + historical) -- GET /str/interactions
+
+export type StrSegment = "owner" | "firm" | "agent";
+
+/** One logged sponsor interaction (a model call or a Stripe/payment op). */
+export interface StrInteraction {
+  ts?: string;
+  seq?: number;
+  sponsor: string; // "Nous Research" | "NVIDIA" | "Stripe" | "ConductorOne"
+  op: string;
+  segment?: string;
+  status?: string; // "ok" | "cached" | "fallback" | "fail"
+  model?: string | null;
+  latency_ms?: number | null;
+  mode?: string | null; // "live" | "demo"
+  metadata?: Record<string, unknown>;
+  entry_hash?: string;
+}
+
+export interface StrInteractionsResponse {
+  count: number;
+  entries: StrInteraction[];
+  verify: AuditVerify;
+}

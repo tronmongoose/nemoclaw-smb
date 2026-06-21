@@ -11,14 +11,14 @@ import { ApprovalQueue } from "./components/ApprovalQueue";
 import { SavingsPanel } from "./components/SavingsPanel";
 import { TenantDashboard } from "./components/tenant/TenantDashboard";
 import { OpsHeadlineBand } from "./components/OpsHeadlineBand";
-import { StrView } from "./components/str/StrView";
+import { SegmentView } from "./components/str/SegmentView";
 import { usePoll } from "./hooks/usePoll";
 import { AuditResponse } from "./types";
 import { cn } from "./lib/utils";
 
 export function App() {
   const [legacy, setLegacy] = useState(false);
-  if (!legacy) return <StrView onLegacy={() => setLegacy(true)} />;
+  if (!legacy) return <SegmentView onLegacy={() => setLegacy(true)} />;
   return <LegacyApp onHome={() => setLegacy(false)} />;
 }
 
