@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { liveParam, useLive } from "./LiveContext";
 import { SectionLabel } from "./shared";
+import { Button } from "@/components/ui/button";
 
 const BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://localhost:8000";
 
@@ -56,17 +57,18 @@ export function MppEarnCall() {
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <SectionLabel>MPP earn loop (402 then 200)</SectionLabel>
-        <button
+        <Button
+          variant="outline"
           disabled={busy}
           onClick={() => void run()}
-          className="px-4 py-1.5 rounded bg-cyan-900 hover:bg-cyan-800 text-cyan-200 border border-cyan-700 font-mono text-xs disabled:opacity-40"
+          className="font-mono text-xs"
         >
           {busy ? "Calling..." : "Run earn call"}
-        </button>
+        </Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <CallCard title="No token" result={unpaid} expect={402} />
         <CallCard title="mpp_tok_demo" result={paid} expect={200} />
       </div>
@@ -77,25 +79,29 @@ export function MppEarnCall() {
 function CallCard({ title, result, expect }: { title: string; result: CallResult | null; expect: number }) {
   const match = result?.status === expect;
   return (
-    <div className="border border-slate-800 rounded p-4 flex flex-col gap-2">
-      <span className="text-slate-400">{title}</span>
+    <div className="rounded-[var(--radius)] border border-border bg-card/60 p-4 flex flex-col gap-2 font-mono text-xs">
+      <span className="text-muted-foreground">{title}</span>
       {!result ? (
-        <span className="text-slate-600">not yet called</span>
+        <span className="text-muted-foreground/50">not yet called</span>
       ) : (
         <>
           <span
             className={[
-              "self-start px-2 py-1 rounded border",
+              "self-start rounded-[var(--radius)] border px-2 py-1",
               match
                 ? expect === 402
-                  ? "border-amber-600 bg-amber-950 text-amber-300"
-                  : "border-emerald-700 bg-emerald-950 text-emerald-400"
-                : "border-red-700 bg-red-950 text-red-400",
+                  ? "border-primary bg-[hsl(var(--primary)/0.1)] text-primary"
+                  : "border-verified bg-[hsl(var(--verified)/0.08)] text-verified"
+                : "border-destructive bg-[hsl(var(--destructive)/0.08)] text-destructive",
             ].join(" ")}
           >
             HTTP {result.status}
           </span>
-          {result.wwwAuth && <span className="text-slate-500 break-all">{result.wwwAuth}</span>}
+          {result.wwwAuth && (
+            <span className="text-muted-foreground/70 break-all leading-relaxed">
+              {result.wwwAuth}
+            </span>
+          )}
         </>
       )}
     </div>

@@ -1,6 +1,7 @@
 /** Render-smoke tests for Act1View (Owner fee reconciliation).
  * Asserts: realistic report renders the $84 catch, the NHI governance, and the
  * signed payment; empty/offline falls soft; no raw object rendered as a child.
+ * New: nhi_id present, full Ed25519 audit_hash rendered in mono.
  */
 
 import { render } from "@testing-library/react";
@@ -76,21 +77,25 @@ describe("Act1View", () => {
     mockApiFetch.mockResolvedValue(REPORT);
     const { findByText, findAllByText } = renderAct1();
     expect(await findByText("Overcharge caught")).toBeInTheDocument();
-    // $84 appears in the anomaly amount (formatUSD, 0 fraction digits)
+    // $84 appears as the hero Stat and in the ledger table
     expect((await findAllByText("$84")).length).toBeGreaterThan(0);
   });
 
-  it("shows the ConductorOne/Baton NHI and decision source", async () => {
+  it("shows the ConductorOne NHI id and decision source", async () => {
     mockApiFetch.mockResolvedValue(REPORT);
     const { findByText } = renderAct1();
     expect(await findByText("nhi-str-owner-agent-1781999009")).toBeInTheDocument();
     expect(await findByText("baton-carryall")).toBeInTheDocument();
   });
 
-  it("shows the signed payment and audit chain status", async () => {
+  it("shows the signed payment, full audit hash, and audit chain status", async () => {
     mockApiFetch.mockResolvedValue(REPORT);
     const { findByText } = renderAct1();
     expect(await findByText("pi_test_2147a457a92dbe27")).toBeInTheDocument();
+    // Full Ed25519 receipt hash - no truncation
+    expect(
+      await findByText("49bdd14131390566feeefd5b217f4cd313829018e85faed88cabde78e9016074"),
+    ).toBeInTheDocument();
     expect(await findByText("CHAIN OK")).toBeInTheDocument();
   });
 

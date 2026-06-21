@@ -1,6 +1,7 @@
 /** The badge that proves a reasoning result is real.
  *
- * LIVE  => amber, shows the model id + measured latency (e.g. "LIVE nemotron 41s").
+ * LIVE  => amber, with the heartbeat dot, shows model id + measured latency
+ *          (e.g. "LIVE nemotron 41s").
  * DEMO  => muted, shows "DEMO cached".
  *
  * Reads the ReasoningProvenance attached to every model-backed STR result, so
@@ -27,7 +28,7 @@ function formatLatency(ms: number): string {
 export function ProvenanceBadge({ prov }: { prov?: ReasoningProvenance | null }) {
   if (!prov) {
     return (
-      <span className="font-mono text-xs px-2 py-1 rounded border border-slate-800 text-slate-600">
+      <span className="rounded-[var(--radius)] border border-border px-2 py-1 font-mono text-xs text-muted-foreground">
         no reasoning
       </span>
     );
@@ -37,14 +38,15 @@ export function ProvenanceBadge({ prov }: { prov?: ReasoningProvenance | null })
 
   if (prov.mode === "live") {
     return (
-      <span className="font-mono text-xs px-2 py-1 rounded border border-amber-600 bg-amber-950 text-amber-300">
+      <span className="inline-flex items-center gap-1.5 rounded-[var(--radius)] border border-primary bg-[hsl(var(--primary)/0.12)] px-2 py-1 font-mono text-xs text-primary">
+        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-heartbeat" />
         LIVE {model} {formatLatency(prov.latency_ms)}
       </span>
     );
   }
 
   return (
-    <span className="font-mono text-xs px-2 py-1 rounded border border-slate-700 bg-slate-900 text-slate-500">
+    <span className="rounded-[var(--radius)] border border-border px-2 py-1 font-mono text-xs text-muted-foreground">
       DEMO {model.replace("[demo-cached]", "")} cached
     </span>
   );

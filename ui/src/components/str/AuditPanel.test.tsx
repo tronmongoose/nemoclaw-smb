@@ -1,6 +1,7 @@
 /** Render-smoke tests for AuditPanel.
  * Asserts: realistic chain renders entries + a green verify badge; a broken
  * chain renders the red fault badge; empty/offline falls soft.
+ * Also asserts newly surfaced columns: ts (Time) and actor.
  */
 
 import { render } from "@testing-library/react";
@@ -20,8 +21,30 @@ const mockApiFetch = vi.mocked(apiFetch);
 const CHAIN: StrAuditResponse = {
   count: 2,
   entries: [
-    { ts: "2026-06-20T23:44:49Z", seq: 0, event: "mpp_earn", service: "price", amount_cents: 25, token_id: "mpp_tok_demo", prev_hash: "0000", entry_hash: "cc89eb8cd5f7d59d" },
-    { ts: "2026-06-20T23:44:50Z", seq: 1, event: "mpp_earn", service: "aeo-audit", amount_cents: 100, token_id: "mpp_tok_demo", prev_hash: "cc89", entry_hash: "2dd8c640f860f8dd" },
+    {
+      ts: "2026-06-20T23:44:49Z",
+      seq: 0,
+      event: "mpp_earn",
+      service: "price",
+      amount_cents: 25,
+      token_id: "mpp_tok_demo",
+      actor: "operator_alpha",
+      decision: "approved",
+      prev_hash: "0000",
+      entry_hash: "cc89eb8cd5f7d59d",
+    },
+    {
+      ts: "2026-06-20T23:44:50Z",
+      seq: 1,
+      event: "mpp_earn",
+      service: "aeo-audit",
+      amount_cents: 100,
+      token_id: "mpp_tok_demo",
+      actor: "operator_alpha",
+      decision: "approved",
+      prev_hash: "cc89",
+      entry_hash: "2dd8c640f860f8dd",
+    },
   ],
   verify: { ok: true, message: "chain ok (7 entries)" },
 };
@@ -61,5 +84,32 @@ describe("AuditPanel", () => {
     mockApiFetch.mockResolvedValue(null);
     const { findByText } = renderPanel();
     expect(await findByText("No data")).toBeInTheDocument();
+  });
+
+  it("surfaces the ts column (Time header)", async () => {
+    mockApiFetch.mockResolvedValue(CHAIN);
+    const { findByText } = renderPanel();
+    await findByText("CHAIN VERIFIED");
+    expect(await findByText("Time")).toBeInTheDocument();
+  });
+
+  it("surfaces actor values in the table", async () => {
+    mockApiFetch.mockResolvedValue(CHAIN);
+    const { findAllByText } = renderPanel();
+    const cells = await findAllByText("operator_alpha");
+    expect(cells.length).toBeGreaterThan(0);
+  });
+
+  it("surfaces decision values in the table", async () => {
+    mockApiFetch.mockResolvedValue(CHAIN);
+    const { findAllByText } = renderPanel();
+    const cells = await findAllByText("approved");
+    expect(cells.length).toBeGreaterThan(0);
+  });
+
+  it("renders the dek line", async () => {
+    mockApiFetch.mockResolvedValue(CHAIN);
+    const { findByText } = renderPanel();
+    expect(await findByText(/Tamper-evident/)).toBeInTheDocument();
   });
 });

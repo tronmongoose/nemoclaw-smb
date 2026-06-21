@@ -1,27 +1,26 @@
-/** Act III (Platform): the STR platform earn server.
- *
- *   - the MPP 402-then-200 earn loop (see MppEarnCall)
- *   - the AEO audit: computed score breakdown, the dog-only CRITICAL flag,
- *     the optimized opening, and the proposed JSON-LD
- *   - the dynamic pricing recommendation
- *   - platform earn metrics
- *
- * Score, breakdown, optimized opening, and pricing come live off the API. The
- * critical-flag set and JSON-LD are the documented Clementine remediation
- * artifacts (not on the serialized AEO response) and are clearly labeled.
- * Fails soft to empty states when the API is unreachable.
- */
+/** Act III (Platform): AEO as centerpiece, MPP earn loop, pricing, metrics. */
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFetch } from "../../hooks/useFetch";
 import { apiPost } from "../../lib/api";
 import { StrAeoResponse, StrMetrics, StrPriceResponse } from "../../types";
 import { liveParam, useLive } from "./LiveContext";
-import { centsToUSD, EmptyState, KV, SectionLabel } from "./shared";
+import {
+  centsToUSD,
+  EmptyState,
+  KV,
+  Plate,
+  Rule,
+  SectionLabel,
+  Stat,
+  StatusPill,
+} from "./shared";
 import { MppEarnCall } from "./MppEarnCall";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 import { postAeoAudit } from "./strApi";
 import { CLEMENTINE_JSON_LD, DOG_ONLY_CRITICAL } from "./aeoCanonical";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PRICE_BODY = {
   property_id: "prop-001",
@@ -33,12 +32,49 @@ const PRICE_BODY = {
   day_of_week: "sat",
 };
 
+function ElapsedCounter({ running }: { running: boolean }) {
+  const [secs, setSecs] = useState(0);
+  const ref = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    if (running) {
+      setSecs(0);
+      ref.current = setInterval(() => setSecs((s) => s + 1), 1000);
+    } else {
+      if (ref.current) clearInterval(ref.current);
+    }
+    return () => {
+      if (ref.current) clearInterval(ref.current);
+    };
+  }, [running]);
+  if (!running) return null;
+  return (
+    <span className="font-mono text-xs text-muted-foreground">
+      Calling Nemotron Ultra ({secs}s)
+    </span>
+  );
+}
+
 export function Act3View() {
   return (
-    <div className="flex flex-col gap-6">
-      <MppEarnCall />
+    <div className="flex flex-col gap-8">
+      <div>
+        <h2 className="font-serif text-2xl font-semibold text-foreground mb-1">
+          Act III - The Platform
+        </h2>
+        <p className="font-mono text-xs text-muted-foreground max-w-prose leading-relaxed">
+          Agent Engine Optimization (AEO): AI booking agents parse listings
+          before humans do. AEO ensures every structured field, pet policy, and
+          description is machine-readable and conflict-free so agents recommend
+          and book your property correctly.
+        </p>
+      </div>
+
       <AeoBlock />
+      <Rule />
+      <MppEarnCall />
+      <Rule />
       <PricingBlock />
+      <Rule />
       <MetricsBlock />
     </div>
   );
@@ -60,61 +96,88 @@ function AeoBlock() {
   const d = r?.dimension_scores;
 
   return (
-    <section>
-      <div className="flex items-center justify-between mb-3">
+    <section className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
         <SectionLabel>AEO audit: Sweet Clementine</SectionLabel>
-        <button
-          disabled={busy}
-          onClick={() => void run()}
-          className="px-4 py-1.5 rounded bg-cyan-900 hover:bg-cyan-800 text-cyan-200 border border-cyan-700 font-mono text-xs disabled:opacity-40"
-        >
-          {busy ? "Auditing..." : "Run AEO audit ($1.00)"}
-        </button>
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          <Button
+            disabled={busy}
+            onClick={() => void run()}
+            className="font-mono text-xs"
+          >
+            {busy ? "Auditing..." : "Run AEO audit ($1.00)"}
+          </Button>
+          <ElapsedCounter running={busy} />
+        </div>
       </div>
 
       {!r || !d ? (
-        <EmptyState hint="POST /str/act3/aeo-audit (Bearer mpp_tok_demo)" />
+        busy ? (
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+        ) : (
+          <EmptyState hint="POST /str/act3/aeo-audit (Bearer mpp_tok_demo)" />
+        )
       ) : (
-        <div className="flex flex-col gap-3">
-          <div className="border border-slate-800 rounded p-4">
-            <div className="flex items-baseline justify-between mb-3">
-              <span className="font-mono text-xs text-slate-500 uppercase tracking-widest">Score</span>
-              <span className="font-mono text-2xl font-bold text-amber-300">{r.overall_score}/100</span>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            <Stat
+              label="overall score"
+              value={`${r.overall_score}/100`}
+            />
+            <div className="grid grid-cols-2 gap-x-6">
+              <KV label="structure completeness" value={`${d.structure_completeness}/25`} />
+              <KV label="agent parseability" value={`${d.agent_parseability}/25`} />
+              <KV label="description quality" value={`${d.description_quality}/25`} />
+              <KV label="conflict-free" value={`${d.conflict_free}/25`} />
             </div>
-            <KV label="structure completeness" value={`${d.structure_completeness}/25`} />
-            <KV label="agent parseability" value={`${d.agent_parseability}/25`} />
-            <KV label="description quality" value={`${d.description_quality}/25`} />
-            <KV label="conflict-free" value={`${d.conflict_free}/25`} />
           </div>
 
-          <div className="border border-slate-800 rounded p-4">
+          {data?.c1_authorized && (
+            <div className="flex items-center gap-3">
+              <StatusPill ok label={`agent earned ${centsToUSD(data.amount_cents)}, C1 authorized`} />
+            </div>
+          )}
+
+          <Plate className="border-destructive bg-[hsl(var(--destructive)/0.06)]">
+            <div className="flex flex-col gap-2 font-mono text-xs">
+              <span className="self-start border border-destructive text-destructive rounded-[var(--radius)] px-2 py-1">
+                {DOG_ONLY_CRITICAL.severity} {DOG_ONLY_CRITICAL.code}
+              </span>
+              <p className="text-foreground leading-relaxed">{DOG_ONLY_CRITICAL.message}</p>
+              <p className="text-muted-foreground leading-relaxed">{DOG_ONLY_CRITICAL.plain_english}</p>
+            </div>
+          </Plate>
+
+          <div>
+            <SectionLabel>Optimized opening</SectionLabel>
+            <Plate>
+              <p className="font-mono text-xs text-foreground leading-relaxed">
+                {r.optimized_opening}
+              </p>
+            </Plate>
+          </div>
+
+          <div>
+            <SectionLabel>Proposed JSON-LD</SectionLabel>
+            <Plate>
+              <pre className="font-mono text-xs text-muted-foreground overflow-auto leading-relaxed max-h-64">
+                {JSON.stringify(CLEMENTINE_JSON_LD, null, 2)}
+              </pre>
+            </Plate>
+          </div>
+
+          <div>
             <div className="flex items-center justify-between mb-2">
               <SectionLabel>Reasoning</SectionLabel>
               <ProvenanceBadge prov={r.reasoning_provenance} />
             </div>
-            <p className="font-mono text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
+            <p className="font-mono text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {r.reasoning_trace}
             </p>
-          </div>
-
-          <div className="border border-red-900 bg-red-950/20 rounded p-4 font-mono text-xs flex flex-col gap-2">
-            <span className="self-start px-2 py-1 rounded border border-red-700 bg-red-950 text-red-400">
-              {DOG_ONLY_CRITICAL.severity} {DOG_ONLY_CRITICAL.code}
-            </span>
-            <p className="text-slate-300 leading-relaxed">{DOG_ONLY_CRITICAL.message}</p>
-            <p className="text-slate-500 leading-relaxed">{DOG_ONLY_CRITICAL.plain_english}</p>
-          </div>
-
-          <div className="border border-slate-800 rounded p-4">
-            <SectionLabel>Optimized opening</SectionLabel>
-            <p className="font-mono text-xs text-slate-300 leading-relaxed">{r.optimized_opening}</p>
-          </div>
-
-          <div className="border border-slate-800 rounded p-4 overflow-hidden">
-            <SectionLabel>Proposed JSON-LD</SectionLabel>
-            <pre className="font-mono text-xs text-slate-400 overflow-auto leading-relaxed">
-              {JSON.stringify(CLEMENTINE_JSON_LD, null, 2)}
-            </pre>
           </div>
         </div>
       )}
@@ -137,33 +200,46 @@ function PricingBlock() {
   const rec = data?.recommendation;
 
   return (
-    <section>
-      <div className="flex items-center justify-between mb-3">
+    <section className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
         <SectionLabel>Dynamic pricing</SectionLabel>
-        <button
-          disabled={busy}
-          onClick={() => void run()}
-          className="px-4 py-1.5 rounded bg-cyan-900 hover:bg-cyan-800 text-cyan-200 border border-cyan-700 font-mono text-xs disabled:opacity-40"
-        >
-          {busy ? "Pricing..." : "Run pricing ($0.25)"}
-        </button>
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          <Button
+            variant="outline"
+            disabled={busy}
+            onClick={() => void run()}
+            className="font-mono text-xs"
+          >
+            {busy ? "Pricing..." : "Run pricing ($0.25)"}
+          </Button>
+          <ElapsedCounter running={busy} />
+        </div>
       </div>
+
       {!rec ? (
-        <EmptyState hint="POST /str/act3/price" />
+        busy ? (
+          <Skeleton className="h-28 w-full" />
+        ) : (
+          <EmptyState hint="POST /str/act3/price" />
+        )
       ) : (
-        <div className="border border-slate-800 rounded p-4">
-          <div className="flex items-baseline justify-between mb-3">
-            <span className="font-mono text-xs text-slate-500 uppercase tracking-widest">Recommended rate</span>
-            <span className="font-mono text-2xl font-bold text-amber-300">${rec.recommended_rate.toFixed(0)}</span>
-          </div>
-          <KV label="confidence" value={rec.confidence} />
-          <KV label="valid for" value={`${rec.valid_for_hours}h`} />
-          <div className="mt-3 pt-3 border-t border-slate-800">
+        <div className="flex flex-col gap-3">
+          <Stat
+            label="recommended rate"
+            value={`$${rec.recommended_rate.toFixed(0)}`}
+            sub={`confidence: ${rec.confidence} | valid ${rec.valid_for_hours}h`}
+          />
+
+          {data?.c1_authorized && (
+            <StatusPill ok label={`agent earned ${centsToUSD(data.amount_cents)}, C1 authorized`} />
+          )}
+
+          <div>
             <div className="flex items-center justify-between mb-2">
               <SectionLabel>Reasoning</SectionLabel>
               <ProvenanceBadge prov={rec.reasoning_provenance} />
             </div>
-            <p className="font-mono text-xs text-slate-400 leading-relaxed whitespace-pre-wrap">
+            <p className="font-mono text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {rec.reasoning}
             </p>
           </div>
@@ -177,23 +253,18 @@ function MetricsBlock() {
   const { live } = useLive();
   const { data } = useFetch<StrMetrics>(`/str/act3/metrics${liveParam(live)}`);
 
-  if (!data) {
-    return (
-      <section>
-        <SectionLabel>Earn metrics</SectionLabel>
-        <EmptyState hint="GET /str/act3/metrics" />
-      </section>
-    );
-  }
-
   return (
     <section>
       <SectionLabel>Earn metrics</SectionLabel>
-      <div className="border border-slate-800 rounded p-4">
-        <KV label="calls served" value={data.calls_served} />
-        <KV label="revenue earned" value={centsToUSD(data.revenue_earned_cents)} accent />
-        <KV label="properties optimized" value={data.properties_optimized} />
-      </div>
+      {!data ? (
+        <EmptyState hint="GET /str/act3/metrics" />
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <KV label="calls served" value={data.calls_served} />
+          <KV label="revenue earned" value={centsToUSD(data.revenue_earned_cents)} accent />
+          <KV label="properties optimized" value={data.properties_optimized} />
+        </div>
+      )}
     </section>
   );
 }

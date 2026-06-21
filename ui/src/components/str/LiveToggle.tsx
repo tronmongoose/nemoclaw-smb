@@ -1,34 +1,34 @@
-/** The global DEMO/LIVE switch. Amber when LIVE (the one warm-blooded element). */
+/** The global DEMO/LIVE switch. Amber + heartbeat when LIVE (the one warm element). */
 
 import { useLive } from "./LiveContext";
+import { cn } from "../../lib/utils";
 
 export function LiveToggle() {
   const { live, setLive } = useLive();
 
   return (
-    <div className="flex items-center gap-2 font-mono text-xs">
+    <div className="inline-flex items-center rounded-[var(--radius)] border border-border bg-card/60 p-0.5 font-mono text-xs">
       <button
         onClick={() => setLive(false)}
         aria-pressed={!live}
-        className={[
-          "px-3 py-1 rounded border transition-colors",
-          !live
-            ? "bg-slate-800 border-slate-600 text-slate-200"
-            : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300",
-        ].join(" ")}
+        className={cn(
+          "rounded-[var(--radius)] px-3 py-1 transition-colors",
+          !live ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+        )}
       >
         DEMO
       </button>
       <button
         onClick={() => setLive(true)}
         aria-pressed={live}
-        className={[
-          "px-3 py-1 rounded border transition-colors",
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-[var(--radius)] px-3 py-1 transition-colors",
           live
-            ? "bg-amber-950 border-amber-600 text-amber-300"
-            : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300",
-        ].join(" ")}
+            ? "bg-[hsl(var(--primary)/0.15)] text-primary"
+            : "text-muted-foreground hover:text-foreground",
+        )}
       >
+        {live && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-heartbeat" />}
         LIVE
       </button>
     </div>
