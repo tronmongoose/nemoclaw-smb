@@ -129,6 +129,84 @@ class TestDetectFeeAnomaly:
             assert result.is_anomaly is False, f"{pid} should not be anomalous"
             assert result.overcharge_cents == 0, f"{pid} overcharge must be zero"
 
+    def test_detect_accepts_live_param_default_demo(self):
+        """detect_fee_anomaly accepts a live param; default keeps demo provenance."""
+        from acts.str_owner_agent import detect_fee_anomaly, ingest_ledger
+        s = ingest_ledger("prop-001", "2026-06")
+        result = detect_fee_anomaly(s, s.contract_pct)  # live defaults False
+        assert result.reasoning_provenance["mode"] == "demo"
+        assert result.reasoning_provenance["source"] == "cached"
+
+
+# ---------------------------------------------------------------------------
+# Live vs demo reasoning toggle (provenance + real-call gating)
+# ---------------------------------------------------------------------------
+
+class TestLiveReasoningToggle:
+    """call_nemotron is invoked only when live=True AND a key is present."""
+
+    def test_live_true_calls_nemotron(self, monkeypatch):
+        """live=True with a key present must call call_nemotron; source=nemotron."""
+        import acts.str_owner_agent as m
+        from acts.str_owner_agent import detect_fee_anomaly, ingest_ledger
+        called = {"n": 0}
+
+        def fake_call(prompt, **kwargs):
+            called["n"] += 1
+            return "live nemotron anomaly verdict"
+
+        monkeypatch.setattr(m, "nemotron_available", lambda: True)
+        monkeypatch.setattr(m, "call_nemotron", fake_call)
+
+        s = ingest_ledger("prop-001", "2026-06")
+        result = detect_fee_anomaly(s, s.contract_pct, live=True)
+
+        assert called["n"] == 1, "call_nemotron must be invoked when live=True"
+        assert result.reasoning_provenance["mode"] == "live"
+        assert result.reasoning_provenance["source"] == "nemotron"
+        assert result.reasoning_provenance["latency_ms"] >= 0.0
+        assert result.reasoning_trace == "live nemotron anomaly verdict"
+
+    def test_live_false_does_not_call_nemotron(self, monkeypatch):
+        """live=False must NOT call call_nemotron even when a key is present."""
+        import acts.str_owner_agent as m
+        from acts.str_owner_agent import detect_fee_anomaly, ingest_ledger
+        called = {"n": 0}
+
+        def fake_call(prompt, **kwargs):
+            called["n"] += 1
+            return "should not appear"
+
+        monkeypatch.setattr(m, "nemotron_available", lambda: True)
+        monkeypatch.setattr(m, "call_nemotron", fake_call)
+
+        s = ingest_ledger("prop-001", "2026-06")
+        result = detect_fee_anomaly(s, s.contract_pct, live=False)
+
+        assert called["n"] == 0, "call_nemotron must NOT be invoked when live=False"
+        assert result.reasoning_provenance["mode"] == "demo"
+        assert result.reasoning_provenance["source"] == "cached"
+
+    def test_live_true_no_key_falls_back_to_demo(self, monkeypatch):
+        """live=True with NO key must skip the call and keep demo provenance."""
+        import acts.str_owner_agent as m
+        from acts.str_owner_agent import detect_fee_anomaly, ingest_ledger
+        called = {"n": 0}
+
+        def fake_call(prompt, **kwargs):
+            called["n"] += 1
+            return "should not appear"
+
+        monkeypatch.setattr(m, "nemotron_available", lambda: False)
+        monkeypatch.setattr(m, "call_nemotron", fake_call)
+
+        s = ingest_ledger("prop-001", "2026-06")
+        result = detect_fee_anomaly(s, s.contract_pct, live=True)
+
+        assert called["n"] == 0, "no key means no live call"
+        assert result.reasoning_provenance["mode"] == "demo"
+        assert result.reasoning_provenance["source"] == "cached"
+
 
 # ---------------------------------------------------------------------------
 # trigger_payment: REQUIRE_APPROVAL fires on $840

@@ -1,8 +1,8 @@
-"""tests/test_aeo.py -- AEO skill assertions per the master brief.
+"""tests/test_aeo.py: AEO skill assertions per the master brief.
 
 All tests pass with DEMO_MODE=true and no live API credentials.
-Sweet Clementine uses the pre-seeded canonical result.
-Pelican Cottage runs through the live deterministic rubric.
+Sweet Clementine is scored by the deterministic rubric against its degraded input
+(canonical remediation artifacts attached). Pelican Cottage runs through the same rubric.
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from skills.aeo_skill import (
 from data.mock_listings import LISTINGS
 
 # ---------------------------------------------------------------------------
-# Sweet Clementine -- pre-seeded path
+# Sweet Clementine: rubric-computed path
 # ---------------------------------------------------------------------------
 
 _CLEMENTINE_URL = "https://www.airbnb.com/rooms/838634728141757030"
@@ -49,7 +49,7 @@ def _clementine_req() -> AEOAuditRequest:
 
 @pytest.fixture
 def clementine_result() -> AEOAuditResult:
-    """Pre-seeded AEO result for Sweet Clementine."""
+    """Rubric-computed AEO result for Sweet Clementine."""
     return audit_listing(_clementine_req())
 
 
@@ -60,13 +60,52 @@ def test_clementine_overall_score_in_range(clementine_result: AEOAuditResult) ->
     )
 
 
-def test_clementine_dimension_scores(clementine_result: AEOAuditResult) -> None:
-    """Dimension sub-scores must match the master brief: 14/11/16/10."""
+def test_clementine_score_is_rubric_computed(clementine_result: AEOAuditResult) -> None:
+    """Overall must be the rubric sum of the four dimensions, not a constant.
+
+    Removing the hardcoded short-circuit means the four sub-scores must add up to
+    overall_score. Each dimension stays within its 0 to 25 bound.
+    """
     ds = clementine_result.dimension_scores
-    assert ds.structure_completeness == 14, f"Expected 14, got {ds.structure_completeness}"
-    assert ds.agent_parseability == 11, f"Expected 11, got {ds.agent_parseability}"
-    assert ds.description_quality == 16, f"Expected 16, got {ds.description_quality}"
-    assert ds.conflict_free == 10, f"Expected 10, got {ds.conflict_free}"
+    dims = [
+        ds.structure_completeness,
+        ds.agent_parseability,
+        ds.description_quality,
+        ds.conflict_free,
+    ]
+    for d in dims:
+        assert 0 <= d <= 25, f"Dimension out of [0, 25] bounds: {d}"
+    assert sum(dims) == clementine_result.overall_score, (
+        f"overall {clementine_result.overall_score} != sum of dims {sum(dims)}; "
+        "score must be rubric-computed, not a constant"
+    )
+
+
+def test_clementine_score_not_hardcoded_constant() -> None:
+    """A degraded variant must score differently, proving the score is computed.
+
+    If the result were a hardcoded constant, mutating the input would not move
+    the number. Dropping the dog-only species conflict from the prose lifts the
+    conflict-free dimension, so the overall must increase.
+    """
+    base = audit_listing(_clementine_req())
+    no_conflict_req = AEOAuditRequest(
+        listing_text=(
+            "2BR/1BA Sweet Clementine cottage in Oceanside CA. 6 guests max. "
+            "Pets welcome (dogs only, max 2, $30/night). No smoking. No parties. "
+            "Cancellation: full refund 30 days before arrival. Free parking. "
+            "Outdoor space includes fire pit and fenced backyard. STR Permit 018234."
+        ),
+        amenities_list=[
+            "wifi", "kitchen", "fire_pit", "fenced_backyard", "smart_tv", "parking",
+        ],
+        existing_schema={},
+        listing_url=_CLEMENTINE_URL,
+    )
+    variant = audit_listing(no_conflict_req)
+    assert variant.overall_score != base.overall_score, (
+        "Removing the conflict did not change the score; it is hardcoded"
+    )
 
 
 def test_clementine_dog_only_conflict_flag(clementine_result: AEOAuditResult) -> None:
@@ -152,7 +191,7 @@ def test_clementine_optimized_opening_starts_with_facts(clementine_result: AEOAu
 
 
 # ---------------------------------------------------------------------------
-# Pelican Cottage -- live rubric path (must score > 85)
+# Pelican Cottage: live rubric path (must score > 85)
 # ---------------------------------------------------------------------------
 
 _PELICAN_LISTING = LISTINGS["prop-002"]
@@ -251,3 +290,96 @@ def test_pelican_json_ld_is_dict(pelican_result: AEOAuditResult) -> None:
 def test_pelican_opening_no_hey(pelican_result: AEOAuditResult) -> None:
     """Pelican optimized opening must not start with 'Hey'."""
     assert not pelican_result.optimized_opening.startswith("Hey")
+
+
+# ---------------------------------------------------------------------------
+# Live vs demo reasoning toggle (provenance + real-call gating)
+# ---------------------------------------------------------------------------
+
+def test_audit_provenance_shape_demo() -> None:
+    """reasoning_provenance must carry mode, model, latency_ms, source keys."""
+    result = audit_listing(_clementine_req())
+    prov = result.reasoning_provenance
+    assert set(prov.keys()) == {"mode", "model", "latency_ms", "source"}
+    assert prov["mode"] == "demo"
+    assert prov["source"] == "cached"
+
+
+def test_audit_live_true_calls_nemotron(monkeypatch) -> None:
+    """live=True with a key present must call call_nemotron; source=nemotron."""
+    import skills.aeo_skill as m
+    called = {"n": 0}
+
+    def fake_call(prompt, **kwargs):
+        called["n"] += 1
+        return "live nemotron aeo verdict"
+
+    monkeypatch.setattr(m, "nemotron_available", lambda: True)
+    monkeypatch.setattr(m, "call_nemotron", fake_call)
+
+    result = audit_listing(_clementine_req(), live=True)
+
+    assert called["n"] == 1, "call_nemotron must be invoked when live=True"
+    assert result.reasoning_provenance["mode"] == "live"
+    assert result.reasoning_provenance["source"] == "nemotron"
+    assert result.reasoning_provenance["latency_ms"] >= 0.0
+    assert result.reasoning_trace == "live nemotron aeo verdict"
+    # The numeric score is still rubric-computed, not affected by the live trace.
+    assert 45 <= result.overall_score <= 57
+
+
+def test_audit_live_false_does_not_call_nemotron(monkeypatch) -> None:
+    """live=False must NOT call call_nemotron even when a key is present."""
+    import skills.aeo_skill as m
+    called = {"n": 0}
+
+    def fake_call(prompt, **kwargs):
+        called["n"] += 1
+        return "should not appear"
+
+    monkeypatch.setattr(m, "nemotron_available", lambda: True)
+    monkeypatch.setattr(m, "call_nemotron", fake_call)
+
+    result = audit_listing(_clementine_req(), live=False)
+
+    assert called["n"] == 0, "call_nemotron must NOT be invoked when live=False"
+    assert result.reasoning_provenance["mode"] == "demo"
+    assert result.reasoning_provenance["source"] == "cached"
+
+
+def test_audit_live_true_no_key_falls_back_to_demo(monkeypatch) -> None:
+    """live=True with NO key must skip the call and keep demo provenance."""
+    import skills.aeo_skill as m
+    called = {"n": 0}
+
+    def fake_call(prompt, **kwargs):
+        called["n"] += 1
+        return "should not appear"
+
+    monkeypatch.setattr(m, "nemotron_available", lambda: False)
+    monkeypatch.setattr(m, "call_nemotron", fake_call)
+
+    result = audit_listing(_clementine_req(), live=True)
+
+    assert called["n"] == 0, "no key means no live call"
+    assert result.reasoning_provenance["mode"] == "demo"
+    assert result.reasoning_provenance["source"] == "cached"
+
+
+def test_pelican_live_true_calls_nemotron(monkeypatch) -> None:
+    """Live toggle also routes the rubric (non-Clementine) path to nemotron."""
+    import skills.aeo_skill as m
+    called = {"n": 0}
+
+    def fake_call(prompt, **kwargs):
+        called["n"] += 1
+        return "live nemotron pelican verdict"
+
+    monkeypatch.setattr(m, "nemotron_available", lambda: True)
+    monkeypatch.setattr(m, "call_nemotron", fake_call)
+
+    result = audit_listing(_pelican_req(), live=True)
+
+    assert called["n"] == 1
+    assert result.reasoning_provenance["source"] == "nemotron"
+    assert result.overall_score > 85

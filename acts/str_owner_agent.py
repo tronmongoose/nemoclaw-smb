@@ -12,20 +12,25 @@ Public API:
     ReconciliationReport: dataclass: summary, anomaly, payment, audit_ok
     REQUIRE_APPROVAL_THRESHOLD_CENTS: 50000 (equals $500)
     ingest_ledger(property_id, month) -> LedgerSummary
-    detect_fee_anomaly(summary, contract) -> AnomalyResult
+    detect_fee_anomaly(summary, contract, live=False) -> AnomalyResult
     trigger_payment(amount_cents, vendor_id, requires_approval) -> PaymentResult
-    reconcile_month(property_id, month) -> ReconciliationReport
+    reconcile_month(property_id, month, live=False) -> ReconciliationReport
+
+Reasoning provenance: AnomalyResult.reasoning_provenance is a dict with keys
+mode (live|demo), model, latency_ms, source (nemotron|cached).
 """
 from __future__ import annotations
 
 import os
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from agent.audit_log import append_action, verify_chain
+from agent.nvidia_client import call_nemotron, nemotron_available
 from agent.require_approval import ApprovalRequired, decide, enforce_spend, is_approved
 from config.demo_mode import demo_mode
-from config.model_routing import NEMOTRON_ULTRA, route_for
+from config.model_routing import route_for
 from control_plane.c1_governance import authorize, issue_nhi
 from data.mock_ledger import get_ledger_summary
 from payments.envelopes import sign_stripe_envelope
@@ -60,6 +65,7 @@ class AnomalyResult:
     reason: str
     model_used: str = ""
     reasoning_trace: str = ""
+    reasoning_provenance: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -108,34 +114,72 @@ def ingest_ledger(property_id: str, month: str) -> LedgerSummary:
     )
 
 
-def _reasoning_trace(summary: LedgerSummary, expected: int, charged: int) -> str:
-    """Return a deterministic reasoning trace (DEMO_MODE) or model ID for live."""
-    # #COMPLETION_DRIVE: live path would call NEMOTRON_ULTRA via nvidia_client
-    if demo_mode():
-        diff = charged - expected
-        return (
-            f"[DEMO cached trace] Revenue: ${summary.revenue_cents / 100:.2f}. "
-            f"Contract rate: {summary.contract_pct * 100:.1f}%. "
-            f"Charged rate: {summary.charged_pct * 100:.1f}%. "
-            f"Expected fee: ${expected / 100:.2f}. "
-            f"Charged fee: ${charged / 100:.2f}. "
-            f"Delta: ${diff / 100:.2f}. "
-            f"Conclusion: {'overcharge detected' if diff > 0 else 'no anomaly'}."
-        )
-    return f"[routed to {route_for('anomaly_detection')}]"
+def _demo_anomaly_trace(summary: LedgerSummary, expected: int, charged: int) -> str:
+    """Return the deterministic cached anomaly reasoning trace (DEMO path)."""
+    diff = charged - expected
+    return (
+        f"[DEMO cached trace] Revenue: ${summary.revenue_cents / 100:.2f}. "
+        f"Contract rate: {summary.contract_pct * 100:.1f}%. "
+        f"Charged rate: {summary.charged_pct * 100:.1f}%. "
+        f"Expected fee: ${expected / 100:.2f}. "
+        f"Charged fee: ${charged / 100:.2f}. "
+        f"Delta: ${diff / 100:.2f}. "
+        f"Conclusion: {'overcharge detected' if diff > 0 else 'no anomaly'}."
+    )
 
 
-def detect_fee_anomaly(summary: LedgerSummary, contract: float) -> AnomalyResult:
+def _anomaly_prompt(summary: LedgerSummary, expected: int, charged: int) -> str:
+    """Compose the Nemotron anomaly-reasoning prompt for the live path."""
+    return (
+        f"You are an STR management-fee auditor. Property {summary.property_id}, "
+        f"month {summary.month}. Revenue ${summary.revenue_cents / 100:.2f}. "
+        f"Contract rate {summary.contract_pct * 100:.1f}%, charged rate "
+        f"{summary.charged_pct * 100:.1f}%. Expected fee ${expected / 100:.2f}, "
+        f"charged fee ${charged / 100:.2f}. State in 2 sentences whether this is an "
+        f"overcharge and by how much."
+    )
+
+
+def _reasoning_trace(
+    summary: LedgerSummary,
+    expected: int,
+    charged: int,
+    live: bool = False,  # noqa: FBT001, FBT002
+) -> tuple[str, dict[str, Any]]:
+    """Return (trace, provenance) for the anomaly reasoning step.
+
+    When live is True and a Nemotron key is present, calls the real model and
+    measures latency. Otherwise returns the deterministic cached trace.
+    """
+    model = route_for("anomaly_detection")
+    if live and nemotron_available():
+        prompt = _anomaly_prompt(summary, expected, charged)
+        start = time.perf_counter()
+        trace = call_nemotron(prompt, max_tokens=256, temperature=0.0)
+        latency_ms = (time.perf_counter() - start) * 1000.0
+        provenance = {"mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron"}
+        return trace, provenance
+    trace = _demo_anomaly_trace(summary, expected, charged)
+    provenance = {"mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached"}
+    return trace, provenance
+
+
+def detect_fee_anomaly(
+    summary: LedgerSummary,
+    contract: float,
+    live: bool = False,  # noqa: FBT001, FBT002
+) -> AnomalyResult:
     """Compute expected vs charged fee and flag anomaly when they differ.
 
     contract is the authoritative rate (from the property record, not the ledger).
-    Routes reasoning to Nemotron Ultra; in DEMO_MODE returns a cached trace.
+    When live is True and a Nemotron key is present, routes reasoning to the real
+    model; otherwise returns a deterministic cached trace. live defaults False.
     """
     expected = int(summary.revenue_cents * contract)
     charged = int(summary.revenue_cents * summary.charged_pct)
     overcharge = charged - expected
-    model = NEMOTRON_ULTRA if not demo_mode() else f"{NEMOTRON_ULTRA}[demo-cached]"
-    trace = _reasoning_trace(summary, expected, charged)
+    trace, provenance = _reasoning_trace(summary, expected, charged, live)
+    model = provenance["model"]
 
     if overcharge == 0:
         return AnomalyResult(
@@ -146,6 +190,7 @@ def detect_fee_anomaly(summary: LedgerSummary, contract: float) -> AnomalyResult
             reason="Charged fee matches contract rate.",
             model_used=model,
             reasoning_trace=trace,
+            reasoning_provenance=provenance,
         )
 
     direction = "over" if overcharge > 0 else "under"
@@ -161,6 +206,7 @@ def detect_fee_anomaly(summary: LedgerSummary, contract: float) -> AnomalyResult
         ),
         model_used=model,
         reasoning_trace=trace,
+        reasoning_provenance=provenance,
     )
 
 
@@ -217,15 +263,20 @@ def trigger_payment(
     return _audit_envelope_and_pay(amount_cents, vendor_id)
 
 
-def reconcile_month(property_id: str, month: str) -> ReconciliationReport:
+def reconcile_month(
+    property_id: str,
+    month: str,
+    live: bool = False,  # noqa: FBT001, FBT002
+) -> ReconciliationReport:
     """Ingest ledger, detect anomaly, hold for approval, (approve in demo), pay, return report.
 
     In DEMO_MODE the approval is simulated inline so the full flow completes.
     In production the caller catches ApprovalRequired and re-calls after real approval.
+    live (default False) threads through to detect_fee_anomaly's reasoning path.
     """
     summary = ingest_ledger(property_id, month)
     prop_contract = summary.contract_pct
-    anomaly = detect_fee_anomaly(summary, prop_contract)
+    anomaly = detect_fee_anomaly(summary, prop_contract, live=live)
 
     # Authorize the corrected payment under the C1 NHI before spending.
     _allowed, _reason = authorize(_NHI, "propose_payment", "stripe")

@@ -10,19 +10,23 @@ Market, holiday weekends) that exercise the full signal-synthesis path.
 
 Public API:
     PricingRequest: input dataclass
-    PricingRecommendation: output dataclass
-    recommend_price(req): PricingRequest -> PricingRecommendation
+    PricingRecommendation: output dataclass (carries reasoning_provenance dict)
+    recommend_price(req, live=False): PricingRequest -> PricingRecommendation
     OCEANSIDE_COMPS: three Oceanside comp-set mock listings
     LOCAL_EVENTS: local-event mock inputs (Comic-Con + others)
+
+Reasoning provenance: PricingRecommendation.reasoning_provenance is a dict with
+keys mode (live|demo), model, latency_ms, source (nemotron|cached).
 """
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, List
 
 from config.demo_mode import demo_mode
 from config.model_routing import route_for
-from agent.nvidia_client import call_nemotron
+from agent.nvidia_client import call_nemotron, nemotron_available
 
 # ---------------------------------------------------------------------------
 # Mock comp-set: three Oceanside comps used when caller supplies an empty comp set.
@@ -107,6 +111,7 @@ class PricingRecommendation:
     reasoning: str
     suggested_title_tweak: str
     valid_for_hours: int
+    reasoning_provenance: dict[str, Any] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -231,16 +236,9 @@ def _title_tweak(req: PricingRequest, final_rate: float) -> str:
 # DEMO_MODE cached reasoning string (routes to Nemotron path, returns mock)
 # ---------------------------------------------------------------------------
 
-def _demo_reasoning_trace(req: PricingRequest, final_rate: float) -> str:
-    """Return the Nemotron reasoning trace, using cached mock in DEMO_MODE."""
-    model = route_for("dynamic_pricing")
-    if demo_mode():
-        # Deterministic, no live call. Cache satisfies demo requirement.
-        return (
-            f"[{model}/demo-cached] "
-            + _build_reasoning(req, final_rate, final_rate)
-        )
-    prompt = (
+def _pricing_prompt(req: PricingRequest, final_rate: float) -> str:
+    """Compose the Nemotron pricing-reasoning prompt for the live path."""
+    return (
         f"You are a professional STR revenue manager. "
         f"Property {req.property_id}. Current rate ${req.current_rate}. "
         f"Occupancy {req.occupancy_rate:.0%}, season={req.season}, "
@@ -249,19 +247,45 @@ def _demo_reasoning_trace(req: PricingRequest, final_rate: float) -> str:
         f"Recommended rate: ${final_rate}. "
         f"Explain in 2 sentences why this rate is correct."
     )
-    return call_nemotron(prompt, max_tokens=256, temperature=0.0)
+
+
+def _demo_reasoning_trace(
+    req: PricingRequest,
+    final_rate: float,
+    live: bool = False,  # noqa: FBT001, FBT002
+) -> tuple[str, dict[str, Any]]:
+    """Return (trace, provenance) for the pricing reasoning step.
+
+    When live is True and a Nemotron key is present, calls the real model and
+    measures latency. Otherwise returns the deterministic cached trace.
+    """
+    model = route_for("dynamic_pricing")
+    if live and nemotron_available():
+        prompt = _pricing_prompt(req, final_rate)
+        start = time.perf_counter()
+        trace = call_nemotron(prompt, max_tokens=256, temperature=0.0)
+        latency_ms = (time.perf_counter() - start) * 1000.0
+        provenance = {"mode": "live", "model": model, "latency_ms": latency_ms, "source": "nemotron"}
+        return trace, provenance
+    trace = f"[{model}/demo-cached] " + _build_reasoning(req, final_rate, final_rate)
+    provenance = {"mode": "demo", "model": f"{model}[demo-cached]", "latency_ms": 0.0, "source": "cached"}
+    return trace, provenance
 
 
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
-def recommend_price(req: PricingRequest) -> PricingRecommendation:
+def recommend_price(
+    req: PricingRequest,
+    live: bool = False,  # noqa: FBT001, FBT002
+) -> PricingRecommendation:
     """Synthesize pricing signals into a nightly rate recommendation.
 
     Blends occupancy band, season, local events, comp-set median, and
-    day-of-week into a single rate. Reasoning routes through Nemotron Ultra
-    but is DEMO_MODE-cached for deterministic demo operation.
+    day-of-week into a single rate. When live is True and a Nemotron key is
+    present the reasoning trace is a real model call; otherwise it is the
+    deterministic cached trace. live defaults False.
     #COMPLETION_DRIVE: comp_set_rates may be empty; falls back to OCEANSIDE_COMPS rates.
     """
     comps = req.comp_set_rates if req.comp_set_rates else [c["current_rate"] for c in OCEANSIDE_COMPS]
@@ -274,7 +298,7 @@ def recommend_price(req: PricingRequest) -> PricingRecommendation:
     comp_anchor = _comp_anchor(comps)
     final_rate = _blend_rate(req.current_rate, raw_rate, comp_anchor)
 
-    reasoning = _demo_reasoning_trace(req, final_rate)
+    reasoning, provenance = _demo_reasoning_trace(req, final_rate, live)
     conf = _confidence(req.occupancy_rate, len(req.local_events), len(comps))
     title = _title_tweak(req, final_rate)
 
@@ -284,4 +308,5 @@ def recommend_price(req: PricingRequest) -> PricingRecommendation:
         reasoning=reasoning,
         suggested_title_tweak=title,
         valid_for_hours=12,
+        reasoning_provenance=provenance,
     )
