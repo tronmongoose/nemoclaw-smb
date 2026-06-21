@@ -114,8 +114,8 @@ DEMO_MODE run; live integrations activate when the corresponding key is set.
 | SHA-256 audit chain | REAL |
 | HTTP-402 loop shape | REAL |
 | NemoClaw harness | REAL |
-| ConductorOne NHI + scoping | REAL client, synthetic decisions, no live work tenant |
-| Baton OSS binary | REAL (binary verified); access data is a fixture |
+| ConductorOne NHI + scoping | REAL: authorize() grant-matches via Baton .c1z + carryall-baton-backend; synthetic data, no live work tenant |
+| Baton OSS binary | REAL (binary verified); grant-matching live by default against a bundled .c1z, real entitlements when a connector c1z is supplied |
 | Hermes orchestration | MOCK by default; LIVE-OK with `NOUS_PORTAL_API_KEY` |
 | Nemotron 3 Ultra | MOCK by default; LIVE-OK with `NVIDIA_NIM_API_KEY` |
 | Stripe money movement | DEMO_MODE-mocked, logged; no real funds move |
@@ -145,9 +145,10 @@ earning per call in the machine-to-machine economy.
 The agent operates under a non-human identity issued by ConductorOne at startup, not
 a shared service-account credential. Sub-agents receive time-limited, scope-narrowed
 NHIs per task. The Act 2 cleaner card flow is the core showcase: one NHI per checkout,
-one scope, one hour TTL, one authorization decision before any money moves. Baton
-provides open-source access inventory that can pull connector snapshots without a live
-C1 SaaS tenant.
+one scope, one hour TTL, one authorization decision before any money moves. Every
+authorization decision runs through carryall-baton-backend, which grant-matches a signed
+Carryall envelope against a Baton .c1z entitlement graph. Baton provides the open-source
+access inventory and connector snapshots, with no live C1 SaaS tenant required.
 
 This is built on ConductorOne's public GA tooling and open-source Baton. All decisions
 run against synthetic data. No internal roadmap features, no live work tenant, no

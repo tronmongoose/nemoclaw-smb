@@ -123,7 +123,8 @@ Audit: SHA-256 hash-chained log, verified end-to-end
 
 The no-overclaim rule is enforced: `make reality` prints a live status matrix and
 `tests/live/` fails when a real integration breaks. Run it; do not trust this table
-from memory.
+from memory. For the full fake-vs-real accounting, including the blunt keys answer and
+the path to live, see [AUDIT.md](AUDIT.md).
 
 | Component | Status | Notes |
 |---|---|---|
