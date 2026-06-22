@@ -32,7 +32,7 @@ export function AeoAudit() {
 export function NhiLabel() {
   return (
     <Frame>
-      <SectionLabel>ConductorOne NHI</SectionLabel>
+      <SectionLabel>C1 NHI</SectionLabel>
       <span className="font-mono text-xs text-foreground">4 service identities - 0 overprivileged</span>
       <span className="font-mono text-xs text-muted-foreground">Last cert rotation: 2026-06-14</span>
     </Frame>

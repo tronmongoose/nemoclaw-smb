@@ -16,7 +16,16 @@ import { formatUSD } from "../../lib/format";
 import { cn } from "../../lib/utils";
 
 export function centsToUSD(cents: number): string {
-  return formatUSD(cents / 100);
+  const dollars = cents / 100;
+  if (cents % 100 === 0) return formatUSD(dollars);
+  // Per-call earn amounts are fractional ($0.25, $1.50); show exact cents so the
+  // marketplace never reads as "$0 earned". Whole dollars stay decimal-free.
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(dollars);
 }
 
 /** Live-call indicator: an elapsed-seconds counter so a slow real model call

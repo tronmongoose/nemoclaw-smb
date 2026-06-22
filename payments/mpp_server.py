@@ -39,6 +39,7 @@ from config.demo_mode import demo_mode
 from control_plane.c1_governance import authorize, issue_nhi
 from skills.aeo_skill import AEOAuditRequest, audit_listing
 from skills.dynamic_pricing_skill import PricingRequest, recommend_price
+from skills.guest_comms_skill import draft_guest_comms
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -46,9 +47,10 @@ from skills.dynamic_pricing_skill import PricingRequest, recommend_price
 
 PRICE_ENDPOINT_CENTS: int = 25
 AEO_AUDIT_ENDPOINT_CENTS: int = 100
+GUEST_COMMS_ENDPOINT_CENTS: int = 150
 
 _PLATFORM_AGENT_ID: str = "str-platform-agent"
-_PLATFORM_SCOPES: list[str] = ["str:price", "str:aeo-audit"]
+_PLATFORM_SCOPES: list[str] = ["str:price", "str:aeo-audit", "str:guest-comms"]
 
 _DEMO_TOKEN_PREFIX: str = "mpp_tok_"
 
@@ -78,6 +80,14 @@ class AEORequestBody(BaseModel):
     amenities_list: list[str] = []
     existing_schema: dict = {}
     listing_url: str = ""
+
+
+class GuestCommsRequestBody(BaseModel):
+    """Request body for POST /guest-comms."""
+
+    guest_context: str
+    property_id: str
+    inquiry_type: str = "general"
 
 
 # ---------------------------------------------------------------------------
@@ -319,6 +329,56 @@ async def aeo_audit_endpoint(
                 ],
                 "optimized_opening": result.optimized_opening,
                 "reasoning_trace": result.reasoning_trace,
+            },
+            "earn_event": {
+                "chain_hash": earn_entry["chain_hash"],
+                "seq": earn_entry["seq"],
+            },
+        },
+    )
+
+
+@app.post("/guest-comms")
+async def guest_comms_endpoint(
+    body: GuestCommsRequestBody,
+    authorization: Optional[str] = Header(default=None),  # noqa: UP045
+) -> JSONResponse:
+    """POST /guest-comms: $1.50 per call.
+
+    Returns HTTP 402 with WWW-Authenticate header when no valid token is present.
+    Calls Nous Hermes to triage intent and draft a reply with upsell when token is valid.
+    C1 governance gates the call via authorize(nhi, "guest-comms", "str-platform").
+    """
+    token = _extract_token(authorization)
+    if not token or not validate_mpp_token(token):
+        return _four_oh_two(GUEST_COMMS_ENDPOINT_CENTS)
+
+    allowed, reason = _c1_authorize("guest-comms")
+    if not allowed:
+        raise HTTPException(status_code=403, detail=f"C1 governance denied: {reason}")
+
+    result = draft_guest_comms(
+        guest_context=body.guest_context,
+        property_id=body.property_id,
+        inquiry_type=body.inquiry_type,
+    )
+
+    earn_entry = _write_earn_event(
+        service="guest-comms",
+        amount_cents=GUEST_COMMS_ENDPOINT_CENTS,
+        token_id=token,
+    )
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "service": "guest-comms",
+            "amount_cents": GUEST_COMMS_ENDPOINT_CENTS,
+            "result": {
+                "intent": result["intent"],
+                "message": result["message"],
+                "upsell": result["upsell"],
+                "reasoning_provenance": result["reasoning_provenance"],
             },
             "earn_event": {
                 "chain_hash": earn_entry["chain_hash"],

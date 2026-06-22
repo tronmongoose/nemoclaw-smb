@@ -201,7 +201,7 @@ function GovernanceSection({ report }: { report: StrReconciliationReport }) {
   const source = isBaton ? "baton-carryall" : "synthetic";
   return (
     <section>
-      <SectionLabel>ConductorOne NHI</SectionLabel>
+      <SectionLabel>C1 NHI</SectionLabel>
       <Plate>
         <KV label="nhi_id" value={report.nhi_id} />
         <KV label="scopes" value="ledger:read, payment:propose" />

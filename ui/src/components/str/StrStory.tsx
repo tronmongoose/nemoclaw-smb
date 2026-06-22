@@ -147,7 +147,7 @@ function Colophon() {
     <div className="flex flex-col gap-3 border-t border-border pt-6 font-mono text-xs text-muted-foreground">
       <span className="uppercase tracking-[0.22em] text-muted-foreground/70">Colophon</span>
       <p className="leading-relaxed">
-        Governed by ConductorOne identity (Baton grant-matching, scoped non-human
+        Governed by C1 identity (Baton grant-matching, scoped non-human
         identities). Reasoning by Hermes on Nous Portal and Nemotron on NVIDIA NIM.
         Payments by Stripe, in demo mode. Every action is written to a hash-chained
         audit log. Flip LIVE to watch a real model call land.

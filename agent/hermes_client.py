@@ -74,7 +74,7 @@ def call_hermes(
 
     api_key = os.environ["NOUS_PORTAL_API_KEY"]
     base_url = os.environ.get("NOUS_PORTAL_BASE_URL", _HERMES_DEFAULT_BASE_URL).rstrip("/")
-    model = os.environ.get("HERMES_MODEL", "hermes-agent")
+    model = os.environ.get("HERMES_MODEL", "nousresearch/hermes-4-70b")
 
     full_messages: list[dict] = []
     if system:

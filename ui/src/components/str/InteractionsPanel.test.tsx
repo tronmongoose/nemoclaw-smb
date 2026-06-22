@@ -46,7 +46,7 @@ const FIXTURE: StrInteractionsResponse = {
     {
       ts: "2026-06-21T08:03:00Z",
       seq: 3,
-      sponsor: "ConductorOne",
+      sponsor: "C1",
       op: "access_review",
       segment: "agent",
       status: "ok",

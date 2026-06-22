@@ -28,6 +28,10 @@ NEMOTRON_ULTRA: str = os.environ.get(
 HERMES_SMALL: str = os.environ.get(
     "HERMES_MODEL", "nvidia/nemotron-3-super-120b-a12b"
 )
+# Nous Research Hermes model (hermes_client.py endpoint, separate from NVIDIA Nemotron-Super)
+HERMES_NOUS: str = os.environ.get(
+    "HERMES_MODEL", "nousresearch/hermes-4-70b"
+)
 
 # Tasks that demand multi-step reasoning or pricing optimization go to Nemotron Ultra.
 # Tasks that are classification, formatting, or templating go to Hermes-small.
@@ -46,6 +50,8 @@ MODEL_ROUTING: dict[str, str] = {
     "booking_confirmation_template": HERMES_SMALL,
     "owner_report_template": HERMES_SMALL,
     "expense_categorize": HERMES_SMALL,
+    # Nous Research Hermes tier: guest comms intent triage + sales reply drafting
+    "guest_comms": HERMES_NOUS,
 }
 
 _BANNED_ORIGIN_SUBSTRINGS: tuple[str, ...] = (

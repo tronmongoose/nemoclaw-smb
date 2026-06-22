@@ -18,6 +18,7 @@ vi.mock("../../lib/api", () => ({
 
 vi.mock("./strApi", () => ({
   postAeoAudit: vi.fn(),
+  postGuestComms: vi.fn(),
 }));
 
 import { apiFetch, apiPost } from "../../lib/api";
@@ -90,14 +91,14 @@ describe("Act3View", () => {
     mockApiFetch.mockResolvedValue(METRICS);
     const { findByText } = renderAct3();
     // metrics revenue formatted to USD
-    expect(await findByText("$1")).toBeInTheDocument();
+    expect(await findByText("$1.25")).toBeInTheDocument();
   });
 
   it("AEO audit shows computed score, dog-only CRITICAL flag, opening, and JSON-LD", async () => {
     mockApiFetch.mockResolvedValue(METRICS);
     mockPostAeo.mockResolvedValue(AEO);
     const { findByText, getByText } = renderAct3();
-    await userEvent.click(getByText(/Run AEO audit/));
+    await userEvent.click(getByText(/Run marketing audit/));
     expect(await findByText("48/100")).toBeInTheDocument();
     expect(await findByText(/CRITICAL pet_species_conflict/)).toBeInTheDocument();
     expect(await findByText(/dogs only/)).toBeInTheDocument();
@@ -109,7 +110,7 @@ describe("Act3View", () => {
     mockApiFetch.mockResolvedValue(METRICS);
     mockPostAeo.mockResolvedValue(AEO);
     const { findByText, getByText } = renderAct3();
-    await userEvent.click(getByText(/Run AEO audit/));
+    await userEvent.click(getByText(/Run marketing audit/));
     expect(await findByText(/LIVE nemotron 41s/)).toBeInTheDocument();
   });
 
@@ -124,7 +125,7 @@ describe("Act3View", () => {
   it("does not render a raw object as a child", async () => {
     mockApiFetch.mockResolvedValue(METRICS);
     const { container, findByText } = renderAct3();
-    await findByText("$1");
+    await findByText("$1.25");
     expect(container.textContent).not.toContain("[object Object]");
   });
 

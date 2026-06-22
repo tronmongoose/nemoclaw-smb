@@ -21,7 +21,7 @@ interface LiveState {
 const LiveCtx = createContext<LiveState>({ live: false, setLive: () => {} });
 
 export function LiveProvider({ children }: { children: ReactNode }) {
-  const [live, setLive] = useState(false);
+  const [live, setLive] = useState(true);
   return <LiveCtx.Provider value={{ live, setLive }}>{children}</LiveCtx.Provider>;
 }
 

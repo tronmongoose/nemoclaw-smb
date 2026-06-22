@@ -22,7 +22,7 @@ from typing import Optional
 
 GENESIS_HASH: str = "0" * 64
 
-_SPONSORS = frozenset({"Nous Research", "NVIDIA", "Stripe", "ConductorOne"})
+_SPONSORS = frozenset({"Nous Research", "NVIDIA", "Stripe", "C1"})
 
 _DEFAULT_PATH = Path(
     os.environ.get("NEMOCLAW_INTERACTIONS_PATH", "audit/demo_interactions.jsonl")

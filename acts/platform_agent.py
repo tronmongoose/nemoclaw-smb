@@ -22,6 +22,7 @@ from typing import Any
 from control_plane.c1_governance import authorize, issue_nhi
 from payments.mpp_server import (
     AEO_AUDIT_ENDPOINT_CENTS,
+    GUEST_COMMS_ENDPOINT_CENTS,
     PRICE_ENDPOINT_CENTS,
     _write_earn_event,
 )
@@ -31,9 +32,10 @@ from skills.dynamic_pricing_skill import (
     PricingRequest,
     recommend_price,
 )
+from skills.guest_comms_skill import draft_guest_comms
 
 _PLATFORM_AGENT_ID: str = "str-platform-agent"
-_PLATFORM_SCOPES: list[str] = ["str:price", "str:aeo-audit"]
+_PLATFORM_SCOPES: list[str] = ["str:price", "str:aeo-audit", "str:guest-comms"]
 
 
 # ---------------------------------------------------------------------------
@@ -204,6 +206,75 @@ def serve_aeo_call(
             "optimized_opening": result.optimized_opening,
             "reasoning_trace": result.reasoning_trace,
             "reasoning_provenance": result.reasoning_provenance,
+        },
+        "earn_event": {
+            "chain_hash": earn_entry["chain_hash"],
+            "seq": earn_entry["seq"],
+            "timestamp": earn_entry["ts"],
+        },
+        "c1_authorized": True,
+    }
+
+
+def serve_guest_comms_call(
+    guest_context: str,
+    property_id: str,
+    inquiry_type: str,
+    demo_token: str = "mpp_tok_demo",
+    audit_path: str | None = None,
+    live: bool = False,  # noqa: FBT001, FBT002
+) -> dict:
+    """Execute a guest-comms call through Act 3, log the earn event, update metrics.
+
+    Returns a result dict with intent/message/upsell fields and earn event metadata.
+    C1 governance gates the call via authorize(nhi, "guest-comms", "str-platform").
+    live threads to draft_guest_comms so a real Hermes call fires when a key is present.
+    """
+    allowed, reason = _authorize_platform("guest-comms")
+    if not allowed:
+        return {"error": f"C1 governance denied: {reason}", "allowed": False}
+
+    result = draft_guest_comms(
+        guest_context=guest_context,
+        property_id=property_id,
+        inquiry_type=inquiry_type,
+        live=live,
+    )
+    provenance = result["reasoning_provenance"]
+
+    earn_entry = _write_earn_event(
+        service="guest-comms",
+        amount_cents=GUEST_COMMS_ENDPOINT_CENTS,
+        token_id=demo_token,
+        audit_path_env=audit_path,
+    )
+
+    try:
+        from agent.interactions_log import append_interaction
+        append_interaction(
+            sponsor="Nous Research",
+            op="guest comms (Sales)",
+            segment="agent",
+            model=provenance["model"],
+            latency_ms=provenance["latency_ms"],
+            mode=provenance["mode"],
+            metadata={"amount_cents": GUEST_COMMS_ENDPOINT_CENTS},
+        )
+    except Exception:
+        pass
+
+    _metrics.calls_served += 1
+    _metrics.revenue_earned_cents += GUEST_COMMS_ENDPOINT_CENTS
+    _metrics.properties_optimized.add(property_id)
+
+    return {
+        "service": "guest-comms",
+        "amount_cents": GUEST_COMMS_ENDPOINT_CENTS,
+        "result": {
+            "intent": result["intent"],
+            "message": result["message"],
+            "upsell": result["upsell"],
+            "reasoning_provenance": provenance,
         },
         "earn_event": {
             "chain_hash": earn_entry["chain_hash"],

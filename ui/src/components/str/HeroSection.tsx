@@ -28,8 +28,8 @@ const COPY: Record<StrSegment, { kicker: string; title: string; dek: string; cta
   },
   agent: {
     kicker: "Portal 03 · Swarm",
-    title: "A market of licensed agents.",
-    dek: "Many companies, one substrate. Agents are licensed assets, metered, audited, and dispatched across the whole network from a single command center.",
+    title: "License one agent. Upgrade every host.",
+    dek: "One agent, sold to every property manager. It upgrades their marketing, sales, and pricing, and earns its keep in an agent marketplace, governed by C1.",
     cta: "Enter the command center",
   },
 };

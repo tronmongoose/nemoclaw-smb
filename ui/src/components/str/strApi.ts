@@ -6,7 +6,7 @@
  * non-2xx (including the 402) or transport error, matching apiFetch semantics.
  */
 
-import { StrAeoResponse } from "../../types";
+import { StrAeoResponse, StrGuestCommsResponse } from "../../types";
 import { liveParam } from "./LiveContext";
 
 const BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://localhost:8000";
@@ -31,6 +31,28 @@ export async function postAeoAudit(live: boolean): Promise<StrAeoResponse | null
     });
     if (!res.ok) return null;
     return (await res.json()) as StrAeoResponse;
+  } catch {
+    return null;
+  }
+}
+
+const GUEST_COMMS_BODY = {
+  guest_context:
+    "Hi! Booking Fri-Sun for 2. Any chance of early check-in, and is the place good for an anniversary trip?",
+  property_id: "prop-001",
+  inquiry_type: "pre-booking",
+};
+
+/** POST the guest-comms call with the MPP bearer token. Returns null on 402/error. */
+export async function postGuestComms(live: boolean): Promise<StrGuestCommsResponse | null> {
+  try {
+    const res = await fetch(`${BASE}/str/act3/guest-comms${liveParam(live)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${MPP_TOKEN}` },
+      body: JSON.stringify(GUEST_COMMS_BODY),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as StrGuestCommsResponse;
   } catch {
     return null;
   }

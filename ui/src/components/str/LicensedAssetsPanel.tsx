@@ -1,4 +1,4 @@
-/** LicensedAssetsPanel: fleet roster of licensed agent assets, metered and governed by ConductorOne.
+/** LicensedAssetsPanel: fleet roster of licensed agent assets, metered and governed by C1.
  * Polls /str/interactions?segment=agent at 2500ms; fetches /str/act3/metrics once.
  * Each asset derives activity from interaction stream ops; earn meter shows call share.
  */
@@ -29,25 +29,25 @@ interface AssetDef {
 
 const ASSETS: AssetDef[] = [
   {
+    name: "Marketing agent",
+    licenseId: "nhi://swarm/marketing-agent#a1f3",
+    capability: "listing readiness",
+    reasoner: "NVIDIA Nemotron",
+    match: (op) => /aeo|audit|marketing|scoring/i.test(op),
+  },
+  {
+    name: "Sales agent",
+    licenseId: "nhi://swarm/sales-agent#c7e2",
+    capability: "guest messaging + upsell",
+    reasoner: "Nous Hermes",
+    match: (op) => /guest|comms|sales|messaging/i.test(op),
+  },
+  {
     name: "Pricing agent",
-    licenseId: "nhi://swarm/pricing-agent#a1f3",
+    licenseId: "nhi://swarm/pricing-agent#f9b0",
     capability: "dynamic price",
     reasoner: "NVIDIA Nemotron",
     match: (op) => /pricing|price/i.test(op),
-  },
-  {
-    name: "Audit agent",
-    licenseId: "nhi://swarm/audit-agent#c7e2",
-    capability: "machine-readability audit",
-    reasoner: "NVIDIA Nemotron",
-    match: (op) => /aeo|audit/i.test(op),
-  },
-  {
-    name: "Orchestrator",
-    licenseId: "nhi://swarm/orchestrator#f9b0",
-    capability: "intent routing",
-    reasoner: "Nous Hermes",
-    match: (op, sponsor) => /orchestration/i.test(op) || sponsor === "Nous Research",
   },
 ];
 
@@ -165,7 +165,7 @@ function FleetTotals({
 // --- Main export ---
 
 export function LicensedAssetsPanel(): JSX.Element {
-  /** Fleet roster of licensed agent assets governed by ConductorOne.
+  /** Fleet roster of licensed agent assets governed by C1.
    * Derives per-asset activity from the agent interaction stream.
    */
   const { data: interData } = usePoll<StrInteractionsResponse>(

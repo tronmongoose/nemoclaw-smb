@@ -89,7 +89,7 @@ export const SPONSOR_MAP: SponsorRow[] = [
   },
   {
     id: "conductorone",
-    sponsor: "ConductorOne",
+    sponsor: "C1",
     pillarId: "conductorone",
     kind: "governance",
     blurb: "Governs every action with scoped NHIs",

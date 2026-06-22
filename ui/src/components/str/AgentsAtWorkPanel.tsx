@@ -25,7 +25,7 @@ function classifyEntry(e: StrInteraction): WorkerName {
     return "Payout agent";
   if (op.includes("ubp") || op.includes("metronome") || op.includes("invoice"))
     return "Invoicing agent";
-  if (e.sponsor === "ConductorOne" || op.includes("nhi") || op.includes("authorize"))
+  if (e.sponsor === "C1" || op.includes("nhi") || op.includes("authorize"))
     return "Governance agent";
   return "Ops agent";
 }

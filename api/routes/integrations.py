@@ -99,8 +99,8 @@ def _build_conductorone_node() -> dict[str, Any]:
         detail = "carryall_baton not installed; synthetic policy decisions active"
     return {
         "id": "conductorone",
-        "label": "ConductorOne",
-        "vendor": "ConductorOne",
+        "label": "C1",
+        "vendor": "C1",
         "kind": "governance",
         "status": status,
         "detail": detail,

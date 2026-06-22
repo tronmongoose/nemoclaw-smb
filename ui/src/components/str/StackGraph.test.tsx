@@ -60,8 +60,8 @@ const FIXTURE: IntegrationStatusResponse = {
     },
     {
       id: "conductorone",
-      label: "ConductorOne",
-      vendor: "ConductorOne",
+      label: "C1",
+      vendor: "C1",
       kind: "governance",
       status: "DEMO",
       detail: "Baton grant-matching via carryall-baton-backend against a .c1z",
@@ -81,7 +81,7 @@ describe("StackGraph", () => {
     expect(await screen.findByText("Nous Hermes")).toBeInTheDocument();
     // Stripe and ConductorOne appear as both label and vendor span (label == vendor).
     expect((await screen.findAllByText("Stripe")).length).toBeGreaterThanOrEqual(1);
-    expect((await screen.findAllByText("ConductorOne")).length).toBeGreaterThanOrEqual(1);
+    expect((await screen.findAllByText("C1")).length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders Stripe's five skills including Issuing for Agents and MPP / HTTP-402", async () => {

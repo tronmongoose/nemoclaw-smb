@@ -357,6 +357,21 @@ export interface StrAeoResponse {
   c1_authorized: boolean;
 }
 
+export interface StrGuestCommsResult {
+  intent: string;
+  message: string;
+  upsell: string;
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrGuestCommsResponse {
+  service: string;
+  amount_cents: number;
+  result: StrGuestCommsResult;
+  earn_event: StrEarnEvent;
+  c1_authorized: boolean;
+}
+
 /** The 402 body returned by /str/act3/aeo-audit when no MPP token is presented. */
 export interface StrPaymentRequired {
   error: string;
@@ -440,7 +455,7 @@ export type PortalView = StrSegment | "stack";
 export interface StrInteraction {
   ts?: string;
   seq?: number;
-  sponsor: string; // "Nous Research" | "NVIDIA" | "Stripe" | "ConductorOne"
+  sponsor: string; // "Nous Research" | "NVIDIA" | "Stripe" | "C1"
   op: string;
   segment?: string;
   status?: string; // "ok" | "cached" | "fallback" | "fail"

@@ -13,7 +13,7 @@ const TECH: Record<StrSegment, { heading: string; cells: { sponsor: string; copy
       { sponsor: "NVIDIA", copy: "Reasons over your ledger" },
       { sponsor: "Stripe", copy: "Routes your monthly payout" },
       { sponsor: "Nous", copy: "The agent's judgment" },
-      { sponsor: "ConductorOne", copy: "Governs every correction" },
+      { sponsor: "C1", copy: "Governs every correction" },
     ],
   },
   firm: {
@@ -22,7 +22,7 @@ const TECH: Record<StrSegment, { heading: string; cells: { sponsor: string; copy
       { sponsor: "NVIDIA", copy: "Scales inference across the roster" },
       { sponsor: "Stripe", copy: "Connected payouts per property" },
       { sponsor: "Nous", copy: "Models every working agent" },
-      { sponsor: "ConductorOne", copy: "Scoped identity per checkout" },
+      { sponsor: "C1", copy: "Scoped identity per checkout" },
     ],
   },
   agent: {
@@ -31,7 +31,7 @@ const TECH: Record<StrSegment, { heading: string; cells: { sponsor: string; copy
       { sponsor: "NVIDIA", copy: "Compute metered per license" },
       { sponsor: "Stripe", copy: "Billing rails for the market" },
       { sponsor: "Nous", copy: "The licensed model substrate" },
-      { sponsor: "ConductorOne", copy: "Governs every paid call" },
+      { sponsor: "C1", copy: "Governs every paid call" },
     ],
   },
 };
