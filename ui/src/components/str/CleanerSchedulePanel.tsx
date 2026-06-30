@@ -90,7 +90,7 @@ export function CleanerSchedulePanel() {
   const stalls = data?.stalls ?? [];
 
   return (
-    <section className="flex flex-col gap-3">
+    <section id="section-scheduling" className="flex scroll-mt-24 flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
         <SectionLabel>Cleaner scheduling</SectionLabel>
         {data && <StatusPill ok={stalls.length === 0} label={`${stalls.length} to reassign`} />}

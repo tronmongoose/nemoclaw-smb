@@ -13,6 +13,7 @@ import { PortalNav } from "./PortalNav";
 import { HeroSection } from "./HeroSection";
 import { TechLayerStrip } from "./techlayer/TechLayerStrip";
 import { SegmentNodeGraph } from "./SegmentNodeGraph";
+import { ConsoleSidebar } from "./ConsoleSidebar";
 import { InteractionsPanel } from "./InteractionsPanel";
 import { AgentsAtWorkPanel } from "./AgentsAtWorkPanel";
 import { LicensedAssetsPanel } from "./LicensedAssetsPanel";
@@ -91,35 +92,37 @@ export function SegmentView({ onLegacy }: { onLegacy?: () => void }) {
               <span className="h-px flex-1 bg-border" />
             </div>
 
-            <div className="rounded-[var(--radius)] border border-border bg-card/90 p-6">
-              <ErrorBoundary label={view}>
-                <ActFor segment={view} />
-              </ErrorBoundary>
-            </div>
+            <div className="flex gap-6">
+              <ConsoleSidebar segment={view} />
 
-            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <ErrorBoundary label="entity graph">
-                <SegmentNodeGraph segment={view} />
-              </ErrorBoundary>
-              <ErrorBoundary label="interactions">
-                <InteractionsPanel segment={view} />
-              </ErrorBoundary>
-            </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-6">
+                <div className="rounded-[var(--radius)] border border-border bg-card/90 p-6">
+                  <ErrorBoundary label={view}>
+                    <ActFor segment={view} />
+                  </ErrorBoundary>
+                </div>
 
-            {view === "firm" && (
-              <div className="mt-6">
-                <ErrorBoundary label="agents at work">
-                  <AgentsAtWorkPanel />
-                </ErrorBoundary>
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <ErrorBoundary label="entity graph">
+                    <SegmentNodeGraph segment={view} />
+                  </ErrorBoundary>
+                  <ErrorBoundary label="interactions">
+                    <InteractionsPanel segment={view} />
+                  </ErrorBoundary>
+                </div>
+
+                {view === "firm" && (
+                  <ErrorBoundary label="agents at work">
+                    <AgentsAtWorkPanel />
+                  </ErrorBoundary>
+                )}
+                {view === "agent" && (
+                  <ErrorBoundary label="licensed assets">
+                    <LicensedAssetsPanel />
+                  </ErrorBoundary>
+                )}
               </div>
-            )}
-            {view === "agent" && (
-              <div className="mt-6">
-                <ErrorBoundary label="licensed assets">
-                  <LicensedAssetsPanel />
-                </ErrorBoundary>
-              </div>
-            )}
+            </div>
           </section>
         </main>
 

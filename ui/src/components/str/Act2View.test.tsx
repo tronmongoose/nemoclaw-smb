@@ -87,9 +87,10 @@ describe("Act2View", () => {
 
   it("renders payouts, invoices, and portfolio from realistic fixtures", async () => {
     mockApiFetch.mockImplementation((p: string) => Promise.resolve(routeFetch(p)));
-    const { findByText } = renderAct2();
+    const { findByText, findAllByText } = renderAct2();
     expect(await findByText("Maria S.")).toBeInTheDocument();
-    expect(await findByText("Sweet Clementine by the Sea")).toBeInTheDocument();
+    // appears in both the invoice line item and the portfolio graph's entity list
+    expect((await findAllByText("Sweet Clementine by the Sea")).length).toBeGreaterThan(0);
     // portfolio monthly revenue formatted to USD
     expect(await findByText("$14,600")).toBeInTheDocument();
   });

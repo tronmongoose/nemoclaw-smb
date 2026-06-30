@@ -54,7 +54,7 @@ export function Act3View() {
       <Rule />
       <PricingBlock />
       <Rule />
-      <section className="flex flex-col gap-4">
+      <section id="section-marketplace" className="flex scroll-mt-24 flex-col gap-4">
         <SectionLabel>Agent marketplace</SectionLabel>
         <MppEarnCall />
         <MetricsBlock />
@@ -79,7 +79,7 @@ function AeoBlock() {
   const d = r?.dimension_scores;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section id="section-marketing" className="flex scroll-mt-24 flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <SectionLabel>Marketing readiness</SectionLabel>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -185,7 +185,7 @@ function GuestCommsBlock() {
   const res = data?.result;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section id="section-sales" className="flex scroll-mt-24 flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <SectionLabel>Sales upgrade</SectionLabel>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -257,7 +257,7 @@ function PricingBlock() {
   const rec = data?.recommendation;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section id="section-pricing" className="flex scroll-mt-24 flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <SectionLabel>Pricing upgrade</SectionLabel>
         <div className="flex flex-col items-end gap-1.5 shrink-0">

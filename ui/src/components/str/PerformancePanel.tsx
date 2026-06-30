@@ -47,7 +47,7 @@ export function PerformancePanel() {
   );
 
   return (
-    <section className="rounded-[var(--radius)] border border-border bg-card p-4">
+    <section id="section-performance" className="scroll-mt-24 rounded-[var(--radius)] border border-border bg-card p-4">
       <div className="mb-2 flex items-center gap-2">
         <SectionLabel>Portfolio performance</SectionLabel>
         <span className="h-1.5 w-1.5 rounded-full bg-primary animate-heartbeat" aria-label="live polling" />

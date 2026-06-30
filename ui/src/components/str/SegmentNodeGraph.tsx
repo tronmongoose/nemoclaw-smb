@@ -1,6 +1,6 @@
-/** SegmentNodeGraph: the entity graph for a portal, laid out as a clean left-to-right
- *  hierarchy (DAG) so labels never collide. Node size encodes kind; each label sits in a
- *  readable chip below its node. Colors follow the portal palette; an accessible text list
+/** SegmentNodeGraph: the entity graph for a portal, an Obsidian-style force-directed
+ *  node map. Node size encodes kind; each label sits in a readable chip below its node;
+ *  hovering a node brightens it. Colors follow the portal palette; an accessible text list
  *  mirrors the graph for screen readers. */
 
 import { useEffect, useRef, useState } from "react";
@@ -25,14 +25,16 @@ function labelFor(segment: StrSegment): string {
   return "Platform entity graph";
 }
 
-/** Relative node size by kind: roots largest, properties mid, leaves small. */
+/** Relative node weight by kind: roots largest, then owners/properties, leaves small. */
 function sizeFor(kind: string): number {
-  if (kind === "root" || kind === "firm") return 4.2;
-  if (kind === "property" || kind === "owner") return 2.4;
-  return 1.5;
+  if (kind === "root" || kind === "firm") return 6;
+  if (kind === "owner") return 4;
+  if (kind === "property") return 3.4;
+  if (kind === "crew") return 3;
+  return 2;
 }
 
-/** A hex color at the given alpha, for the label chip behind text. */
+/** A hex color at the given alpha, for chips and softened links. */
 function hexA(hex: string, a: number): string {
   const m = hex.replace("#", "");
   const r = parseInt(m.slice(0, 2), 16);
@@ -47,14 +49,15 @@ function truncate(s: string, n: number): string {
 
 interface Props {
   segment: StrSegment;
+  height?: number;
 }
 
-export function SegmentNodeGraph({ segment }: Props) {
+export function SegmentNodeGraph({ segment, height = 520 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fgRef = useRef<any>(null);
   const [width, setWidth] = useState(480);
-  const HEIGHT = 480;
+  const [hover, setHover] = useState<string | null>(null);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -67,13 +70,13 @@ export function SegmentNodeGraph({ segment }: Props) {
     return () => ro.disconnect();
   }, []);
 
-  // Spread same-level nodes so their labels have room: strong repulsion plus a longer
-  // link distance, re-applied (and reheated) whenever the graph changes.
+  // Organic force layout (no DAG): strong repulsion + a long link distance so the
+  // cluster spreads and labels breathe, re-heated whenever the graph changes.
   useEffect(() => {
     const fg = fgRef.current;
     if (!fg) return;
-    fg.d3Force("charge")?.strength(-360);
-    fg.d3Force("link")?.distance(46);
+    fg.d3Force("charge")?.strength(-520);
+    fg.d3Force("link")?.distance(70);
     fg.d3ReheatSimulation?.();
   }, [segment, width]);
 
@@ -92,22 +95,26 @@ export function SegmentNodeGraph({ segment }: Props) {
       <div
         ref={containerRef}
         className="overflow-hidden rounded-[var(--radius)] border border-border bg-card"
+        style={{ cursor: hover ? "pointer" : "default" }}
       >
         <ForceGraph2D
           ref={fgRef}
           width={width}
-          height={HEIGHT}
+          height={height}
           graphData={graphData as unknown as Parameters<typeof ForceGraph2D>[0]["graphData"]}
           backgroundColor={pal.canvas}
-          dagMode="lr"
-          dagLevelDistance={width < 540 ? 92 : 124}
-          nodeRelSize={5}
+          nodeRelSize={6}
           nodeVal={(n) => sizeFor((n as GraphNode).kind)}
-          nodeColor={(n) => pal.kinds[(n as GraphNode).kind] ?? pal.fallback}
-          linkColor={() => pal.link}
-          linkWidth={1.2}
-          cooldownTicks={120}
-          onEngineStop={() => fgRef.current?.zoomToFit(400, 46)}
+          nodeColor={(n) => {
+            const node = n as GraphNode;
+            if (hover === node.id) return pal.label;
+            return pal.kinds[node.kind] ?? pal.fallback;
+          }}
+          linkColor={() => hexA(pal.link, 0.5)}
+          linkWidth={1.1}
+          cooldownTicks={220}
+          onEngineStop={() => fgRef.current?.zoomToFit(500, 60)}
+          onNodeHover={(n) => setHover(n ? (n as GraphNode).id : null)}
           nodeCanvasObjectMode={() => "after"}
           nodeCanvasObject={(node, ctx, globalScale) => {
             const n = node as GraphNode & { x: number; y: number };
@@ -117,13 +124,13 @@ export function SegmentNodeGraph({ segment }: Props) {
             const w = ctx.measureText(label).width;
             const padX = 4;
             const h = fontSize + 4;
-            const r = 5 * Math.sqrt(sizeFor(n.kind)) + 5;
+            const r = 6 * Math.sqrt(sizeFor(n.kind)) + 5;
             const top = n.y + r;
             ctx.fillStyle = hexA(pal.canvas, 0.82);
             ctx.beginPath();
             ctx.roundRect(n.x - w / 2 - padX, top, w + padX * 2, h, 3);
             ctx.fill();
-            ctx.fillStyle = pal.label;
+            ctx.fillStyle = hover === n.id ? pal.label : pal.label;
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillText(label, n.x, top + 2);

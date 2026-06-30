@@ -62,7 +62,7 @@ export function StallQueuePanel() {
   const stalls = data?.stalls ?? [];
 
   return (
-    <section className="flex flex-col gap-3">
+    <section id="section-stalls" className="flex scroll-mt-24 flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
         <SectionLabel>Stalled handoffs</SectionLabel>
         {data && <StatusPill ok={stalls.length === 0} label={`${stalls.length} stuck`} />}

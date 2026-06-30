@@ -33,6 +33,7 @@ import { TurnoverLoopPanel } from "./TurnoverLoopPanel";
 import { StallQueuePanel } from "./StallQueuePanel";
 import { CleanerSchedulePanel } from "./CleanerSchedulePanel";
 import { PerformancePanel } from "./PerformancePanel";
+import { SegmentNodeGraph } from "./SegmentNodeGraph";
 
 const PROP = "prop-001";
 const MONTH = "2026-06";
@@ -240,10 +241,8 @@ function PortfolioBlock() {
     );
   }
 
-  const ownerEntries = Object.entries(data.properties_by_owner);
-
   return (
-    <section className="flex flex-col gap-4">
+    <section id="section-portfolio" className="flex flex-col gap-4 scroll-mt-24">
       <SectionLabel>Portfolio org map</SectionLabel>
 
       <div className="flex gap-8">
@@ -257,24 +256,7 @@ function PortfolioBlock() {
         />
       </div>
 
-      {ownerEntries.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <Rule label="owner map" />
-          {ownerEntries.map(([ownerId, props]) => (
-            <div key={ownerId} className="flex items-start gap-3 font-mono text-xs">
-              <span className="shrink-0 text-muted-foreground">{ownerId}</span>
-              <span className="text-foreground">{(props as string[]).join(", ")}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {ownerEntries.length === 0 && (
-        <div className="flex flex-col gap-1">
-          <KV label="property ids" value={data.property_ids.join(", ")} />
-          <KV label="owner ids" value={data.owner_ids.join(", ")} />
-        </div>
-      )}
+      <SegmentNodeGraph segment="firm" height={360} />
     </section>
   );
 }

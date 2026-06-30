@@ -54,7 +54,7 @@ export function TurnoverLoopPanel({ propertyId }: { propertyId?: string }) {
   const properties = data?.properties ?? [];
 
   return (
-    <section className="rounded-[var(--radius)] border border-border bg-card p-4">
+    <section id="section-turnover" className="scroll-mt-24 rounded-[var(--radius)] border border-border bg-card p-4">
       <div className="mb-3 flex items-center gap-2">
         <SectionLabel>Turnover pipeline</SectionLabel>
         <span className="h-1.5 w-1.5 rounded-full bg-primary animate-heartbeat" aria-label="live polling" />
