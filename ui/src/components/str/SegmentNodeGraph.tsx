@@ -3,7 +3,7 @@
  *  hovering a node brightens it. Colors follow the portal palette; an accessible text list
  *  mirrors the graph for screen readers. */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import type { StrSegment } from "../../types";
 import { SectionLabel } from "./shared";
@@ -78,9 +78,19 @@ export function SegmentNodeGraph({ segment, height = 520 }: Props) {
     fg.d3Force("charge")?.strength(-520);
     fg.d3Force("link")?.distance(70);
     fg.d3ReheatSimulation?.();
-  }, [segment, width]);
+    // Frame the graph to fill its box. onEngineStop can be missed (or fire before the
+    // layout spreads), leaving a small cluster in a big empty box; re-fit on a timer too.
+    const t1 = setTimeout(() => fg.zoomToFit?.(400, 28), 1000);
+    const t2 = setTimeout(() => fg.zoomToFit?.(400, 28), 2300);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [segment, width, height]);
 
-  const graphData: GraphData = builderFor(segment)();
+  // Stable graph data: rebuilding on every render resets the force simulation, leaving
+  // the nodes mid-drift (clustered, not framed). Memoize so the layout settles once.
+  const graphData: GraphData = useMemo(() => builderFor(segment)(), [segment]);
   const pal = graphPalette(segment);
 
   const byKind: Record<string, GraphNode[]> = {};
@@ -113,7 +123,7 @@ export function SegmentNodeGraph({ segment, height = 520 }: Props) {
           linkColor={() => hexA(pal.link, 0.5)}
           linkWidth={1.1}
           cooldownTicks={220}
-          onEngineStop={() => fgRef.current?.zoomToFit(500, 60)}
+          onEngineStop={() => fgRef.current?.zoomToFit(400, 28)}
           onNodeHover={(n) => setHover(n ? (n as GraphNode).id : null)}
           nodeCanvasObjectMode={() => "after"}
           nodeCanvasObject={(node, ctx, globalScale) => {

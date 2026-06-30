@@ -256,7 +256,7 @@ function PortfolioBlock() {
         />
       </div>
 
-      <SegmentNodeGraph segment="firm" height={360} />
+      <SegmentNodeGraph segment="firm" height={240} />
     </section>
   );
 }
