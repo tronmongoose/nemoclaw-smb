@@ -148,7 +148,7 @@ export function SegmentNodeGraph({ segment, height = 520 }: Props) {
         />
       </div>
 
-      <div aria-label={`${labelFor(segment)} entities`} className="flex flex-col gap-4">
+      <div aria-label={`${labelFor(segment)} entities`} className="sr-only">
         {Object.entries(byKind).map(([kind, nodes]) => (
           <div key={kind} className="flex flex-col gap-1">
             <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
