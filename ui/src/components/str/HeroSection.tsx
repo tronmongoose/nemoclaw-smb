@@ -15,19 +15,19 @@ import { centsToUSD } from "./shared";
 
 const COPY: Record<StrSegment, { kicker: string; title: string; dek: string; cta: string }> = {
   owner: {
-    kicker: "Portal 01 · Owner",
+    kicker: "Owner",
     title: "Your home, watched over.",
     dek: "One property. An agent reconciles every payout, catches every overcharge, and keeps the books. Owning a rental should feel like reading a receipt, not running a company.",
     cta: "Enter the owner console",
   },
   firm: {
-    kicker: "Portal 02 · Company",
+    kicker: "Company",
     title: "Every door. Every agent. In view.",
     dek: "Dozens of properties and a roster of agents working in parallel, pricing, messaging, reconciling, all visible as they work, all reporting to one operator.",
     cta: "Open the operations console",
   },
   agent: {
-    kicker: "Portal 03 · Swarm",
+    kicker: "Swarm",
     title: "License one agent. Upgrade every host.",
     dek: "One agent, sold to every property manager. It upgrades their marketing, sales, and pricing, and earns its keep in an agent marketplace, governed by C1.",
     cta: "Enter the command center",

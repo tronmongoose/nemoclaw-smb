@@ -92,7 +92,7 @@ def run_act_1() -> None:
     shows the C1 NHI, demonstrates REQUIRE_APPROVAL holding the corrected $840,
     simulates approval, and shows the signed payment plus audit chain tail.
     """
-    print_act_header("ACT 1: I'M A PROPERTY OWNER")
+    print_act_header("I'M A PROPERTY OWNER")
     pause_for_narration(f"Model routing: heavy tasks -> {NEMOTRON_ULTRA}")
     #COMPLETION_DRIVE: reconcile_month runs the full Act I flow including demo auto-approval
     report = reconcile_month(_DEMO_PROPERTY, _DEMO_MONTH)
@@ -136,7 +136,7 @@ def run_act_2() -> None:
     MCC 7349/5251, EOD expiry), runs month-end payouts to 3 crew, and shows
     per-owner UBP invoices.
     """
-    print_act_header("ACT 2: I'M THE MANAGEMENT COMPANY")
+    print_act_header("I'M THE MANAGEMENT COMPANY")
     pause_for_narration(f"Model routing: small/format tasks -> {HERMES_SMALL}")
     card = handle_checkout_event(_DEMO_PROPERTY, _DEMO_CHECKOUT_DATE)
     _show_act2_checkout(card)
@@ -234,7 +234,7 @@ def run_act_3() -> None:
     (51/100 breakdown, CRITICAL dog-only conflict, optimized opening, JSON-LD
     schema), and shows platform earn metrics plus mpp_earn audit events.
     """
-    print_act_header("ACT 3: I'M THE PLATFORM")
+    print_act_header("I'M THE PLATFORM")
     reset_metrics()
     # Pricing roundtrip: 402 -> 200
     pause_for_narration("Calling POST /price without a token to show the 402 gate...")

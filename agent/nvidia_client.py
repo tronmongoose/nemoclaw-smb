@@ -12,7 +12,7 @@ import re
 import httpx
 
 DEFAULT_MODEL: str = os.environ.get(
-    "NEMOTRON_MODEL", "nvidia/nemotron-3-ultra-550b-a55b"
+    "NEMOTRON_MODEL", "nvidia/nemotron-ultra-253b-v1"
 )
 
 _THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)

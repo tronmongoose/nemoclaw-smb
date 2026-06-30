@@ -23,7 +23,7 @@ import os
 # hermes_client.py so routing table, clients, and env vars stay in sync.
 # Override via NEMOTRON_MODEL / HERMES_MODEL in the environment.
 NEMOTRON_ULTRA: str = os.environ.get(
-    "NEMOTRON_MODEL", "nvidia/nemotron-3-ultra-550b-a55b"
+    "NEMOTRON_MODEL", "nvidia/nemotron-ultra-253b-v1"
 )
 HERMES_SMALL: str = os.environ.get(
     "HERMES_MODEL", "nvidia/nemotron-3-super-120b-a12b"
@@ -52,6 +52,11 @@ MODEL_ROUTING: dict[str, str] = {
     "expense_categorize": HERMES_SMALL,
     # Nous Research Hermes tier: guest comms intent triage + sales reply drafting
     "guest_comms": HERMES_NOUS,
+    # Nous Research Hermes tier: turnover coordination — nudge the stalled handoff
+    "turnover_coordination": HERMES_NOUS,
+    # Nous Research Hermes tier: portfolio performance "why" + cleaner reassign/schedule
+    "performance_analysis": HERMES_NOUS,
+    "cleaner_scheduling": HERMES_NOUS,
 }
 
 _BANNED_ORIGIN_SUBSTRINGS: tuple[str, ...] = (

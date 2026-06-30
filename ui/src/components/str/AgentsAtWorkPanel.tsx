@@ -11,6 +11,9 @@ import { cn } from "../../lib/utils";
 // ----- worker classification -----
 
 type WorkerName =
+  | "Coordination agent"
+  | "Performance agent"
+  | "Scheduling agent"
   | "Cleaner-card agent"
   | "Payout agent"
   | "Invoicing agent"
@@ -20,6 +23,9 @@ type WorkerName =
 /** Map a single entry to its worker bucket. */
 function classifyEntry(e: StrInteraction): WorkerName {
   const op = e.op.toLowerCase();
+  if (op.includes("turnover") || op.includes("nudge")) return "Coordination agent";
+  if (op.includes("schedul")) return "Scheduling agent";
+  if (op.includes("performance")) return "Performance agent";
   if (op.includes("card issue") || op.includes("issuing")) return "Cleaner-card agent";
   if (op.includes("payout") || op.includes("connect") || op.includes("global payouts"))
     return "Payout agent";

@@ -29,6 +29,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TurnoverLoopPanel } from "./TurnoverLoopPanel";
+import { StallQueuePanel } from "./StallQueuePanel";
+import { CleanerSchedulePanel } from "./CleanerSchedulePanel";
+import { PerformancePanel } from "./PerformancePanel";
 
 const PROP = "prop-001";
 const MONTH = "2026-06";
@@ -39,13 +43,19 @@ export function Act2View() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-1">
         <h2 className="font-serif text-2xl font-semibold text-foreground">
-          Act II - The Management Company
+          The Management Company
         </h2>
         <p className="font-mono text-xs text-muted-foreground">
-          Every checkout triggers a governed payout.
+          Hermes connects the team: turnovers, cleaners, and portfolio performance.
         </p>
       </header>
 
+      <TurnoverLoopPanel />
+      <Rule />
+      <StallQueuePanel />
+      <Rule />
+      <CleanerSchedulePanel />
+      <Rule />
       <CheckoutBlock />
       <Rule />
       <PayoutsTable />
@@ -53,6 +63,8 @@ export function Act2View() {
       <InvoicesBlock />
       <Rule />
       <PortfolioBlock />
+      <Rule />
+      <PerformancePanel />
     </div>
   );
 }

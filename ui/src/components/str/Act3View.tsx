@@ -38,7 +38,7 @@ export function Act3View() {
     <div className="flex flex-col gap-8">
       <div>
         <h2 className="font-serif text-2xl font-semibold text-foreground mb-1">
-          Act III - The Swarm
+          The Swarm
         </h2>
         <p className="font-mono text-xs text-muted-foreground max-w-prose leading-relaxed">
           One agent, licensed to every property manager. It upgrades their

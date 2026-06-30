@@ -29,7 +29,6 @@ describe("StrStory", () => {
   it("advances to Act I when Begin is clicked", async () => {
     const { findByText, getByText } = renderStory();
     await userEvent.click(getByText("Begin"));
-    expect(await findByText("Act I of III")).toBeInTheDocument();
     expect(await findByText("The Owner")).toBeInTheDocument();
   });
 });

@@ -19,6 +19,7 @@ import {
 } from "./shared";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { TurnoverLoopPanel } from "./TurnoverLoopPanel";
 import {
   Table,
   TableBody,
@@ -58,12 +59,16 @@ export function Act1View() {
     <article className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h2 className="font-serif text-2xl font-semibold text-foreground">
-          Act I - The Owner
+          The Owner
         </h2>
         <p className="font-mono text-xs text-muted-foreground">
           Governed fee reconciliation for Sweet Clementine, {data.month}.
         </p>
       </header>
+
+      <TurnoverLoopPanel propertyId={PROP} />
+
+      <Rule />
 
       <HeroStat report={data} />
 

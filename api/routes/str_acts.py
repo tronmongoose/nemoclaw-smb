@@ -30,24 +30,37 @@ from fastapi import APIRouter, Header, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from acts.platform_agent import get_metrics, serve_aeo_call, serve_guest_comms_call, serve_pricing_call
+from acts.platform_agent import (
+    get_metrics,
+    serve_aeo_call,
+    serve_guest_comms_call,
+    serve_pricing_call,
+)
 from acts.property_mgmt_agent import (
+    analyze_performance,
     calculate_ubp_invoices,
+    clean_stalls,
+    detect_stalls,
     get_portfolio_summary,
+    get_turnover,
     handle_checkout_event,
     run_month_end_payouts,
 )
 from acts.str_owner_agent import reconcile_month
 from agent.audit_log import verify_chain
-from agent.interactions_log import read_interactions
+from agent.interactions_log import append_interaction, read_interactions
 from agent.interactions_log import verify_chain as verify_interactions
 from api.seed import DEMO_AUDIT_PATH, DEMO_INTERACTIONS_PATH
+from payments.issuing import issue_cleaner_card
 from payments.mpp_server import (
     AEO_AUDIT_ENDPOINT_CENTS,
     GUEST_COMMS_ENDPOINT_CENTS,
     _extract_token,
     validate_mpp_token,
 )
+from skills.cleaner_scheduling_skill import draft_cleaner_schedule
+from skills.coordination_skill import draft_coordination_nudge
+from skills.performance_analysis_skill import summarize_performance
 
 router = APIRouter(prefix="/str", tags=["str-acts"])
 
@@ -114,6 +127,12 @@ class GuestCommsBody(BaseModel):
     guest_context: str
     property_id: str
     inquiry_type: str = "general"
+
+
+class NudgeBody(BaseModel):
+    """Request body for POST /str/stalls/nudge."""
+
+    handoff_id: str
 
 
 # ---------------------------------------------------------------------------
@@ -376,4 +395,171 @@ def str_interactions(
         "count": len(entries),
         "entries": entries,
         "verify": {"ok": ok, "message": message},
+    }
+
+
+# ---------------------------------------------------------------------------
+# Turnover coordination: the loop, the stall queue, and the Hermes nudge
+# ---------------------------------------------------------------------------
+
+# Handoff ids whose coordination interaction has already been logged this process,
+# so polling /str/stalls surfaces the coordination agent once without flooding the feed.
+# GLOBAL-STATE: process-local dedupe for the demo interactions feed
+_NUDGE_LOGGED: set = set()
+
+
+def _log_coordination(handoff: dict, prov: dict) -> None:
+    """Append one Nous-Hermes coordination interaction for the agent-at-work feed."""
+    append_interaction(
+        sponsor="Nous Research",
+        op=f"turnover: nudge drafted ({handoff['from_actor']} -> {handoff['to_actor']})",
+        segment="firm",
+        status="ok",
+        model=prov.get("model"),
+        latency_ms=prov.get("latency_ms"),
+        mode=prov.get("mode"),
+        metadata={"handoff_id": handoff["handoff_id"], "property_id": handoff["property_id"]},
+        path=_INTERACTIONS_PATH_STR,
+    )
+
+
+@router.get("/turnover")
+def str_turnover(
+    property_id: Optional[str] = Query(default=None),  # noqa: UP045 (3.9 route sig)
+    live: bool = Query(default=False),  # noqa: ARG001 (uniform live param; state is deterministic)
+) -> dict:
+    """Return turnover-loop state (checkout -> clean -> inspect -> ready) per property."""
+    events = get_turnover(property_id)
+    return {"properties": [asdict(e) for e in events]}
+
+
+@router.get("/stalls")
+def str_stalls(live: bool = Query(default=False)) -> dict:
+    """Return blocked handoffs, each with a Hermes-drafted nudge + reasoning provenance.
+
+    `live` threads to draft_coordination_nudge so a real Hermes call fires per stall
+    when a Nous key is present; otherwise a deterministic demo nudge is returned. The
+    coordination interaction is logged once per handoff so the agent floor sees it.
+    """
+    stalls = detect_stalls()
+    out: list = []
+    for h in stalls:
+        nudge = draft_coordination_nudge(h, live=live)
+        prov = nudge["reasoning_provenance"]
+        if h["handoff_id"] not in _NUDGE_LOGGED:
+            _log_coordination(h, prov)
+            _NUDGE_LOGGED.add(h["handoff_id"])
+        out.append({**h, "nudge": nudge, "reasoning_provenance": prov})
+    return {"count": len(out), "stalls": out}
+
+
+@router.post("/stalls/nudge")
+def str_stalls_nudge(body: NudgeBody, live: bool = Query(default=False)) -> dict:
+    """Re-draft the nudge for one stalled handoff and log the coordination action.
+
+    Demo-safe: drafts and logs the nudge for the agent floor; no external message
+    is sent. Returns the handoff plus the freshly drafted nudge.
+    """
+    match = next((h for h in detect_stalls() if h["handoff_id"] == body.handoff_id), None)
+    if match is None:
+        return {"ok": False, "reason": f"unknown handoff {body.handoff_id!r}"}
+    nudge = draft_coordination_nudge(match, live=live)
+    prov = nudge["reasoning_provenance"]
+    _log_coordination(match, prov)
+    return {"ok": True, **match, "nudge": nudge, "reasoning_provenance": prov}
+
+
+# ---------------------------------------------------------------------------
+# Performance flagging + cleaner scheduling (Hermes connective tissue)
+# ---------------------------------------------------------------------------
+
+# GLOBAL-STATE: process-local dedupe so polling surfaces each agent once, not per poll.
+_PERF_LOGGED: set = set()
+_SCHED_LOGGED: set = set()
+
+
+def _log_firm_hermes(op: str, prov: dict, metadata: dict) -> None:
+    """Append one Nous-Hermes firm interaction for the agent-at-work feed."""
+    append_interaction(
+        sponsor="Nous Research",
+        op=op,
+        segment="firm",
+        status="ok",
+        model=prov.get("model"),
+        latency_ms=prov.get("latency_ms"),
+        mode=prov.get("mode"),
+        metadata=metadata,
+        path=_INTERACTIONS_PATH_STR,
+    )
+
+
+@router.get("/performance")
+def str_performance(live: bool = Query(default=False)) -> dict:
+    """Rank properties vs the portfolio average with a Hermes-written 'why' per property."""
+    out: list = []
+    for perf in analyze_performance():
+        analysis = summarize_performance(perf, live=live)
+        prov = analysis["reasoning_provenance"]
+        if perf["property_id"] not in _PERF_LOGGED:
+            _log_firm_hermes(
+                f"performance: {perf['property_name']} {perf['status']}",
+                prov, {"property_id": perf["property_id"]},
+            )
+            _PERF_LOGGED.add(perf["property_id"])
+        out.append({**perf, "analysis": analysis, "reasoning_provenance": prov})
+    return {"count": len(out), "properties": out}
+
+
+@router.get("/scheduling")
+def str_scheduling(live: bool = Query(default=False)) -> dict:
+    """Clean-stage stalls with crew availability + a Hermes reassign/schedule draft."""
+    out: list = []
+    for cs in clean_stalls():
+        schedule = draft_cleaner_schedule(cs, live=live)
+        prov = schedule["reasoning_provenance"]
+        if cs["handoff_id"] not in _SCHED_LOGGED:
+            _log_firm_hermes(
+                f"scheduling: reassign {cs['property_name']}",
+                prov, {"handoff_id": cs["handoff_id"]},
+            )
+            _SCHED_LOGGED.add(cs["handoff_id"])
+        out.append({**cs, "schedule": schedule, "reasoning_provenance": prov})
+    return {"count": len(out), "stalls": out}
+
+
+@router.post("/scheduling/assign")
+def str_scheduling_assign(body: NudgeBody, live: bool = Query(default=False)) -> dict:
+    """Reassign a stalled cleaning to the free cleaner and pre-authorize their card.
+
+    Drafts the schedule, then issues a single-use cleaner card (demo-mocked) to the
+    suggested free cleaner. This is the 'pay + schedule' tie. No external send.
+    """
+    match = next((cs for cs in clean_stalls() if cs["handoff_id"] == body.handoff_id), None)
+    if match is None:
+        return {"ok": False, "reason": f"unknown handoff {body.handoff_id!r}"}
+    suggested = match.get("suggested_cleaner")
+    if not suggested:
+        return {"ok": False, "reason": "no free cleaner available to reassign"}
+
+    schedule = draft_cleaner_schedule(match, live=live)
+    _log_firm_hermes(
+        f"scheduling: reassign {match['property_name']}",
+        schedule["reasoning_provenance"], {"handoff_id": match["handoff_id"]},
+    )
+    card = issue_cleaner_card(
+        job_id=f"job-{match['property_id']}-reassign",
+        property_id=match["property_id"],
+        cleaner_id=suggested["id"],
+    )
+    append_interaction(
+        sponsor="Stripe", op="scheduling: cleaner card pre-authorized", segment="firm",
+        status="ok", metadata={"handoff_id": match["handoff_id"], "cleaner": suggested["name"]},
+        path=_INTERACTIONS_PATH_STR,
+    )
+    return {
+        "ok": True,
+        "handoff_id": match["handoff_id"],
+        "cleaner": suggested["name"],
+        "card_token": card.card_token,
+        "schedule": schedule,
     }

@@ -6,10 +6,10 @@ import { cn } from "../../lib/utils";
 import { StrSegment } from "../../types";
 import { LiveToggle } from "./LiveToggle";
 
-const TABS: { id: StrSegment; n: string; label: string }[] = [
-  { id: "owner", n: "01", label: "Owner" },
-  { id: "firm", n: "02", label: "Company" },
-  { id: "agent", n: "03", label: "Swarm" },
+const TABS: { id: StrSegment; label: string }[] = [
+  { id: "owner", label: "Owner" },
+  { id: "firm", label: "Company" },
+  { id: "agent", label: "Swarm" },
 ];
 
 function Tab({
@@ -17,7 +17,7 @@ function Tab({
   active,
   onChange,
 }: {
-  tab: { id: StrSegment; n: string; label: string };
+  tab: { id: StrSegment; label: string };
   active: boolean;
   onChange: (s: StrSegment) => void;
 }) {
@@ -33,7 +33,7 @@ function Tab({
           active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
         )}
       >
-        <span className="opacity-60">{tab.n}</span>&nbsp;{tab.label}
+        {tab.label}
       </span>
       <span
         className={cn(

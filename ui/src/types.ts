@@ -196,7 +196,127 @@ export interface ReasoningProvenance {
   mode: "demo" | "live";
   model: string;
   latency_ms: number;
-  source: "nemotron" | "cached";
+  source: "nemotron" | "cached" | "hermes";
+}
+
+// Turnover coordination: the loop, the stall queue, and the Hermes nudge
+
+export interface StrTurnoverStageRow {
+  stage: string;
+  role: string;
+  status: "done" | "in_progress" | "waiting" | "blocked";
+  actor: string;
+  hours_in_stage: number;
+}
+
+export interface StrTurnoverEvent {
+  property_id: string;
+  property_name: string;
+  current_stage: string;
+  overall_status: "ready" | "in_progress" | "stalled";
+  stages: StrTurnoverStageRow[];
+}
+
+export interface StrTurnoverResponse {
+  properties: StrTurnoverEvent[];
+}
+
+export interface StrCoordinationNudge {
+  stalled_actor: string;
+  nudge_message: string;
+  next_action: string;
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrStalledHandoff {
+  handoff_id: string;
+  property_id: string;
+  property_name: string;
+  stage: string;
+  from_actor: string;
+  to_actor: string;
+  assigned_to: string;
+  reason: string;
+  hours_stalled: number;
+  nudge: StrCoordinationNudge;
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrStallQueueResponse {
+  count: number;
+  stalls: StrStalledHandoff[];
+}
+
+// Performance flagging (Hermes "why")
+
+export interface StrPerformanceAnalysis {
+  verdict: "over" | "under" | "on_track";
+  summary: string;
+  drivers: string[];
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrPropertyPerformance {
+  property_id: string;
+  property_name: string;
+  revenue_cents: number;
+  portfolio_avg_cents: number;
+  pct_vs_avg: number;
+  status: "over" | "under" | "on_track";
+  occupancy: number;
+  analysis: StrPerformanceAnalysis;
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrPerformanceResponse {
+  count: number;
+  properties: StrPropertyPerformance[];
+}
+
+// Cleaner scheduling (Hermes reassign + card pre-auth)
+
+export interface StrCleanerCandidate {
+  id: string;
+  name: string;
+  free_from: string | null;
+  available: boolean;
+}
+
+export interface StrCleanerScheduleDraft {
+  suggested_cleaner: string;
+  scheduled_start: string;
+  reason: string;
+  card_action: string;
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrCleanerStall {
+  handoff_id: string;
+  property_id: string;
+  property_name: string;
+  stage: string;
+  assigned_to: string;
+  hours_stalled: number;
+  reason: string;
+  assigned_cleaner: StrCleanerCandidate | null;
+  suggested_cleaner: StrCleanerCandidate | null;
+  crew_availability: StrCleanerCandidate[];
+  schedule: StrCleanerScheduleDraft;
+  reasoning_provenance: ReasoningProvenance;
+}
+
+export interface StrSchedulingResponse {
+  count: number;
+  stalls: StrCleanerStall[];
+}
+
+export interface StrSchedulingAssignResult {
+  ok: boolean;
+  reason?: string;
+  handoff_id?: string;
+  cleaner?: string;
+  card_token?: string;
+  schedule?: StrCleanerScheduleDraft;
 }
 
 // Act I: owner-fee reconciliation

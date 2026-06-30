@@ -31,7 +31,6 @@ const STEPS: Step[] = [
   },
   {
     key: "owner",
-    kicker: "Act I of III",
     title: "The Owner",
     dek:
       "You are the owner. Your management company sends a monthly statement. The agent reads the ledger before you do, and catches a fee that does not match the contract.",
@@ -39,7 +38,6 @@ const STEPS: Step[] = [
   },
   {
     key: "management",
-    kicker: "Act II of III",
     title: "The Management Company",
     dek:
       "Now you run the company. Five properties, three owners, a cleaning crew. Every checkout issues a single-use card under a scoped identity, then settles at month end.",
@@ -47,7 +45,6 @@ const STEPS: Step[] = [
   },
   {
     key: "platform",
-    kicker: "Act III of III",
     title: "The Platform",
     dek:
       "Now you are the platform. Other AI agents pay you per call for a price and for an audit of how machine-readable a listing is. The audit is the product.",
