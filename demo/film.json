@@ -1,0 +1,66 @@
+{
+  "settings": {
+    "baseUrl": "http://localhost:5174",
+    "apiBase": "http://localhost:8010",
+    "viewport": { "width": 1440, "height": 900 },
+    "voice": "af_heart",
+    "fps": 30,
+    "padSeconds": 0.55,
+    "fadeSeconds": 0.35,
+    "out": "demo/nemoclaw-pm-narrated.mp4"
+  },
+
+  "populate": [
+    { "method": "POST", "path": "/str/act3/price", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "property_id": "prop-001", "current_rate": 200, "occupancy_rate": 0.75, "season": "peak", "day_of_week": "sat" } },
+    { "method": "POST", "path": "/str/act3/price", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "property_id": "prop-002", "current_rate": 200, "occupancy_rate": 0.75, "season": "peak", "day_of_week": "sat" } },
+    { "method": "POST", "path": "/str/act3/price", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "property_id": "prop-003", "current_rate": 200, "occupancy_rate": 0.75, "season": "peak", "day_of_week": "sat" } },
+    { "method": "POST", "path": "/str/act3/price", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "property_id": "prop-004", "current_rate": 200, "occupancy_rate": 0.75, "season": "peak", "day_of_week": "sat" } },
+    { "method": "POST", "path": "/str/act3/price", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "property_id": "prop-005", "current_rate": 200, "occupancy_rate": 0.75, "season": "peak", "day_of_week": "sat" } },
+    { "method": "POST", "path": "/str/act3/aeo-audit", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "listing_text": "Beach cottage in Oceanside, dog friendly, walk to the strand.", "amenities_list": ["wifi", "parking"], "existing_schema": {}, "listing_url": "https://example.com/l" }, "repeat": 8 },
+    { "method": "POST", "path": "/str/act3/guest-comms", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "guest_context": "Is the place dog friendly and is early check-in possible?", "property_id": "prop-001", "inquiry_type": "general" } },
+    { "method": "POST", "path": "/str/act3/guest-comms", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "guest_context": "Is the place dog friendly and is early check-in possible?", "property_id": "prop-002", "inquiry_type": "general" } },
+    { "method": "POST", "path": "/str/act3/guest-comms", "headers": { "Authorization": "Bearer mpp_tok_demo" }, "body": { "guest_context": "Is the place dog friendly and is early check-in possible?", "property_id": "prop-003", "inquiry_type": "general" } }
+  ],
+
+  "cards": {
+    "title": { "title": "NemoClaw", "subtitle": "Hermes coordination for property managers", "footer": "turnover · scheduling · performance", "narration": "NemoClaw. An A.I. operations layer for short-term rental managers, with Nous Hermes handling the coordination." },
+    "end": { "title": "One property manager. Many agents.", "subtitle": "Hermes connects the work", "footer": "Nous Hermes 4 · governed · audited", "narration": "One property manager. Many agents. Hermes connects the work." },
+    "colors": { "bg": "#0e1116", "fg": "#ffffff", "accent": "#9fb3c8", "muted": "#5b6b7d" }
+  },
+
+  "scenes": [
+    { "key": "turnover", "tab": "Company", "cta": "operations console", "scrollTo": "Turnover pipeline",
+      "caption": "Turnover loop: checkout to ready. Sweet Clementine is stalled at inspection.",
+      "narration": "Every property runs a turnover loop. Checkout, clean, inspect, ready to book. Here the agent has flagged Sweet Clementine as stalled. The inspection never started." },
+    { "key": "stall", "scrollTo": "Stalled handoffs",
+      "caption": "Hermes drafts the nudge to whoever is blocking the handoff.",
+      "narration": "When a handoff stalls, Hermes drafts the nudge to the person who is blocking it. This is a live model call, not a script." },
+    { "key": "schedule", "scrollTo": "Cleaner scheduling", "scrollAfter": "Cleaner scheduling",
+      "clicks": [ { "name": "Assign + issue card", "waitFor": "CARD PRE-AUTHORIZED" } ],
+      "caption": "Hermes reassigns the stalled clean to a free cleaner and pre-authorizes the card.",
+      "narration": "For a stuck cleaning, Hermes finds a free cleaner, proposes a time, and with one click reassigns the job and pre-authorizes a single-use card." },
+    { "key": "performance", "scrollTo": "Portfolio performance",
+      "caption": "Over- and under-performers flagged, with a Hermes explanation of why.",
+      "narration": "Across the portfolio, it flags which properties are over or under performing, and Hermes explains why in plain language." },
+    { "key": "portfolio", "scrollTo": "Portfolio org map", "settle": 2600,
+      "caption": "The whole book of business as a live graph: firm, owners, properties, crew.",
+      "narration": "The whole book of business is a live graph. The firm, its owners, every property, and the cleaning crew, all connected." },
+    { "key": "agents", "scrollTo": "Agents at work",
+      "caption": "Every action runs as a named, audited agent.",
+      "narration": "Every action runs as a named agent on an audited floor. Coordination, scheduling, performance, and payments." },
+    { "key": "owner", "tab": "Owner", "cta": "owner console", "scrollTo": "Turnover pipeline",
+      "caption": "The owner sees the same loop for their one property.",
+      "narration": "The owner sees the same turnover loop for their property, so nothing falls through the cracks." },
+    { "key": "swarm_caps", "tab": "Swarm", "cta": "command center", "scrollAfter": "Marketing readiness",
+      "clicks": [
+        { "name": "Run marketing audit", "waitFor": "marketing readiness score" },
+        { "name": "Draft guest reply", "waitFor": "intent" },
+        { "name": "Run pricing", "waitFor": "recommended rate" }
+      ],
+      "caption": "The agent sells marketing, sales, and pricing to other agents, paid per call.",
+      "narration": "The same agent sells its skills to other agents. Marketing audits, guest replies, and pricing, each one paid for per call." },
+    { "key": "swarm_market", "scrollTo": "Marketplace earnings",
+      "caption": "Every call settles over HTTP 402. Live marketplace earnings.",
+      "narration": "Every call settles over the HTTP four oh two payment standard. This is the live marketplace, where agents earn from other agents." }
+  ]
+}

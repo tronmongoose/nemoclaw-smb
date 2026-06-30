@@ -1,5 +1,12 @@
 # filmkit — narrated demo film maker
 
+> **Canonical tool:** the config-driven `demo-film` user-level skill
+> (`~/.claude/skills/demo-film/`). The film is now declared in **`demo/film.json`** and
+> rebuilt with:
+> `bash ~/.claude/skills/demo-film/scripts/run.sh demo/film.json demo/nemoclaw-pm-narrated.mp4`
+> (run from the repo root, with the API on :8010 and the UI on :5174). The scripts below are
+> the original hardcoded version, kept as a worked reference.
+
 Turns the running STR web app into a short narrated, captioned MP4. Used to produce
 `demo/nemoclaw-pm-narrated.mp4`. Fully local: no OpenAI, no cloud TTS, no browser download.
 
