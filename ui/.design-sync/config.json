@@ -32,5 +32,13 @@
     "ElapsedCounter": "src/components/str/shared.tsx",
     "ProvenanceBadge": "src/components/str/ProvenanceBadge.tsx",
     "LiveToggle": "src/components/str/LiveToggle.tsx"
+  },
+  "overrides": {
+    "Card": { "cardMode": "column" },
+    "Separator": { "cardMode": "column" },
+    "Skeleton": { "cardMode": "column" },
+    "Table": { "cardMode": "column" },
+    "Tabs": { "cardMode": "column" },
+    "Dialog": { "cardMode": "single", "primaryStory": "PayoutApprovalDialog" }
   }
 }

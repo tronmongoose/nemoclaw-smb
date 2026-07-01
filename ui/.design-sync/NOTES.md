@@ -19,6 +19,11 @@
   fontFamily). The real primary families ("Fraunces Variable", "JetBrains Mono Variable")
   DO ship, so every design renders in the intended editorial fonts. Accepted, not resolved.
 - `[RENDER_THIN]` on any unauthored component is expected (the typographic floor card).
+- `[GRID_OVERFLOW]` on Card, Separator, Skeleton, Table, Tabs, Dialog: resolved 2026-06-30
+  via `cfg.overrides` (column cards for the wide ones; single-card +
+  `primaryStory: PayoutApprovalDialog` for Dialog, which portals/escapes its cell). These
+  stories are intentionally wider than a grid cell. Expected — the overrides are the fix,
+  not a regression. If a future re-sync re-flags one of these, the override was dropped.
 
 ## Re-sync risks
 - Regenerate `.design-sync/styles.css` before building, or the shipped CSS goes stale.
@@ -26,3 +31,11 @@
   the app does not change the DS until the barrel + `componentSrcMap` are updated.
 - Props come from the component sources (no published `.d.ts` tree); complex prop types may
   need `cfg.dtsPropsFor` overrides if the agent's API contract looks thin.
+- Converter `keyRecipe` bumped 6 -> 7 on the 2026-06-30 re-sync (refreshed `.ds-sync/`
+  scripts). A recipe change voids the fast source-key skip and forces full render-hash
+  re-verification of all 20 components. Expected on any scripts upgrade — not a real
+  source change. The fresh anchor uploaded this run carries `keyRecipe 7`, so the next
+  re-sync on the same scripts skips unchanged components again.
+- Playwright/chromium were not cached; install needs the host network (the Bash sandbox
+  silently no-ops the download). Install with `dangerouslyDisableSandbox` / outside the
+  sandbox. Playwright 1.61.1 pins chromium build 1228.
